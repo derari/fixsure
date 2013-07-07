@@ -1,0 +1,76 @@
+// generated code
+package org.cthul.fixsure.data;
+
+import org.cthul.fixsure.fluents.FlGenerator;
+import org.cthul.fixsure.fluents.FlSequence;
+import org.cthul.fixsure.generators.value.ItemsGenerator;
+
+/**
+ *
+ */
+public class English {
+
+<@sorted_unique_random_array "maleFirstNames" />
+<@sorted_unique_random_array "femaleFirstNames" />
+<@sorted_unique_random_array "firstNames" />
+<@sorted_unique_random_array "lastNames" />
+
+<@data_string_array "maleFirstNames", "en/FirstNamesMale.txt" />
+<@data_string_array "femaleFirstNames", "en/FirstNamesFemale.txt" />
+<@data_string_array_src "firstNames">
+merge(femaleFirstNamesArray(), maleFirstNamesArray())</@>
+<@data_string_array "lastNames", "en/LastNames.txt" />
+
+    protected static String[] merge(final String[] a1, final String[] a2) {
+        int len = a1.length + a2.length;
+        final String[] result = new String[len];
+        int i1 = 0, i2 = 0;
+        String s1 = a1[0], s2 = a2[0];
+        for (int i = 0; i < len; i++) {
+            int c = i1 >= a1.length ? 1 :
+                    (i2 >= a2.length ? -1 : 0);
+            if (c == 0) c = s1.compareTo(s2);
+            if (c <= 0) {
+                result[i] = s1;
+                i1++;
+                if (i1 < a1.length) s1 = a1[i1];
+            } else {
+                result[i] = s2;
+                i2++;
+                if (i2 < a2.length) s2 = a2[i2];
+            }
+        }
+        return result;
+    }
+
+}
+<#macro thisclass>
+English.class</#macro>
+<#macro data_string_array name file>
+<@data_string_array_src name>
+DataLoader.readLines(<@thisclass/>, "${file}")</@></#macro>
+<#macro data_string_array_src name>
+    private static String[] DATA_${name} = null;
+
+    private static String[] ${name}Array() {
+        if (DATA_${name} == null) {
+            DATA_${name} = <#nested/>;
+        }
+        return DATA_${name};
+    }
+
+</#macro>
+<#macro sorted_unique_random_array name>
+    public static FlSequence<String> sorted${name?cap_first}() {
+        return ItemsGenerator.from(${name?uncap_first}Array());
+    }
+    
+    public static FlGenerator<String> ${name?uncap_first}() {
+        return sorted${name?cap_first}().random();
+    }
+    
+    public static FlGenerator<String> unique${name?cap_first}() {
+        return sorted${name?cap_first}().shuffle();
+    }
+
+</#macro>

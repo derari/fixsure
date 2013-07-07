@@ -1,0 +1,39 @@
+<matchers>
+
+    <factory class="org.cthul.fixsure.distributions.UniformDistribution"/>
+    
+    <factory class="org.cthul.fixsure.fetchers.EagerFetcher"/>
+    <factory class="org.cthul.fixsure.fetchers.LazyFetcher"/>
+    
+    <factory class="org.cthul.fixsure.fluents.FluentDistributionWrapper"/>
+    <factory class="org.cthul.fixsure.fluents.FluentGeneratorWrapper"/>
+    
+    <factory class="org.cthul.fixsure.generators.composite.ConvertingGenerator"/>
+    <factory class="org.cthul.fixsure.generators.composite.GeneratorQueue"/>
+    <factory class="org.cthul.fixsure.generators.composite.MergingGenerator"/>
+    <factory class="org.cthul.fixsure.generators.composite.MixingGenerator"/>
+    <factory class="org.cthul.fixsure.generators.composite.RandomizedGenerator"/>
+    <factory class="org.cthul.fixsure.generators.composite.RepeatingGenerator"/>
+    <factory class="org.cthul.fixsure.generators.composite.RoundRobinGenerator"/>
+    <factory class="org.cthul.fixsure.generators.composite.RoundRobinSequence"/>
+    <factory class="org.cthul.fixsure.generators.composite.ShufflingGenerator"/>
+    <factory class="org.cthul.fixsure.generators.composite.UniqueGenerator"/>
+    
+    <factory class="org.cthul.fixsure.generators.primitive.BooleansGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitive.CharactersGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitive.IntegersGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitive.StringsGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitive.TestValuesGenerator"/>
+    
+    <factory class="org.cthul.fixsure.generators.reflection.InvocationGenerator"/>
+    <factory class="org.cthul.fixsure.generators.reflection.NewInstanceGenerator"/>
+    
+    <factory class="org.cthul.fixsure.generators.value.ConstantGenerator"/>
+    <factory class="org.cthul.fixsure.generators.value.EmptyGenerator"/>
+    <factory class="org.cthul.fixsure.generators.value.ItemsGenerator"/>
+    <factory class="org.cthul.fixsure.generators.value.PermutationsGenerator"/>
+    
+    <factory class="org.cthul.fixsure.iterables.EagerValues"/>
+    <factory class="org.cthul.fixsure.iterables.LazyValues"/>
+
+</matchers>
