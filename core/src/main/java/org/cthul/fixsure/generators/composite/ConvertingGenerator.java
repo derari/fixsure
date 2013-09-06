@@ -26,11 +26,7 @@ public class ConvertingGenerator<T>
     }
     
     protected ConvertingGenerator(ConvertingGenerator<T> src) {
-        this(src.cnv);
-    }
-    
-    private <Src> ConvertingGenerator(Convert<Src, T> convert) {
-        this.cnv = new Convert<>(convert.newFromTemplate(), convert.cnv);
+        this.cnv = src.cnv.newFromTemplate();
     }
 
     @Override
@@ -61,8 +57,10 @@ public class ConvertingGenerator<T>
         public Out next() {
             return cnv.convert(src.next());
         }
-        public Generator<Src> newFromTemplate() {
-            return GeneratorTools.newGeneratorFromTemplate(src);
+        public Convert<Src, Out> newFromTemplate() {
+            return new Convert<>(
+                    GeneratorTools.<Src>newGeneratorFromTemplate(src),
+                    cnv);
         }
         public Class<?> getValueType() {
             return GeneratorTools.typeOf(cnv);

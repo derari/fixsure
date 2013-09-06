@@ -7,8 +7,7 @@ import org.cthul.fixsure.base.GeneratorWithScalar;
 import org.hamcrest.Factory;
 
 /**
- *
- * @author Arian Treffer
+ * Generates random characters.
  */
 public abstract class CharactersGenerator 
                 extends GeneratorWithScalar<Character>

@@ -6,7 +6,7 @@ import org.cthul.fixsure.base.GeneratorWithScalar;
 import org.hamcrest.Factory;
 
 /**
- *
+ * Generates random strings.
  */
 public class StringsGenerator 
                 extends GeneratorWithScalar<String>

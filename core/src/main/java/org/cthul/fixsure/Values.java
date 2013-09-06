@@ -5,7 +5,7 @@ import org.cthul.fixsure.iterables.EagerValues;
 import org.cthul.fixsure.iterables.LazyValues;
 
 /**
- * A list of values that has bee produced by a genereator.
+ * A list of values that has been produced by a genereator.
  * @see LazyValues
  * @see EagerValues
  */

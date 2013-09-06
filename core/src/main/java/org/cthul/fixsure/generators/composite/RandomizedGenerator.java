@@ -7,7 +7,7 @@ import org.cthul.fixsure.fluents.FlGeneratorTemplate;
 import org.hamcrest.Factory;
 
 /**
- *
+ * Randomly selects elements from a sequence.
  */
 public class RandomizedGenerator<T> 
                 extends GeneratorWithDistribution<T>

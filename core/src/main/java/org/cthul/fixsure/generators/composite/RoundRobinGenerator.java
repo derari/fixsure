@@ -1,9 +1,9 @@
 package org.cthul.fixsure.generators.composite;
 
 import org.cthul.fixsure.Generator;
-import org.cthul.fixsure.GeneratorTemplate;
 import org.cthul.fixsure.base.GeneratorBase;
 import org.cthul.fixsure.base.GeneratorTools;
+import org.cthul.fixsure.fluents.FlGeneratorTemplate;
 import org.hamcrest.Factory;
 
 /**
@@ -11,7 +11,7 @@ import org.hamcrest.Factory;
  */
 public class RoundRobinGenerator<T>
                 extends GeneratorBase<T> 
-                implements GeneratorTemplate<T> {
+                implements FlGeneratorTemplate<T> {
     
     @Factory
     public static <T> RoundRobinGenerator<T> rotate(Generator<? extends T>... generators) {
@@ -59,7 +59,7 @@ public class RoundRobinGenerator<T>
     }
 
     @Override
-    public Generator<T> newGenerator() {
+    public RoundRobinGenerator<T> newGenerator() {
         return new RoundRobinGenerator<>(this);
     }
     

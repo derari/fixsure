@@ -37,7 +37,7 @@ public class NewInstanceGenerator<T>
     }
     
     public NewInstanceGenerator(Class<T> type, Object... args) {
-        this(type, GeneratorTools.valuesAsGenerators(args));
+        this(type, GeneratorTools.asGenerators(args));
     }
     
     public NewInstanceGenerator(Class<T> type, Generator... args) {
@@ -53,7 +53,7 @@ public class NewInstanceGenerator<T>
     }
     
     public NewInstanceGenerator(Constructor<T> c, Object... args) {
-        this(c, GeneratorTools.valuesAsGenerators(args));
+        this(c, GeneratorTools.asGenerators(args));
     }
     
     public NewInstanceGenerator(Constructor<T> c, Generator... args) {

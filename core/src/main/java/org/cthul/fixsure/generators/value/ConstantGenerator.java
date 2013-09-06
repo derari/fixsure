@@ -2,7 +2,6 @@ package org.cthul.fixsure.generators.value;
 
 import org.cthul.fixsure.base.SequenceBase;
 import org.cthul.fixsure.fluents.FlGeneratorTemplate;
-import org.cthul.objects.Boxing;
 import org.hamcrest.Factory;
 
 /**
@@ -35,9 +34,7 @@ public class ConstantGenerator<T>
         if (value == null) {
             return null;
         }
-        Class c = value.getClass();
-        if (c.isPrimitive()) c = Boxing.boxed(c);
-        return (Class) c;
+        return (Class) value.getClass();
     }
 
     @Override

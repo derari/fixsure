@@ -12,21 +12,41 @@ import org.cthul.fixsure.base.GeneratorTools;
 import org.hamcrest.Factory;
 
 /**
- *
- * @author Arian Treffer
+ * Values fetched from generators on demand.
  */
 public class LazyValues<T> extends AbstractValues<T> {
     
+    /**
+     * Fetches up to {@code n} elements from {@code values}.
+     * @param <T>
+     * @param n
+     * @param values
+     * @return values
+     */
     @Factory
     public static <T> LazyValues<T> get(int n, Generator<? extends T> values) {
         return new LazyValues<>(values, n);
     }
     
+    /**
+     * Fetches up to {@code n} elements from {@code values}.
+     * @param <T>
+     * @param n
+     * @param values
+     * @return values
+     */
     @Factory
     public static <T> LazyValues<T> get(Generator<Integer> n, Generator<? extends T> values) {
         return new LazyValues<>(values, n.next());
     }
     
+    /**
+     * Fetches elements from {@code values}.
+     * @param <T>
+     * @param n
+     * @param values
+     * @return values
+     */
     @Factory
     public static <T> LazyValues<T> unbound(Generator<? extends T> values) {
         return new LazyValues<>(values);

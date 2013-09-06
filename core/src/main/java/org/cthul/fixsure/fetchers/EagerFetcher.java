@@ -12,10 +12,6 @@ import org.hamcrest.Factory;
  */
 public class EagerFetcher extends FetcherWithScalar {
 
-    private static class Instances {
-        private static final EagerFetcher ALL =    new EagerFetcher(-1);
-    }
-    
     private static class MoreInstances {
         private static final EagerFetcher ONE =    new EagerFetcher(1);
         private static final EagerFetcher TWO =    new EagerFetcher(2);
@@ -24,11 +20,6 @@ public class EagerFetcher extends FetcherWithScalar {
         private static final EagerFetcher SOME =   new EagerFetcher(5, 7);
         private static final EagerFetcher SEVERAL = new EagerFetcher(8, 16);
         private static final EagerFetcher MANY =   new EagerFetcher(96, 128);
-    }
-    
-    @Factory
-    public static EagerFetcher all() {
-        return Instances.ALL;
     }
     
     public static EagerFetcher one() {
@@ -93,36 +84,6 @@ public class EagerFetcher extends FetcherWithScalar {
     
     public static <T> EagerValues<T> many(Generator<T> generator) {
         return MoreInstances.MANY.of(generator);
-    }
-    
-    @Factory
-    public static EagerFetcher next(int length) {
-        return new EagerFetcher(length);
-    }
-    
-    @Factory
-    public static EagerFetcher next(int min, int max) {
-        return new EagerFetcher(min, max);
-    }
-    
-    @Factory
-    public static EagerFetcher next(Generator<Integer> lengthGenerator) {
-        return new EagerFetcher(lengthGenerator);
-    }
-    
-    @Factory
-    public static EagerFetcher first(int length) {
-        return new EagerFetcher(length);
-    }
-    
-    @Factory
-    public static EagerFetcher first(int min, int max) {
-        return new EagerFetcher(min, max);
-    }
-    
-    @Factory
-    public static EagerFetcher first(Generator<Integer> lengthGenerator) {
-        return new EagerFetcher(lengthGenerator);
     }
     
     public EagerFetcher(int length) {

@@ -14,6 +14,12 @@ public interface FlDistribution extends Distribution, FlGenerator<Double> {
     int nextInt();
     
     /**
+     * Returns a random positive integer.
+     * @return integer
+     */
+    int nextPositiveInt();
+    
+    /**
      * Returns a random integer, {@code 0 <= i < n}
      * @param n
      * @return integer
@@ -21,6 +27,8 @@ public interface FlDistribution extends Distribution, FlGenerator<Double> {
     int nextInt(int n);
     
     long nextLong();
+    
+    long nextPositiveLong();
     
     long nextLong(long n);
     

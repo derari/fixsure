@@ -35,8 +35,28 @@ public class UniformDistribution
     }
 
     @Override
+    public int nextPositiveInt() {
+        return rnd().nextInt() >>> 1;
+    }
+
+    @Override
     public int nextInt(int n) {
         return rnd().nextInt(n);
+    }
+
+    @Override
+    public long nextLong() {
+        return rnd().nextLong();
+    }
+
+    @Override
+    public long nextPositiveLong() {
+        return rnd().nextLong() >>> 1;
+    }
+
+    @Override
+    public long nextLong(long n) {
+        return nextPositiveLong() % n;
     }
 
     @Override

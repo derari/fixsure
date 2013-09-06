@@ -6,7 +6,7 @@ import org.cthul.fixsure.base.GeneratorWithDistribution;
 import org.hamcrest.Factory;
 
 /**
- *
+ * Generates random booleans.
  */
 public class BooleansGenerator 
                 extends GeneratorWithDistribution<Boolean> 

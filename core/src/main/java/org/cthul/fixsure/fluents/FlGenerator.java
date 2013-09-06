@@ -12,7 +12,7 @@ import org.cthul.fixsure.Values;
  */
 public interface FlGenerator<T> extends Generator<T>, Typed<T> {
     
-    // Should not exist to avoid amiguity with Collection#get(int),
+    // Should not exist to avoid ambiguity with Collection#get(int),
     // use #next(int) instead
     //Values<T> get(int length);
     
@@ -39,13 +39,13 @@ public interface FlGenerator<T> extends Generator<T>, Typed<T> {
     <T2> FlGenerator<T2> alternateWith(Generator<? extends T2>... generators);
     
     /**
-     * If the generator is finite, returns its output repeatedly.
+     * If this generator is finite, returns its output repeatedly.
      * (Optional operation)
      * @throws 
      *   UnsupportedOperationException if generator is not repeatable.
      * @return 
      */
-    FlGenerator<T> repeat();
+    FlGenerator<T> repeat() throws UnsupportedOperationException;
     
     <T2> FlGenerator<T2> invoke(String m);
     

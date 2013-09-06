@@ -4,6 +4,7 @@
     
     <factory class="org.cthul.fixsure.fetchers.EagerFetcher"/>
     <factory class="org.cthul.fixsure.fetchers.LazyFetcher"/>
+    <factory class="org.cthul.fixsure.fetchers.Fetchers"/>
     
     <factory class="org.cthul.fixsure.fluents.FluentDistributionWrapper"/>
     <factory class="org.cthul.fixsure.fluents.FluentGeneratorWrapper"/>

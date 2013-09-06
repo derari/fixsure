@@ -4,9 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
-import org.cthul.fixsure.GeneratorTemplate;
 import org.cthul.fixsure.base.GeneratorBase;
 import org.cthul.fixsure.base.GeneratorTools;
+import org.cthul.fixsure.fluents.FlGeneratorTemplate;
 import org.hamcrest.Factory;
 
 /**
@@ -14,7 +14,7 @@ import org.hamcrest.Factory;
  */
 public class UniqueGenerator<T>
                 extends GeneratorBase<T> 
-                implements GeneratorTemplate<T> {
+                implements FlGeneratorTemplate<T> {
     
     @Factory
     public static <T> UniqueGenerator<T> unique(Generator<T> source) {
@@ -62,7 +62,7 @@ public class UniqueGenerator<T>
     }
 
     @Override
-    public Generator<T> newGenerator() {
+    public UniqueGenerator<T> newGenerator() {
         return new UniqueGenerator<>(this);
     }
 

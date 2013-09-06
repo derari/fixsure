@@ -6,7 +6,7 @@ import org.cthul.fixsure.Generator;
 /**
  *
  */
-public interface FlFetcher extends Fetcher {
+public interface FlFetcher extends Fetcher, FlGenerator<Integer> {
     
     @Override
     <T> FlValues<T> of(Generator<T> generator);

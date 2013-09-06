@@ -7,7 +7,6 @@ import static org.cthul.fixsure.generators.value.ItemsGenerator.*;
 
 /**
  *
- * @author Arian Treffer
  */
 public class TestValuesGenerator {
     
@@ -40,7 +39,7 @@ public class TestValuesGenerator {
     
     @Factory
     public static GeneratorQueue<Double> testDoubles() {
-        return GeneratorQueue.queue(defaultDoubles()); //.then(DoublesGenerator.integers());
+        return GeneratorQueue.queue(defaultDoubles(), DoublesGenerator.doubles());
     }
     
     @Factory
@@ -50,7 +49,7 @@ public class TestValuesGenerator {
     
     @Factory
     public static GeneratorQueue<Double> specialTestDoubles() {
-        return GeneratorQueue.queue(defaultDoubles(), specialDoubles()); //.then(DoublesGenerator.integers());
+        return GeneratorQueue.queue(defaultDoubles(), specialDoubles(), DoublesGenerator.doubles());
     }
     
 }

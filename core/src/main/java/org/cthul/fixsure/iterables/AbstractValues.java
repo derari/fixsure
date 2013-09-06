@@ -3,6 +3,7 @@ package org.cthul.fixsure.iterables;
 import java.lang.reflect.Array;
 import java.util.RandomAccess;
 import org.cthul.fixsure.Generator;
+import org.cthul.fixsure.Values;
 import org.cthul.fixsure.base.AbstractFlList;
 import org.cthul.fixsure.fluents.FlSequence;
 import org.cthul.fixsure.fluents.FlValues;
@@ -10,7 +11,7 @@ import org.cthul.fixsure.generators.value.ItemsGenerator;
 import org.cthul.fixsure.generators.value.ItemsGenerator.FromList;
 
 /**
- *
+ * Base class for {@link Values} implementations.
  */
 public abstract class AbstractValues<T> 
                 extends AbstractFlList<T> 

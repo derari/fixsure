@@ -10,7 +10,7 @@ import org.cthul.fixsure.fluents.FlGeneratorTemplate;
 import org.hamcrest.Factory;
 
 /**
- *
+ * Returns the elements of a sequence in random order.
  */
 public class ShufflingGenerator<T> 
                 extends GeneratorBase<T>

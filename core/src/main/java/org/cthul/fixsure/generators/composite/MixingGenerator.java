@@ -8,7 +8,7 @@ import org.cthul.fixsure.generators.primitive.IntegersGenerator;
 import org.hamcrest.Factory;
 
 /**
- *
+ * Produces values from randomly selected generators.
  */
 public class MixingGenerator<T>
                 extends GeneratorWithScalar<T>

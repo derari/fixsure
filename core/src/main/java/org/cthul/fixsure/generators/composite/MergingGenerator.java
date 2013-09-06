@@ -8,7 +8,7 @@ import org.cthul.fixsure.fluents.FlGeneratorTemplate;
 import org.hamcrest.Factory;
 
 /**
- *
+ * Merges multiple generators that produce sorted values into one.
  */
 public class MergingGenerator<T>
                 extends GeneratorBase<T>

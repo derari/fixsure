@@ -10,36 +10,76 @@ import org.cthul.fixsure.fluents.FlValues;
 import org.hamcrest.Factory;
 
 /**
- *
- * @author Arian Treffer
+ * Values immediately fetched from a generator.
  */
 public class EagerValues<T> extends AbstractValues<T> {
     
+    /**
+     * Fetches the next {@code n} elements from {@code values}.
+     * @param <T>
+     * @param n
+     * @param values
+     * @return values 
+     */
     @Factory
     public static <T> EagerValues<T> first(int n, Generator<T> values) {
         return new EagerValues<>(values, n);
     }
     
+    /**
+     * Fetches the next {@code n} elements from {@code values}.
+     * @param <T>
+     * @param n
+     * @param values
+     * @return values 
+     */
     @Factory
     public static <T> EagerValues<T> first(Generator<Integer> n, Generator<T> values) {
         return new EagerValues<>(values, n.next());
     }
     
+    /**
+     * Fetches the next element from {@code values}.
+     * @param <T>
+     * @param values
+     * @return values 
+     */
     @Factory
     public static <T> EagerValues<T> firstOf(Generator<T> values) {
         return new EagerValues<>(values, 1);
     }
     
+    /**
+     * Fetches the next {@code n} elements from {@code values}.
+     * @param <T>
+     * @param n
+     * @param values
+     * @return values 
+     */
     @Factory
     public static <T> EagerValues<T> next(int n, Generator<T> values) {
         return new EagerValues<>(values, n);
     }
     
+    /**
+     * Fetches the next {@code n} elements from {@code values}.
+     * @param <T>
+     * @param n
+     * @param values
+     * @return values 
+     */
     @Factory
     public static <T> EagerValues<T> next(Generator<Integer> n, Generator<T> values) {
         return new EagerValues<>(values, n.next());
     }
     
+    /**
+     * Fetches elements from {@code values}, 
+     * until it throws a {@link GeneratorException}.
+     * @param <T>
+     * @param values
+     * @return values 
+     */
     @Factory
     public static <T> EagerValues<T> all(Generator<T> values) {
         return new EagerValues<>(values, -1);

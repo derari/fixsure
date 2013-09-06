@@ -6,7 +6,6 @@ import org.cthul.fixsure.Values;
 
 /**
  *
- * @author Arian Treffer
  */
 public interface FlValues<T> extends Values<T>, FlSequence<T>, FlGeneratorTemplate<T> {
     

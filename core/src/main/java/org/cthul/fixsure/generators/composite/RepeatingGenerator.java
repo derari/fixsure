@@ -5,6 +5,7 @@ import org.cthul.fixsure.GeneratorException;
 import org.cthul.fixsure.GeneratorTemplate;
 import org.cthul.fixsure.base.GeneratorBase;
 import org.cthul.fixsure.base.GeneratorTools;
+import org.cthul.fixsure.fluents.FlGeneratorTemplate;
 import org.hamcrest.Factory;
 
 /**
@@ -12,11 +13,16 @@ import org.hamcrest.Factory;
  */
 public class RepeatingGenerator<T> 
                 extends GeneratorBase<T> 
-                implements GeneratorTemplate<T> {
+                implements FlGeneratorTemplate<T> {
     
     @Factory
     public static <T> RepeatingGenerator<T> repeat(GeneratorTemplate<? extends T>... templates) {
         return new RepeatingGenerator<>(templates);
+    }
+    
+    @Factory
+    public static <T> RepeatingGenerator<T> repeat(Object... templates) {
+        return new RepeatingGenerator<>(GeneratorTools.asGeneratorTemplates(templates));
     }
     
     private final GeneratorTemplate<? extends T>[] templates;
@@ -28,7 +34,7 @@ public class RepeatingGenerator<T>
         this.templates = templates.clone();
     }
 
-    public RepeatingGenerator(RepeatingGenerator<T> src) {
+    protected RepeatingGenerator(RepeatingGenerator<T> src) {
         this(src.templates);
         this.nextIndex = src.nextIndex;
         if (src.current != null) {

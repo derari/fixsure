@@ -29,46 +29,46 @@ public class SimpleFetcherTest {
 
     @Test
     public void test_one() {
-        List<Integer> list = LazyFetcher.one().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.one().of(TestGenerator.gen());
         assertThat(list, contains(0));
     }
     
     @Test
     public void test_two() {
-        List<Integer> list = LazyFetcher.two().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.two().of(TestGenerator.gen());
         assertThat(list, contains(0, 1));
     }
     
     @Test
     public void test_three() {
-        List<Integer> list = LazyFetcher.three().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.three().of(TestGenerator.gen());
         assertThat(list, contains(0, 1, 2));
     }
     
     @Test
     public void test_few() {
-        List<Integer> list = LazyFetcher.few().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.few().of(TestGenerator.gen());
         assertThat(list, hasSize(between(3, 5)));
         assertThat(list.subList(0, 3), contains(0, 1, 2));
     }
     
     @Test
     public void test_some() {
-        List<Integer> list = LazyFetcher.some().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.some().of(TestGenerator.gen());
         assertThat(list, hasSize(between(5, 8)));
         assertThat(list.subList(0, 5), contains(0, 1, 2, 3, 4));
     }
     
     @Test
     public void test_several() {
-        List<Integer> list = LazyFetcher.several().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.several().of(TestGenerator.gen());
         assertThat(list, hasSize(between(8, 17)));
         assertThat(list.subList(0, 8), contains(0, 1, 2, 3, 4, 5, 6, 7));
     }
     
     @Test
     public void test_many() {
-        List<Integer> list = LazyFetcher.many().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.many().of(TestGenerator.gen());
         assertThat(list, hasSize(between(96, 129)));
     }
     

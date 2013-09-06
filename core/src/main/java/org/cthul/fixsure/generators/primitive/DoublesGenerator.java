@@ -1,13 +1,12 @@
 package org.cthul.fixsure.generators.primitive;
 
 import org.cthul.fixsure.Distribution;
-import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorTemplate;
 import org.cthul.fixsure.base.GeneratorWithDistribution;
 import org.hamcrest.Factory;
 
 /**
- * Generates integers in a given range.
+ * Generates random doubles in a given range.
  */
 public class DoublesGenerator 
                 extends GeneratorWithDistribution<Double>

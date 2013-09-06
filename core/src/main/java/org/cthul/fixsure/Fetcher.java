@@ -13,6 +13,10 @@ import org.cthul.fixsure.iterables.LazyValues;
  */
 public interface Fetcher extends Generator<Integer> {
 
+    /**
+     * The next number of elements that would have been fetched.
+     * @return length
+     */
     int nextLength();
 
     /**

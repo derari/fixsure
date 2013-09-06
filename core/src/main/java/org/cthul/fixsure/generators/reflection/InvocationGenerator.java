@@ -54,7 +54,7 @@ public class InvocationGenerator<T>
     }
     
     public InvocationGenerator(Object instance, String m, Object... args) {
-        this(instance, m, GeneratorTools.valuesAsGenerators(args));
+        this(instance, m, GeneratorTools.asGenerators(args));
     }
     
     public InvocationGenerator(Object instance, String m, Generator... args) {
@@ -77,7 +77,7 @@ public class InvocationGenerator<T>
     }
     
     public InvocationGenerator(Class<?> type, Generator<?> instance, String m, Generator... args) {
-        this(type, instance, m, GeneratorTools.typesOf(args), args);
+        this(type, instance, m, GeneratorTools.typesOf((Object[]) args), args);
     }
     
     public InvocationGenerator(Class<?> type, Generator<?> instance, String m, Class[] argTypes, Generator[] args) {
@@ -91,7 +91,7 @@ public class InvocationGenerator<T>
     }
     
     public InvocationGenerator(Object instance, Method m, Object... args) {
-        this(instance, m, GeneratorTools.valuesAsGenerators(args));
+        this(instance, m, GeneratorTools.asGenerators(args));
     }
     
     public InvocationGenerator(Object instance, Method m, Generator... args) {

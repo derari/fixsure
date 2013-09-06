@@ -11,57 +11,6 @@ import org.hamcrest.Factory;
  *
  */
 public class LazyFetcher extends FetcherWithScalar {
-
-    private static class Instances {
-        private static final LazyFetcher UNBOUND = new LazyFetcher(-1);
-        private static final LazyFetcher ONE =    new LazyFetcher(1);
-        private static final LazyFetcher TWO =    new LazyFetcher(2);
-        private static final LazyFetcher THREE =  new LazyFetcher(3);
-        private static final LazyFetcher FEW =    new LazyFetcher(3, 4);
-        private static final LazyFetcher SOME =   new LazyFetcher(5, 7);
-        private static final LazyFetcher SEVERAL = new LazyFetcher(8, 16);
-        private static final LazyFetcher MANY =   new LazyFetcher(96, 128);
-    }
-    
-    @Factory
-    public static LazyFetcher unbound() {
-        return Instances.UNBOUND;
-    }
-    
-    @Factory
-    public static LazyFetcher one() {
-        return Instances.ONE;
-    }
-    
-    @Factory
-    public static LazyFetcher two() {
-        return Instances.TWO;
-    }
-    
-    @Factory
-    public static LazyFetcher three() {
-        return Instances.THREE;
-    }
-    
-    @Factory
-    public static LazyFetcher few() {
-        return Instances.FEW;
-    }
-    
-    @Factory
-    public static LazyFetcher some() {
-        return Instances.SOME;
-    }
-    
-    @Factory
-    public static LazyFetcher several() {
-        return Instances.SEVERAL;
-    }
-    
-    @Factory
-    public static LazyFetcher many() {
-        return Instances.MANY;
-    }
         
     @Factory
     public static <T> T any(Generator<T> generator) {
@@ -74,37 +23,37 @@ public class LazyFetcher extends FetcherWithScalar {
     
     @Factory
     public static <T> LazyValues<T> one(Generator<T> generator) {
-        return Instances.ONE.of(generator);
+        return Fetchers.one().of(generator);
     }
     
     @Factory
     public static <T> LazyValues<T> two(Generator<T> generator) {
-        return Instances.TWO.of(generator);
+        return Fetchers.two().of(generator);
     }
     
     @Factory
     public static <T> LazyValues<T> three(Generator<T> generator) {
-        return Instances.THREE.of(generator);
+        return Fetchers.three().of(generator);
     }
     
     @Factory
     public static <T> LazyValues<T> few(Generator<T> generator) {
-        return Instances.FEW.of(generator);
+        return Fetchers.few().of(generator);
     }
     
     @Factory
     public static <T> LazyValues<T> some(Generator<T> generator) {
-        return Instances.SOME.of(generator);
+        return Fetchers.some().of(generator);
     }
     
     @Factory
     public static <T> LazyValues<T> several(Generator<T> generator) {
-        return Instances.SEVERAL.of(generator);
+        return Fetchers.several().of(generator);
     }
     
     @Factory
     public static <T> LazyValues<T> many(Generator<T> generator) {
-        return Instances.MANY.of(generator);
+        return Fetchers.many().of(generator);
     }
     
     @Factory
@@ -115,11 +64,6 @@ public class LazyFetcher extends FetcherWithScalar {
     @Factory
     public static LazyFetcher get(int min, int max) {
         return new LazyFetcher(min, max);
-    }
-    
-    @Factory
-    public static LazyFetcher get(Generator<Integer> lengthGenerator) {
-        return new LazyFetcher(lengthGenerator);
     }
     
     public LazyFetcher(int length) {

@@ -24,14 +24,14 @@ public class GeneratorTools {
     public static <T> Class<T> commonTypeOf(Object... generators) {
         List<Class<?>> types = collectTypesOf(generators);
         if (types.isEmpty()) return null;
-        types = Types.lowestCommonSuperClasses(types);
+        types = Types.lowestCommonSuperclasses(types);
         if (types.size() == 1) {
             return (Class) types.get(0);
         }
         return null;
     }
     
-    private static List<Class<?>> collectTypesOf(Object[] generators) {
+    private static List<Class<?>> collectTypesOf(Object... generators) {
         final List<Class<?>> result = new ArrayList<>(generators.length);
         for (Object g: generators) {
             Class<?> t = typeOf(g);
@@ -40,7 +40,7 @@ public class GeneratorTools {
         return result;
     }
     
-    public static Class[] typesOf(Object[] generators) {
+    public static Class[] typesOf(Object... generators) {
         final Class[] result = new Class[generators.length];
         for (int i = 0; i < result.length; i++) {
             result[i] = typeOf(generators[i]);
@@ -48,19 +48,19 @@ public class GeneratorTools {
         return result;
     }
     
-    public static List<Class> typelistOf(Object[] generators) {
+    public static List<Class> typelistOf(Object... generators) {
         return Arrays.asList(typesOf(generators));
     }
     
-    public static Generator[] valuesAsGenerators(Object... values) {
+    public static Generator[] asGenerators(Object... values) {
         final Generator[] result = new Generator[values.length];
         for (int i = 0; i < result.length; i++) {
-            result[i] = valueAsGenerator(values[i]);
+            result[i] = asGenerator(values[i]);
         }
         return result;
     }
     
-    public static <T> Generator<T> valueAsGenerator(Object value) {
+    public static <T> Generator<T> asGenerator(Object value) {
         if (value instanceof Generator) {
             return (Generator) value;
         }
@@ -68,6 +68,14 @@ public class GeneratorTools {
             return ((GeneratorTemplate) value).newGenerator();
         }
         return (Generator) ConstantGenerator.constant(value);
+    }
+    
+    public static GeneratorTemplate[] asGeneratorTemplates(Object... templates) {
+        final GeneratorTemplate[] result = new GeneratorTemplate[templates.length];
+        for (int i = 0; i < result.length; i++) {
+            result[i] = asGeneratorTemplate(templates[i]);
+        }
+        return result;
     }
     
     public static <T> GeneratorTemplate<T> asGeneratorTemplate(Object template) {

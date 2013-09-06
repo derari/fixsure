@@ -13,7 +13,6 @@ import org.hamcrest.Factory;
 
 /**
  *
- * @author Arian Treffer
  */
 public abstract class ItemsGenerator<T> 
                 extends SequenceBase<T>

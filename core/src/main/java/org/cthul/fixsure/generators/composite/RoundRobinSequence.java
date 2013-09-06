@@ -1,6 +1,5 @@
 package org.cthul.fixsure.generators.composite;
 
-import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Sequence;
 import org.cthul.fixsure.base.GeneratorTools;
 import org.cthul.fixsure.base.SequenceBase;
@@ -38,7 +37,7 @@ public class RoundRobinSequence<T>
         this.valueType = valueType;
     }
 
-    public RoundRobinSequence(RoundRobinSequence<T> src) {
+    protected RoundRobinSequence(RoundRobinSequence<T> src) {
         this.generators = src.generators.clone();
         for (int i = 0; i < this.generators.length; i++) {
             this.generators[i] = (Sequence) GeneratorTools.newGeneratorFromTemplate(this.generators[i]);

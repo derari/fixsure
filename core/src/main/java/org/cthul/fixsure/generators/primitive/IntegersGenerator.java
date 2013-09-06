@@ -6,7 +6,7 @@ import org.cthul.fixsure.base.GeneratorWithDistribution;
 import org.hamcrest.Factory;
 
 /**
- * Generates integers in a given range.
+ * Generates random integers in a given range.
  */
 public class IntegersGenerator 
                 extends GeneratorWithDistribution<Integer>

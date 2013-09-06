@@ -40,7 +40,13 @@ public abstract class DistributionBase
     /** {@inheritDoc} */
     @Override
     public int nextInt() {
-        return (int) (Integer.MAX_VALUE * (nextValue()-0.5));
+        return (int) (Integer.MAX_VALUE * (nextValue() - 0.5));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int nextPositiveInt() {
+        return (int) (Integer.MAX_VALUE * nextValue());
     }
 
     /** {@inheritDoc} */
@@ -52,7 +58,13 @@ public abstract class DistributionBase
     /** {@inheritDoc} */
     @Override
     public long nextLong() {
-        return (long) (Long.MAX_VALUE * (nextValue()-0.5));
+        return (long) (Long.MAX_VALUE * (nextValue() - 0.5));
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public long nextPositiveLong() {
+        return (long) (Long.MAX_VALUE * nextValue());
     }
 
     /** {@inheritDoc} */

@@ -1,7 +1,7 @@
 package org.cthul.fixsure.generators.composite;
 
+import java.util.ArrayDeque;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Queue;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
@@ -12,7 +12,8 @@ import org.cthul.fixsure.generators.value.EmptyGenerator;
 import org.hamcrest.Factory;
 
 /**
- *
+ * A queue of generators that fetches a certain number of elements from
+ * each and then uses the next.
  */
 public class GeneratorQueue<T> 
                 extends GeneratorBase<T>
@@ -56,7 +57,7 @@ public class GeneratorQueue<T>
             this.values = new FetchFixed<>(values, n);
         }
         if (moreValues != null) {
-            this.moreValues = new LinkedList<>();
+            this.moreValues = new ArrayDeque<>(moreValues.size());
             copyAll(moreValues, this.moreValues);
         }
     }
@@ -75,7 +76,7 @@ public class GeneratorQueue<T>
     protected GeneratorQueue(GeneratorQueue<T> src) {
         this.values = src.values.copy();
         if (src.moreValues != null) {
-            this.moreValues = new LinkedList<>();
+            this.moreValues = new ArrayDeque<>(src.moreValues.size());
             copyAll(src.moreValues, this.moreValues);
         }
     }
@@ -87,7 +88,7 @@ public class GeneratorQueue<T>
     }
     
     protected void _add(Generator<? extends T> value) {
-        if (moreValues == null) moreValues = new LinkedList<>();
+        if (moreValues == null) moreValues = new ArrayDeque<>();
         moreValues.add(new FetchAll<>(value));
     }
     
@@ -95,7 +96,7 @@ public class GeneratorQueue<T>
         if (n < 0) {
             _add(value);
         } else {
-            if (moreValues == null) moreValues = new LinkedList<>();
+            if (moreValues == null) moreValues = new ArrayDeque<>();
             moreValues.add(new FetchFixed<>(value, n));
         }
     }
@@ -104,8 +105,9 @@ public class GeneratorQueue<T>
     public T next() {
         while (true) {
             try {
-                if (values.hasNext())
+                if (values.hasNext()) {
                     return values.fetch();
+                }
             } catch (GeneratorException e) {
                 if (!values.expectException()) {
                     throw e;
@@ -147,13 +149,7 @@ public class GeneratorQueue<T>
 
     @Override
     public GeneratorQueue<T> newGenerator() {
-        GeneratorQueue<T> r = new GeneratorQueue(values.newFromTemplate(), values.getLength());
-        if (moreValues != null) {
-            for (Fetch<T> f: moreValues) {
-                r._add(f.newFromTemplate(), f.getLength());
-            }
-        }
-        return r;
+        return new GeneratorQueue<>(this);
     }
 
     protected static abstract class Fetch<T> {
@@ -161,8 +157,6 @@ public class GeneratorQueue<T>
         public abstract T fetch();
         public abstract boolean expectException();
         public abstract Fetch<T> copy();
-        public abstract int getLength();
-        public abstract Generator<? extends T> newFromTemplate();
     }
     
     private static class FetchFixed<T> extends Fetch<T> {
@@ -188,13 +182,8 @@ public class GeneratorQueue<T>
         }
         @Override
         public Fetch<T> copy() {
-            return new FetchFixed<>(values, rem);
+            return new FetchFixed<>(newFromTemplate(), rem);
         }
-        @Override
-        public int getLength() {
-            return rem;
-        }
-        @Override
         public Generator<? extends T> newFromTemplate() {
             return GeneratorTools.newGeneratorFromTemplate(values);
         }
@@ -219,16 +208,10 @@ public class GeneratorQueue<T>
         }
         @Override
         public Fetch<T> copy() {
-            return new FetchAll<>(values);
+            return new FetchAll<>(newFromTemplate());
         }
-        @Override
-        public int getLength() {
-            return -1;
-        }
-        @Override
         public Generator<? extends T> newFromTemplate() {
             return GeneratorTools.newGeneratorFromTemplate(values);
         }
     }
-    
 }

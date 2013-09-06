@@ -6,7 +6,7 @@ import org.cthul.fixsure.fluents.FlGeneratorTemplate;
 import org.hamcrest.Factory;
 
 /**
- *
+ * Generates consecutive integers.
  */
 public class ConsecutiveIntegersSequence
                 extends SequenceBase<Integer> 

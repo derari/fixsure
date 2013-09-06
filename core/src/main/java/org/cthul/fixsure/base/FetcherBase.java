@@ -2,14 +2,14 @@ package org.cthul.fixsure.base;
 
 import org.cthul.fixsure.Fetcher;
 import org.cthul.fixsure.Generator;
-import org.cthul.fixsure.Values;
+import org.cthul.fixsure.fluents.FlFetcher;
 import org.cthul.fixsure.fluents.FlValues;
 import org.cthul.fixsure.generators.value.EmptyGenerator;
 
 /**
  * Base class for {@link Fetcher}s.
  */
-public abstract class FetcherBase implements Fetcher {
+public abstract class FetcherBase extends GeneratorBase<Integer> implements FlFetcher {
 
     @Override
     public abstract int nextLength();
