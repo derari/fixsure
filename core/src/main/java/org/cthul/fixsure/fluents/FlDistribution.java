@@ -1,35 +1,156 @@
 package org.cthul.fixsure.fluents;
 
-import org.cthul.fixsure.Distribution;
+import org.cthul.fixsure.*;
 
 /**
  *
  */
-public interface FlDistribution extends Distribution, FlGenerator<Double> {
+public interface FlDistribution extends Distribution {
+
+    @Override
+    FlRandom toRandomNumbers(long seedHint);
     
     /**
-     * Returns a random integer.
-     * @return integer
+     * @return this
+     * @deprecated redundant operation
      */
-    int nextInt();
+    @Override
+    @Deprecated
+    default FlDistribution fluentDistribution() {
+        return this;
+    }
+
+    @Override
+    default FlDataSource<Double> values(long seed) {
+        return FlDistribution.template(this, seed);
+    }
     
-    /**
-     * Returns a random positive integer.
-     * @return integer
-     */
-    int nextPositiveInt();
+    interface FlRandom extends Distribution.RandomNumbers, FlDistribution {
+
+        @Override
+        default FlRandom copy() {
+            throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Returns a random integer.
+         * @return integer
+         */
+        default int nextInt() {
+            return (int) (Integer.MAX_VALUE * (nextValue() - 0.5));
+        }
+
+        /**
+         * Returns a random positive integer.
+         * @return integer
+         */
+        default int nextPositiveInt() {
+            return (int) (Integer.MAX_VALUE * nextValue());
+        }
+
+        /**
+         * Returns a random integer, {@code 0 <= i < n}
+         * @param n
+         * @return integer
+         */
+        default int nextInt(int n) {
+            return (int) (n * nextValue());
+        }
+
+        default long nextLong() {
+            return (long) (Long.MAX_VALUE * (nextValue() - 0.5));
+        }
+
+        default long nextPositiveLong() {
+            return (long) (Long.MAX_VALUE * nextValue());
+        }
+
+        default long nextLong(long n) {
+            return (long) (n * nextValue());
+        }
+
+        /**
+         * @param seedHint
+         * @return this
+         * @deprecated redundant operation
+         */
+        @Deprecated
+        @Override
+        default FlRandom toRandomNumbers(long seedHint) {
+            return this;
+        }
+
+        @Override
+        default FlRandom fluentDistribution() {
+            return this;
+        }
+
+        default FlGenerator<Double> values() {
+            return FlDistribution.generator(this);
+        }
+
+        /**
+         * @param seed
+         * @return values
+         * @deprecated seed not supported, use #fluentData
+         */
+        @Override
+        default FlGenerator<Double> values(long seed) {
+            return fluentData();
+        }
+    }
     
-    /**
-     * Returns a random integer, {@code 0 <= i < n}
-     * @param n
-     * @return integer
-     */
-    int nextInt(int n);
+    @FunctionalInterface
+    interface Template extends FlDistribution {
+
+        @Override
+        FlRandom toRandomNumbers(long seedHint);
+
+        @Override
+        default FlTemplate<Double> values(long seed) {
+            return FlDistribution.template(this, seed);
+        }
+
+        @Override
+        default Template fluentDistribution() {
+            return this;
+        }
+    }
     
-    long nextLong();
+    static FlTemplate<Double> template(Distribution distribution, long seed) {
+        return () -> distribution.toRandomNumbers(seed).fluentData();
+    }
     
-    long nextPositiveLong();
+    static FlGenerator<Double> generator(RandomNumbers randomNumbers) {
+        return Generator.generate(Double.class, randomNumbers::nextValue);
+    }
     
-    long nextLong(long n);
+    static FlDistribution wrap(Distribution distribution) {
+        if (distribution instanceof FlDistribution) {
+            return (FlDistribution) distribution;
+        }
+        class FlDistributionTemplate implements FlDistribution.Template {
+            @Override
+            public FlRandom toRandomNumbers(long seedHint) {
+                return wrap(distribution.toRandomNumbers(seedHint));
+            }
+        }
+        return new FlDistributionTemplate();
+    }
     
+    static FlRandom wrap(RandomNumbers generator) {
+        if (generator instanceof FlRandom) {
+            return (FlRandom) generator;
+        }
+        return new FlRandom() {
+            @Override
+            public double nextValue() {
+                return generator.nextValue();
+            }
+            @Override
+            public FlRandom copy() {
+                return wrap(generator.copy());
+            }
+        };
+    }
 }

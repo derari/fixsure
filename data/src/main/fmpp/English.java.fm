@@ -1,76 +1,182 @@
 // generated code
 package org.cthul.fixsure.data;
 
-import org.cthul.fixsure.fluents.FlGenerator;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import org.cthul.fixsure.Sequence;
 import org.cthul.fixsure.fluents.FlSequence;
-import org.cthul.fixsure.generators.value.ItemsGenerator;
+import org.cthul.fixsure.fluents.BiSequence;
+import static org.cthul.fixsure.Fixsure.*;
+
 
 /**
  *
  */
 public class English {
 
-<@sorted_unique_random_array "maleFirstNames" />
-<@sorted_unique_random_array "femaleFirstNames" />
-<@sorted_unique_random_array "firstNames" />
-<@sorted_unique_random_array "lastNames" />
+    /**
+     * Returns a {@link Sequence} of popular first names.
+     * @return sequence of names
+     */
+<@data_string_sequence_filter "firstNames", "en/FirstNames.txt", "true", 2 />
 
-<@data_string_array "maleFirstNames", "en/FirstNamesMale.txt" />
-<@data_string_array "femaleFirstNames", "en/FirstNamesFemale.txt" />
-<@data_string_array_src "firstNames">
-merge(femaleFirstNamesArray(), maleFirstNamesArray())</@>
-<@data_string_array "lastNames", "en/LastNames.txt" />
+    /**
+     * Returns a sorted {@link Sequence} of popular first names.
+     * @return sequence of names
+     */
+<@data_string_sequence_src "sortedFirstNames">sequence(sorted(firstNames()))</@>
 
-    protected static String[] merge(final String[] a1, final String[] a2) {
-        int len = a1.length + a2.length;
-        final String[] result = new String[len];
-        int i1 = 0, i2 = 0;
-        String s1 = a1[0], s2 = a2[0];
-        for (int i = 0; i < len; i++) {
-            int c = i1 >= a1.length ? 1 :
-                    (i2 >= a2.length ? -1 : 0);
-            if (c == 0) c = s1.compareTo(s2);
-            if (c <= 0) {
-                result[i] = s1;
-                i1++;
-                if (i1 < a1.length) s1 = a1[i1];
-            } else {
-                result[i] = s2;
-                i2++;
-                if (i2 < a2.length) s2 = a2[i2];
-            }
+    /**
+     * Returns a {@link Sequence} of popular male first names.
+     * @return sequence of names
+     */
+<@data_string_sequence_filter "maleFirstNames", "en/FirstNames.txt", "s.startsWith(\"M;\")", 2 />
+
+    /**
+     * Returns a sorted {@link Sequence} of popular male first names.
+     * @return sequence of names
+     */
+<@data_string_sequence_src "sortedMaleFirstNames">sequence(sorted(maleFirstNames()))</@>
+
+    /**
+     * Returns a {@link Sequence} of popular female first names.
+     * @return sequence of names
+     */
+<@data_string_sequence_filter "femaleFirstNames", "en/FirstNames.txt", "s.startsWith(\"F;\")", 2 />
+
+    /**
+     * Returns a sorted {@link Sequence} of popular female first names.
+     * @return sequence of names
+     */
+<@data_string_sequence_src "sortedFemaleFirstNames">sequence(sorted(femaleFirstNames()))</@>
+
+    /**
+     * Returns a {@link Sequence} of popular last names.
+     * @return sequence of names
+     */
+<@data_string_sequence "lastNames", "en/LastNames.txt" />
+
+    /**
+     * Returns a sorted {@link Sequence} of popular last names.
+     * @return sequence of names
+     */
+<@data_string_sequence_src "sortedLastNames">sequence(sorted(lastNames()))</@>
+
+    /**
+     * Returns a {@link BiSequence} of popular first names,
+     * with a character signifying the gender ('M' or 'F').
+     * @return sequence of names
+     */
+    public static BiSequence<Character, String> firstNamesWithGender() {
+        if (SEQ_firstNamesWithGender == null) {
+            Character[] genders = Arrays.stream(DataLoader.readLines(<@thisclass/>, "en/FirstNames.txt"))
+                    .map(s -> s.charAt(0))
+                    .collect(Collectors.toList())
+                    .toArray(new Character[0]);
+            SEQ_firstNamesWithGender = sequence(genders).with(firstNames());
         }
+        return SEQ_firstNamesWithGender;
+    }
+    private static BiSequence<Character, String> SEQ_firstNamesWithGender;
+
+    /**
+     * Returns a {@link Sequence} of first names with initial letters from A to Z.
+     * @return sequence of names
+     */
+<@data_string_sequence "aliceBob", "en/AliceBob.txt" />
+
+    /**
+     * Returns a {@link Sequence} of first names with initial letters from A to Z,
+     * with a character signifying the gender ('M' or 'F').
+     * @return sequence of gender and names
+     */    
+    public static BiSequence<Character, String> aliceBobWithGender() {
+        if (SEQ_aliceBobWithGender == null) {
+            SEQ_aliceBobWithGender = Sequence.sequence(n -> (n < 12) ^ (n % 2 == 0) ? 'M' : 'F')
+                                     .with(aliceBob());
+        }
+        return SEQ_aliceBobWithGender;
+    }
+    private static BiSequence<Character, String> SEQ_aliceBobWithGender;
+
+    /**
+     * Returns a {@link Sequence} of fruits with initial letters from A to Z.
+     * @return sequence of names
+     */
+<@data_string_sequence "fruitsA2Z", "en/FruitsA2Z.txt" />
+
+    /**
+     * Returns a {@link Sequence} of vegetables with initial letters from A to Z.
+     * @return sequence of names
+     */
+<@data_string_sequence "vegetablesA2Z", "en/VegetablesA2Z.txt" />
+
+<#--
+    protected static String[] merge(final String[] a1, final String[] a2) {
+        String[] result = Arrays.copyOf(a1, a1.length + a2.length);
+        System.arraycopy(a2, 0, result, a1.length, a2.length);
+        Arrays.sort(result);
         return result;
     }
 
-}
-<#macro thisclass>
-English.class</#macro>
-<#macro data_string_array name file>
-<@data_string_array_src name>
-DataLoader.readLines(<@thisclass/>, "${file}")</@></#macro>
-<#macro data_string_array_src name>
-    private static String[] DATA_${name} = null;
+    protected static String[] sorted(final String[] a1) {
+        String[] result = a1.clone();
+        Arrays.sort(result);
+        return result;
+    }-->
 
-    private static String[] ${name}Array() {
-        if (DATA_${name} == null) {
-            DATA_${name} = <#nested/>;
+    protected static String[] sorted(FlSequence<String> a1) {
+        String[] result = a1.all().toArray();
+        Arrays.sort(result);
+        return result;
+    }
+
+    private static final String BLIND_TEXT = "This is a blind text.";
+    private static final String[] BLIND_TEXT_WORDS = BLIND_TEXT.split(" ");
+
+    /**
+     * Returns a {@link Sequence} of words that form an english blind text.
+     * @return sequence of words
+     */
+<@data_string_sequence_src "blindTextWords">sequence(BLIND_TEXT_WORDS)</@>
+    
+}
+<#macro thisclass>English.class</#macro>
+<#t>
+<#macro data_string_sequence_filter name file filter n>
+    <@data_string_sequence_src name>
+sequence(Arrays.stream(DataLoader.readLines(<@thisclass/>, "${file}"))
+                    .filter(s -> ${filter})
+                    .map(s -> s.substring(${n}))
+                    .collect(Collectors.toList())
+                    .toArray(new String[0]))</@>
+</#macro>
+<#t>
+<#macro data_string_sequence name file>
+    <@data_string_sequence_src name>
+sequence(DataLoader.readLines(<@thisclass/>, "${file}"))</@>
+</#macro>
+<#t>
+<#macro data_string_sequence_src name>
+    public static FlSequence<String> ${name}() {
+        if (SEQ_${name} == null) {
+            SEQ_${name} = <#nested/>;
         }
-        return DATA_${name};
+        return SEQ_${name};
+    }
+    private static FlSequence<String> SEQ_${name} = null;<#rt>
+</#macro>
+<#t>
+<#macro normal_sorted_array name>
+<@normal_array name />
+    public static FlSequence<String> sorted${name?cap_first}() {
+        return sequence(sorted${name?cap_first}Array());
     }
 
 </#macro>
-<#macro sorted_unique_random_array name>
-    public static FlSequence<String> sorted${name?cap_first}() {
-        return ItemsGenerator.from(${name?uncap_first}Array());
-    }
-    
-    public static FlGenerator<String> ${name?uncap_first}() {
-        return sorted${name?cap_first}().random();
-    }
-    
-    public static FlGenerator<String> unique${name?cap_first}() {
-        return sorted${name?cap_first}().shuffle();
+<#macro normal_array name>
+    public static FlSequence<String> ${name?uncap_first}() {
+        return sequence(${name?uncap_first}Array());
     }
 
 </#macro>

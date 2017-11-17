@@ -1,6 +1,7 @@
 package org.cthul.fixsure.data;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class DataLoader {
                 }
                 result.add(s);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
         return result.toArray(new String[result.size()]);

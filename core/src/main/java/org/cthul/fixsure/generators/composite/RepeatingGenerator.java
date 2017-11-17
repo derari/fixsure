@@ -1,36 +1,36 @@
 package org.cthul.fixsure.generators.composite;
 
+import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
-import org.cthul.fixsure.GeneratorTemplate;
-import org.cthul.fixsure.base.GeneratorBase;
-import org.cthul.fixsure.base.GeneratorTools;
-import org.cthul.fixsure.fluents.FlGeneratorTemplate;
-import org.hamcrest.Factory;
+import org.cthul.fixsure.generators.GeneratorTools;
+import org.cthul.fixsure.generators.CopyableGenerator;
+import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
+import org.cthul.fixsure.Template;
 
 /**
  * Converts a list of finite generators into an inifinte generator.
  */
-public class RepeatingGenerator<T> 
-                extends GeneratorBase<T> 
-                implements FlGeneratorTemplate<T> {
+public class RepeatingGenerator<T> implements CopyableGenerator<T> {
     
-    @Factory
-    public static <T> RepeatingGenerator<T> repeat(GeneratorTemplate<? extends T>... templates) {
-        return new RepeatingGenerator<>(templates);
+//    public static <T> RepeatingGenerator<T> repeat(Template<? extends T>... templates) {
+//        return new RepeatingGenerator<T>(templates);
+//    }
+    
+    public static <T> RepeatingGenerator<T> repeat(DataSource<? extends T>... sources) {
+        Template<? extends T>[] templates = new Template[sources.length];
+        for (int i = 0; i < sources.length; i++) {
+            templates[i] = sources[i].fluentData().snapshot();
+        }
+        return new RepeatingGenerator<T>(templates);
     }
     
-    @Factory
-    public static <T> RepeatingGenerator<T> repeat(Object... templates) {
-        return new RepeatingGenerator<>(GeneratorTools.asGeneratorTemplates(templates));
-    }
-    
-    private final GeneratorTemplate<? extends T>[] templates;
+    private final Template<? extends T>[] templates;
     private int nextIndex = 0;
     private Generator<? extends T> current = null;
     private Class<?> valueType = void.class;
 
-    public RepeatingGenerator(GeneratorTemplate<? extends T>[] templates) {
+    public RepeatingGenerator(Template<? extends T>[] templates) {
         this.templates = templates.clone();
     }
 
@@ -38,7 +38,7 @@ public class RepeatingGenerator<T>
         this(src.templates);
         this.nextIndex = src.nextIndex;
         if (src.current != null) {
-            this.current = GeneratorTools.newGeneratorFromTemplate(src.current);
+            this.current = copyGenerator(src.current);
         }
     }
 
@@ -63,7 +63,7 @@ public class RepeatingGenerator<T>
     }
 
     @Override
-    public RepeatingGenerator<T> newGenerator() {
+    public RepeatingGenerator<T> copy() {
         return new RepeatingGenerator<>(this);
     }
 

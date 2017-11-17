@@ -1,11 +1,8 @@
 package org.cthul.fixsure.generators.composite;
 
-import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
 import org.cthul.fixsure.fluents.FlGenerator;
-import org.cthul.fixsure.generators.primitive.IntegersGenerator;
-import org.junit.After;
-import org.junit.AfterClass;
+import org.cthul.fixsure.generators.primitives.IntegersGenerator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -27,7 +24,7 @@ public class UniqueGeneratorTest {
     
     @Test
     public void test_next() {
-        FlGenerator<Integer> gen = UniqueGenerator.unique(IntegersGenerator.integers(10));
+        FlGenerator<Integer> gen = DistinctGenerator.distinct(IntegersGenerator.integers(10));
         assertThat(gen.next(10), containsInAnyOrder(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
         try {
             gen.next();

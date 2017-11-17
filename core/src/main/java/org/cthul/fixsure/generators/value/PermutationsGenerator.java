@@ -1,15 +1,22 @@
 package org.cthul.fixsure.generators.value;
 
+import org.cthul.fixsure.Factory;
 import org.cthul.fixsure.GeneratorException;
-import org.cthul.fixsure.base.GeneratorBase;
-import org.cthul.fixsure.fluents.FlGeneratorTemplate;
+import org.cthul.fixsure.fluents.FlTemplate;
+import org.cthul.fixsure.generators.CopyableGenerator;
 
-public class PermutationsGenerator<T> 
-                extends GeneratorBase<T[]>
-                implements FlGeneratorTemplate<T[]> {
+public class PermutationsGenerator<T> implements CopyableGenerator<T[]> {
     
-    public static <T> PermutationsGenerator<T> permutations(T... array) {
-        return new PermutationsGenerator<>(array);
+    /**
+     * Generates permutations of an array
+     * @param <T>
+     * @param array
+     * @return permutations generator
+     */
+    @Factory
+    public static <T> FlTemplate<T[]> permutations(T... array) {
+        T[] clone = array.clone();
+        return () -> new PermutationsGenerator<>(clone);
     }
     
     private static final int DIRECTION_MASK = 3;
@@ -22,7 +29,7 @@ public class PermutationsGenerator<T>
     private boolean beforeFirst = true;
 
     public PermutationsGenerator(T[] array) {
-        this.array = array;
+        this.array = array.clone();
         this.directions = new int[array.length];
         initDirections();
     }
@@ -34,7 +41,7 @@ public class PermutationsGenerator<T>
     }
 
     @Override
-    public PermutationsGenerator<T> newGenerator() {
+    public PermutationsGenerator<T> copy() {
         return new PermutationsGenerator<>(this);
     }
     
@@ -108,7 +115,7 @@ public class PermutationsGenerator<T>
             // stop current element
             directions[newIndex] = setDirection(value, STOP);
         }
-        // activate unbound elements bigger than current
+        // activate unbounded elements bigger than current
         for (int i = 0; i < newIndex; i++) {
             int v = directions[i];
             if (v > value) {
@@ -122,5 +129,4 @@ public class PermutationsGenerator<T>
             }
         }
     }
-
 }

@@ -1,15 +1,16 @@
 package org.cthul.fixsure;
 
 import java.util.List;
-import org.cthul.fixsure.iterables.EagerValues;
-import org.cthul.fixsure.iterables.LazyValues;
+import org.cthul.fixsure.fluents.FlValues;
+import org.cthul.fixsure.values.EagerValues;
+import org.cthul.fixsure.values.LazyValues;
 
 /**
- * A list of values that has been produced by a genereator.
+ * A list of values that has been produced by a generator.
  * @see LazyValues
  * @see EagerValues
  */
-public interface Values<T> extends List<T>, Sequence<T>, GeneratorTemplate<T> {
+public interface Values<T> extends List<T>, Sequence<T> {
     
     /**
      * 
@@ -34,4 +35,6 @@ public interface Values<T> extends List<T>, Sequence<T>, GeneratorTemplate<T> {
      */
     Object[] toObjectArray();
     
+    @Override
+    FlValues<T> fluentData();
 }

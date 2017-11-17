@@ -1,0 +1,22 @@
+<matchers>
+    <factory class="org.cthul.fixsure.Generator"/>
+    <factory class="org.cthul.fixsure.Template"/>
+    <factory class="org.cthul.fixsure.Sequence"/>
+    
+    <factory class="org.cthul.fixsure.generators.primitives.BooleansGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitives.CharactersGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitives.ConsecutiveIntegersSequence"/>
+    <factory class="org.cthul.fixsure.generators.primitives.DoublesGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitives.IntegersGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitives.StringsGenerator"/>
+    
+    <factory class="org.cthul.fixsure.generators.value.ConstantValue"/>
+    <factory class="org.cthul.fixsure.generators.value.EmptySequence"/>
+    <factory class="org.cthul.fixsure.generators.value.ItemsSequence"/>
+    <factory class="org.cthul.fixsure.generators.value.PermutationsGenerator"/>
+    
+    <factory class="org.cthul.fixsure.distributions.UniformDistribution"/>
+    <factory class="org.cthul.fixsure.distributions.GaussianDistribution"/>
+    
+    <factory class="org.cthul.fixsure.factory.DefaultFactories"/>
+</matchers>

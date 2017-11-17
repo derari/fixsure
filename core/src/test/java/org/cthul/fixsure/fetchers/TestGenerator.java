@@ -1,11 +1,11 @@
 package org.cthul.fixsure.fetchers;
 
-import org.cthul.fixsure.base.GeneratorBase;
+import org.cthul.fixsure.fluents.FlGenerator;
 
 /**
  *
  */
-public class TestGenerator extends GeneratorBase<Integer> {
+public class TestGenerator implements FlGenerator<Integer> {
 
     public static TestGenerator gen() {
         return new TestGenerator();
@@ -17,5 +17,4 @@ public class TestGenerator extends GeneratorBase<Integer> {
     public Integer next() {
         return i++;
     }
-    
 }

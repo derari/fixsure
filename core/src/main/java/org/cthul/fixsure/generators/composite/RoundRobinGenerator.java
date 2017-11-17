@@ -1,37 +1,32 @@
 package org.cthul.fixsure.generators.composite;
 
+import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
-import org.cthul.fixsure.base.GeneratorBase;
-import org.cthul.fixsure.base.GeneratorTools;
-import org.cthul.fixsure.fluents.FlGeneratorTemplate;
-import org.hamcrest.Factory;
+import org.cthul.fixsure.generators.GeneratorTools;
+import org.cthul.fixsure.generators.CopyableGenerator;
 
 /**
  *
  */
-public class RoundRobinGenerator<T>
-                extends GeneratorBase<T> 
-                implements FlGeneratorTemplate<T> {
+public class RoundRobinGenerator<T> implements CopyableGenerator<T> {
     
-    @Factory
-    public static <T> RoundRobinGenerator<T> rotate(Generator<? extends T>... generators) {
-        return new RoundRobinGenerator<>(generators);
+    public static <T> RoundRobinGenerator<T> rotate(DataSource<? extends T>... generators) {
+        return new RoundRobinGenerator<T>(generators);
     }
     
-    @Factory
-    public static <T> RoundRobinGenerator<T> alternate(Generator<? extends T>... generators) {
-        return new RoundRobinGenerator<>(generators);
+    public static <T> RoundRobinGenerator<T> alternate(DataSource<? extends T>... generators) {
+        return new RoundRobinGenerator<T>(generators);
     }
     
     private final Generator<? extends T>[] generators;
     private Class<?> valueType = void.class;
     private int n = 0;
 
-    public RoundRobinGenerator(Generator<? extends T>[] generators) {
-        this.generators = generators;
+    public RoundRobinGenerator(DataSource<? extends T>[] generators) {
+        this.generators = DataSource.toGenerators((DataSource[]) generators);
     }
 
-    public RoundRobinGenerator(Class<T> valueType, Generator<? extends T>[] generators) {
+    public RoundRobinGenerator(Class<T> valueType, DataSource<? extends T>[] generators) {
         this(generators);
         this.valueType = valueType;
     }
@@ -39,7 +34,7 @@ public class RoundRobinGenerator<T>
     public RoundRobinGenerator(RoundRobinGenerator<T> src) {
         this.generators = src.generators.clone();
         for (int i = 0; i < this.generators.length; i++) {
-            this.generators[i] = GeneratorTools.newGeneratorFromTemplate(this.generators[i]);
+            this.generators[i] = GeneratorTools.copyGenerator(this.generators[i]);
         }
         this.valueType = src.valueType;
         this.n = src.n;
@@ -59,7 +54,7 @@ public class RoundRobinGenerator<T>
     }
 
     @Override
-    public RoundRobinGenerator<T> newGenerator() {
+    public RoundRobinGenerator<T> copy() {
         return new RoundRobinGenerator<>(this);
     }
     

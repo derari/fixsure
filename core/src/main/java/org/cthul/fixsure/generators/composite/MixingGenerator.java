@@ -1,30 +1,30 @@
 package org.cthul.fixsure.generators.composite;
 
+import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
-import org.cthul.fixsure.base.GeneratorTools;
-import org.cthul.fixsure.base.GeneratorWithScalar;
-import org.cthul.fixsure.fluents.FlGeneratorTemplate;
-import org.cthul.fixsure.generators.primitive.IntegersGenerator;
-import org.hamcrest.Factory;
+import org.cthul.fixsure.generators.GeneratorTools;
+import org.cthul.fixsure.generators.GeneratorWithScalar;
+import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.primitives.IntegersGenerator;
+import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
 /**
  * Produces values from randomly selected generators.
  */
 public class MixingGenerator<T>
                 extends GeneratorWithScalar<T>
-                implements FlGeneratorTemplate<T> {
+                implements CopyableGenerator<T> {
     
-    @Factory
-    public static <T> MixingGenerator<T> mix(Generator<? extends T>... generators) {
-        return new MixingGenerator<>(generators);
+    public static <T> MixingGenerator<T> mix(DataSource<? extends T>... sources) {
+        return new MixingGenerator<T>(sources);
     }
     
     private final Generator<? extends T>[] generators;
     private Class<?> valueType = void.class;
 
-    public MixingGenerator(Generator<? extends T>[] generators) {
-        super(IntegersGenerator.integers(generators.length));
-        this.generators = generators;
+    public MixingGenerator(DataSource<? extends T>[] sources) {
+        super(IntegersGenerator.integers(sources.length));
+        this.generators = DataSource.toGenerators((DataSource[]) sources);
     }
 
     public MixingGenerator(Class<T> valueType, Generator<? extends T>[] generators) {
@@ -36,7 +36,7 @@ public class MixingGenerator<T>
         super(src);
         this.generators = src.generators.clone();
         for (int i = 0; i < this.generators.length; i++) {
-            this.generators[i] = GeneratorTools.newGeneratorFromTemplate(this.generators[i]);
+            this.generators[i] = copyGenerator(this.generators[i]);
         }
         this.valueType = src.valueType;
     }
@@ -55,8 +55,7 @@ public class MixingGenerator<T>
     }
 
     @Override
-    public MixingGenerator<T> newGenerator() {
+    public MixingGenerator<T> copy() {
         return new MixingGenerator<>(this);
     }
-    
 }

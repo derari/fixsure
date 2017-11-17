@@ -41,7 +41,7 @@ public class PermutationsGeneratorTest {
     @Test
     public void test_permutations2() {
         FlGenerator<Integer[]> permutations = new PermutationsGenerator<>(i(1, 2));
-        List<Integer[]> list = EagerFetcher.all(permutations);
+        List<Integer[]> list = permutations.all();
         assertThat(list, (Matcher) contains(i(1, 2), i(2, 1)));
     }
     

@@ -3,58 +3,51 @@ package org.cthul.fixsure.generators.composite;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Queue;
+import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
-import org.cthul.fixsure.base.GeneratorBase;
-import org.cthul.fixsure.base.GeneratorTools;
-import org.cthul.fixsure.fluents.FlGeneratorTemplate;
-import org.cthul.fixsure.generators.value.EmptyGenerator;
-import org.hamcrest.Factory;
+import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.value.EmptySequence;
+import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
 /**
  * A queue of generators that fetches a certain number of elements from
  * each and then uses the next.
  */
-public class GeneratorQueue<T> 
-                extends GeneratorBase<T>
-                implements FlGeneratorTemplate<T> {
+public class GeneratorQueue<T> implements CopyableGenerator<T> {
     
-    @Factory
-    public static <T> GeneratorQueue<T> beginWith(Generator<T> values) {
+    public static <T> GeneratorQueue<T> beginWith(DataSource<T> values) {
         return new GeneratorQueue<>(values);
     }
     
-    @Factory
-    public static <T> GeneratorQueue<T> beginWith(int n, Generator<T> values) {
+    public static <T> GeneratorQueue<T> beginWith(int n, DataSource<T> values) {
         return new GeneratorQueue<>(values, n);
     }
     
-    @Factory
-    public static <T> GeneratorQueue<T> beginWith(Generator<Integer> n, Generator<T> values) {
+    public static <T> GeneratorQueue<T> beginWith(Generator<Integer> n, DataSource<T> values) {
         return new GeneratorQueue<>(values, n.next());
     }
     
-    @Factory
-    public static <T> GeneratorQueue<T> queue(Generator<T>... values) {
+    public static <T> GeneratorQueue<T> queue(DataSource<T>... values) {
         return new GeneratorQueue<>(values);
     }
     
     private Fetch<T> values;
     private Queue<Fetch<T>> moreValues = null;
     
-    public GeneratorQueue(Generator<T> values) {
+    public GeneratorQueue(DataSource<T> values) {
         this(values, -1, null);
     }
     
-    public GeneratorQueue(Generator<T> values, int n) {
+    public GeneratorQueue(DataSource<T> values, int n) {
         this(values, n, null);
     }
     
-    protected GeneratorQueue(Generator<T> values, int n, Collection<Fetch<T>> moreValues) {
+    protected GeneratorQueue(DataSource<T> values, int n, Collection<Fetch<T>> moreValues) {
         if (n < 0) {
-            this.values = new FetchAll<>(values);
+            this.values = new FetchAll<>(values.toGenerator());
         } else {
-            this.values = new FetchFixed<>(values, n);
+            this.values = new FetchFixed<>(values.toGenerator(), n);
         }
         if (moreValues != null) {
             this.moreValues = new ArrayDeque<>(moreValues.size());
@@ -63,13 +56,13 @@ public class GeneratorQueue<T>
     }
     
     @SuppressWarnings("OverridableMethodCallInConstructor")
-    public GeneratorQueue(final Generator<T>... values) {
+    public GeneratorQueue(final DataSource<T>... values) {
         if (values.length == 0) {
-            this.values = new FetchAll<>(EmptyGenerator.<T>noValues());
+            this.values = new FetchAll<>(EmptySequence.<T>noValues());
         } else {
-            this.values = new FetchAll<>(values[0]);
+            this.values = new FetchAll<>(values[0].toGenerator());
             for (int i = 1; i < values.length; i++)
-                _add(values[i]);
+                _add(values[i].toGenerator());
         }
     }
     
@@ -87,7 +80,7 @@ public class GeneratorQueue<T>
         }
     }
     
-    protected void _add(Generator<? extends T> value) {
+    protected void _add(DataSource<? extends T> value) {
         if (moreValues == null) moreValues = new ArrayDeque<>();
         moreValues.add(new FetchAll<>(value));
     }
@@ -139,16 +132,16 @@ public class GeneratorQueue<T>
         return then(n.next(), moreValues);
     }
 
-    public GeneratorQueue<T> thenAll(Generator<? extends T>... moreValues) {
+    public GeneratorQueue<T> thenAll(DataSource<? extends T>... moreValues) {
         GeneratorQueue<T> r = new GeneratorQueue<>(this);
-        for (Generator<? extends T> g: moreValues) {
+        for (DataSource<? extends T> g: moreValues) {
             r._add(g);
         }
         return r;
     }
 
     @Override
-    public GeneratorQueue<T> newGenerator() {
+    public GeneratorQueue<T> copy() {
         return new GeneratorQueue<>(this);
     }
 
@@ -185,14 +178,14 @@ public class GeneratorQueue<T>
             return new FetchFixed<>(newFromTemplate(), rem);
         }
         public Generator<? extends T> newFromTemplate() {
-            return GeneratorTools.newGeneratorFromTemplate(values);
+            return copyGenerator(values);
         }
     }
     
     private static class FetchAll<T> extends Fetch<T> {
         private final Generator<? extends T> values;
-        public FetchAll(Generator<? extends T> values) {
-            this.values = values;
+        public FetchAll(DataSource<? extends T> values) {
+            this.values = values.toGenerator();
         }
         @Override
         public boolean hasNext() {
@@ -211,7 +204,7 @@ public class GeneratorQueue<T>
             return new FetchAll<>(newFromTemplate());
         }
         public Generator<? extends T> newFromTemplate() {
-            return GeneratorTools.newGeneratorFromTemplate(values);
+            return copyGenerator(values);
         }
     }
 }

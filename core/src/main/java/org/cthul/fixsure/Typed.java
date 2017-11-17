@@ -1,8 +1,8 @@
 package org.cthul.fixsure;
 
 /**
- * Optional interface for {@link Converter}, {@link Generator}, 
- * and {@link Values}, to provide information about their values.
+ * Optional interface for {@link DataSource}s to provide 
+ * information about their values.
  */
 public interface Typed<T> {
 
@@ -13,5 +13,28 @@ public interface Typed<T> {
      * @return value type
      */
     Class<T> getValueType();
+ 
+    static <T> Class<T> typeOf(Object typed) {
+        if (typed instanceof Typed) {
+            return ((Typed) typed).getValueType();
+        }
+        return null;
+    }
     
+    static <T> Typed<T> token(String name) {
+        return token(name, null);
+    }
+    
+    static <T> Typed<T> token(String name, Class<T> type) {
+        return new Typed<T>() {
+            @Override
+            public Class<T> getValueType() {
+                return type;
+            }
+            @Override
+            public String toString() {
+                return name;
+            }
+        };
+    }
 }

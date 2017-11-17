@@ -1,67 +1,57 @@
 package org.cthul.fixsure.fetchers;
 
+import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.Generator;
-import org.cthul.fixsure.base.FetcherWithScalar;
+import org.cthul.fixsure.fluents.FlFetcher;
 import org.cthul.fixsure.fluents.FlValues;
-import org.cthul.fixsure.iterables.LazyValues;
-import org.hamcrest.Factory;
+import org.cthul.fixsure.values.LazyValues;
 
 /**
  *
  */
 public class LazyFetcher extends FetcherWithScalar {
         
-    @Factory
     public static <T> T any(Generator<T> generator) {
         return generator.next();
     }
     
-    public static <T> LazyValues<T> unbound(Generator<T> generator) {
+    public static <T> LazyValues<T> unbound(DataSource<T> generator) {
         return LazyValues.unbound(generator);
     }
+//    
+////    public static <T> LazyValues<T> one(Generator<T> generator) {
+//        return Fetchers.one().of(generator);
+//    }
+//    
+////    public static <T> LazyValues<T> two(Generator<T> generator) {
+//        return Fetchers.two().of(generator);
+//    }
+//    
+////    public static <T> LazyValues<T> three(Generator<T> generator) {
+//        return Fetchers.three().of(generator);
+//    }
+//    
+////    public static <T> LazyValues<T> few(Generator<T> generator) {
+//        return Fetchers.few().of(generator);
+//    }
+//    
+////    public static <T> LazyValues<T> some(Generator<T> generator) {
+//        return Fetchers.some().of(generator);
+//    }
+//    
+////    public static <T> LazyValues<T> several(Generator<T> generator) {
+//        return Fetchers.several().of(generator);
+//    }
+//    
+////    public static <T> LazyValues<T> many(Generator<T> generator) {
+//        return Fetchers.many().of(generator);
+//    }
     
-    @Factory
-    public static <T> LazyValues<T> one(Generator<T> generator) {
-        return Fetchers.one().of(generator);
-    }
-    
-    @Factory
-    public static <T> LazyValues<T> two(Generator<T> generator) {
-        return Fetchers.two().of(generator);
-    }
-    
-    @Factory
-    public static <T> LazyValues<T> three(Generator<T> generator) {
-        return Fetchers.three().of(generator);
-    }
-    
-    @Factory
-    public static <T> LazyValues<T> few(Generator<T> generator) {
-        return Fetchers.few().of(generator);
-    }
-    
-    @Factory
-    public static <T> LazyValues<T> some(Generator<T> generator) {
-        return Fetchers.some().of(generator);
-    }
-    
-    @Factory
-    public static <T> LazyValues<T> several(Generator<T> generator) {
-        return Fetchers.several().of(generator);
-    }
-    
-    @Factory
-    public static <T> LazyValues<T> many(Generator<T> generator) {
-        return Fetchers.many().of(generator);
-    }
-    
-    @Factory
     public static LazyFetcher get(int length) {
         return new LazyFetcher(length);
     }
     
-    @Factory
     public static LazyFetcher get(int min, int max) {
         return new LazyFetcher(min, max);
     }
@@ -70,7 +60,7 @@ public class LazyFetcher extends FetcherWithScalar {
         super(length);
     }
 
-    public LazyFetcher(Generator<Integer> lengthGenerator) {
+    public LazyFetcher(DataSource<Integer> lengthGenerator) {
         super(lengthGenerator);
     }
 
@@ -96,28 +86,28 @@ public class LazyFetcher extends FetcherWithScalar {
     }
 
     @Override
-    public <T> LazyValues<T> of(Generator<T> generator) {
+    public <T> LazyValues<T> of(DataSource<T> generator) {
         return (LazyValues<T>) super.of(generator);
     }
 
     @Override
-    public <T> LazyValues<T> ofEach(Generator<? extends T>... generators) {
-        return (LazyValues<T>) super.ofEach(generators);
+    public <T> LazyValues<T> ofEach(DataSource<? extends T>... generators) {
+        return (LazyValues<T>) super.<T>ofEach(generators);
     }
 
     @Override
-    protected <T> CombinableValues<T> newValues(int n, Generator<? extends T> g) {
+    protected <T> CombinableValues<T> newValues(int n, DataSource<? extends T> g) {
         return new LazyCombinedValues<>(g, n);
     }
     
     protected static class LazyCombinedValues<T> 
                     extends LazyValues<T>
                     implements CombinableValues<T> {
-        public LazyCombinedValues(Generator<? extends T> values, int n) {
+        public LazyCombinedValues(DataSource<? extends T> values, int n) {
             super(values, n);
         }
         @Override
-        public void __addMore(int n, Generator<? extends T> g) {
+        public void __addMore(int n, DataSource<? extends T> g) {
             _add(g, n);
         }
         @Override
@@ -125,4 +115,9 @@ public class LazyFetcher extends FetcherWithScalar {
             return this;
         }
     }    
+    
+    public static interface Template extends FlFetcher.Template {
+        @Override
+        LazyFetcher toItemConsumer();
+    }
 }

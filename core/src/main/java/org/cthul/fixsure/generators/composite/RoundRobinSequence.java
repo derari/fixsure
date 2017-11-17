@@ -1,35 +1,29 @@
 package org.cthul.fixsure.generators.composite;
 
+import java.util.Arrays;
 import org.cthul.fixsure.Sequence;
-import org.cthul.fixsure.base.GeneratorTools;
-import org.cthul.fixsure.base.SequenceBase;
-import org.cthul.fixsure.fluents.FlGeneratorTemplate;
-import org.hamcrest.Factory;
+import org.cthul.fixsure.generators.GeneratorTools;
+import org.cthul.fixsure.fluents.FlSequence;
 
 /**
  *
  */
-public class RoundRobinSequence<T>
-                extends SequenceBase<T> 
-                implements FlGeneratorTemplate<T> {
+public class RoundRobinSequence<T> implements FlSequence<T> {
     
-    @Factory
     public static <T> RoundRobinSequence<T> rotate(Sequence<? extends T>... generators) {
-        return new RoundRobinSequence<>(generators);
+        return new RoundRobinSequence<T>(generators);
     }
     
-    @Factory
     public static <T> RoundRobinSequence<T> alternate(Sequence<? extends T>... generators) {
-        return new RoundRobinSequence<>(generators);
+        return new RoundRobinSequence<T>(generators);
     }
     
-    private final Sequence<? extends T>[] generators;
-    private long length = -2;
+    private final Sequence<? extends T>[] sequences;
+    private long length = -3;
     private Class<?> valueType = void.class;
-    private int n = 0;
 
     public RoundRobinSequence(Sequence<? extends T>[] generators) {
-        this.generators = generators;
+        this.sequences = generators;
     }
 
     public RoundRobinSequence(Class<T> valueType, Sequence<? extends T>[] generators) {
@@ -38,53 +32,47 @@ public class RoundRobinSequence<T>
     }
 
     protected RoundRobinSequence(RoundRobinSequence<T> src) {
-        this.generators = src.generators.clone();
-        for (int i = 0; i < this.generators.length; i++) {
-            this.generators[i] = (Sequence) GeneratorTools.newGeneratorFromTemplate(this.generators[i]);
-        }
+        this.sequences = src.sequences.clone();
         this.length = src.length;
         this.valueType = src.valueType;
-        this.n = src.n;
-    }
-
-    @Override
-    public T next() {
-        return generators[(n++) % generators.length].next();
     }
 
     @Override
     public Class<T> getValueType() {
         if (valueType == void.class) {
-            valueType = GeneratorTools.commonTypeOf((Object[]) generators);
+            valueType = GeneratorTools.commonTypeOf((Object[]) sequences);
         }
         return (Class) valueType;
     }
 
     @Override
     public T value(long n) {
-        int g = (int) (n % generators.length);
-        long i = n / generators.length;
-        return generators[g].value(i);
+        int g = (int) (n % sequences.length);
+        long i = n / sequences.length;
+        return sequences[g].value(i);
     }
 
     @Override
     public long length() {
-        if (length == -2) {
-            long l = Long.MAX_VALUE;
-            for (Sequence<?> s: generators) {
-                long l2 = s.length();
-                if (l2 >= 0) l = Math.min(l, l2);
+        if (length == -3) {
+            if (Arrays.stream(sequences).allMatch(Sequence::negativeIndices)) {
+                length = Sequence.L_NEGATIVE_INDICES;
+            } else if (Arrays.stream(sequences).allMatch(Sequence::isUnbounded)) {
+                length = Sequence.L_UNBOUNDED;
+            } else {
+                long l = Long.MAX_VALUE;
+                for (Sequence<?> s: sequences) {
+                    long l2 = s.length();
+                    if (l2 >= 0) l = Math.min(l, l2);
+                }
+                if ((l * sequences.length) / sequences.length != l) {
+                    // long overflow
+                    length = Sequence.L_UNBOUNDED;
+                } else {
+                    length = l * sequences.length;
+                }
             }
-            l *= generators.length;
-            if (l < 0) l = -1;
-            length = l;
         }
         return length;
     }
-
-    @Override
-    public RoundRobinSequence<T> newGenerator() {
-        return new RoundRobinSequence<>(this);
-    }
-    
 }

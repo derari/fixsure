@@ -1,54 +1,145 @@
 package org.cthul.fixsure.fluents;
 
-import org.cthul.fixsure.Converter;
+import java.util.Spliterator;
+import java.util.Spliterators.AbstractSpliterator;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Fetcher;
 import org.cthul.fixsure.Generator;
-import org.cthul.fixsure.Typed;
-import org.cthul.fixsure.Values;
+import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.generators.composite.*;
+import org.cthul.fixsure.values.EagerValues;
+import org.cthul.fixsure.values.LazyValues;
 
 /**
  * Extends the {@link Generator} interface for fluent methods.
  * @param <T> value type
  */
-public interface FlGenerator<T> extends Generator<T>, Typed<T> {
+
+@FunctionalInterface
+public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
+
+    @Override
+    @Deprecated
+    default Generator<T> toGenerator() {
+        return this;
+    }
     
-    // Should not exist to avoid ambiguity with Collection#get(int),
-    // use #next(int) instead
-    //Values<T> get(int length);
+    @Override
+    default FlGenerator<T> fluentData() {
+        return this;
+    }
     
-    FlValues<T> get(Generator<Integer> length);
+    default LazyValues<T> any(int length) {
+        return LazyValues.any(length, toGenerator());
+    }
     
-    Values<T> get(Fetcher fetcher);
+    default LazyValues<T> any(Generator<Integer> length) {
+        return LazyValues.any(length, toGenerator());
+    }
     
-    FlValues<T> get(FlFetcher fetcher);
+    default EagerValues<T> next(int length) {
+        return EagerValues.next(length, toGenerator());
+    }
     
-    FlValues<T> unbound();
+    default EagerValues<T> next(Generator<Integer> length) {
+        return EagerValues.next(length, toGenerator());
+    }
     
-    FlValues<T> next(int length);
+    default FlValues<T> next(Fetcher fetcher) {
+        return fetcher.toItemConsumer().of(this).fluentData();
+    }
+
+    @Override
+    default FlGenerator<T> distinct() {
+        return DistinctGenerator.distinct(toGenerator());
+    }
     
-    FlValues<T> next(Generator<Integer> length);
+    @Override
+    default FlGenerator<T> filter(Predicate<? super T> predicate) {
+        return FilteringGenerator.filter(toGenerator(), predicate);
+    }
     
-    FlValues<T> all();
+    @Override
+    default <R> FlGenerator<R> flatMap(Function<? super T, ? extends DataSource<R>> function) {
+        return FlatMappingGenerator.map(toGenerator(), function);
+    }
     
-    <T2> FlGenerator<T2> each(Converter<? super T, T2> converter);
+    @Override
+    default <R> FlGenerator<R> map(Function<? super T, ? extends R> function) {
+        return MappingGenerator.map(toGenerator(), function);
+    }
     
-    <T2> FlGenerator<T2> mergeWith(Generator<? extends T2>... generators);
+    @Override
+    default <U, R> FlGenerator<R> map(DataSource<U> other, BiFunction<? super T, ? super U, ? extends R> function) {
+        return with(other).map(function);
+    }
     
-    <T2> FlGenerator<T2> mixWith(Generator<? extends T2>... generators);
+    @Override
+    default FlGenerator<T> peek(Consumer<? super T> consumer) {
+        return map(e -> { consumer.accept(e); return e; });
+    }
     
-    <T2> FlGenerator<T2> alternateWith(Generator<? extends T2>... generators);
+    @Override
+    default FlGenerator<T> then(DataSource<? extends T>... more) {
+        return GeneratorQueue.beginWith(toGenerator()).thenAll(more);
+    }
+
+    @Override
+    default FlGenerator<T> shuffle() {
+        return ShufflingGenerator.shuffle(toGenerator());
+    }
     
-    /**
-     * If this generator is finite, returns its output repeatedly.
-     * (Optional operation)
-     * @throws 
-     *   UnsupportedOperationException if generator is not repeatable.
-     * @return 
-     */
-    FlGenerator<T> repeat() throws UnsupportedOperationException;
+    @Override
+    default FlGenerator<T> mixWith(DataSource<? extends T>... more) {
+        Generator<T>[] generators = DataSource.toGenerators(toGenerator(), (DataSource[]) more);
+        return MixingGenerator.mix(generators);
+    }
     
-    <T2> FlGenerator<T2> invoke(String m);
+    @Override
+    default FlGenerator<T> alternateWith(DataSource<? extends T>... more) {
+        Generator<T>[] generators = DataSource.toGenerators(toGenerator(), (DataSource[]) more);
+        return RoundRobinGenerator.alternate(generators);
+    }
     
-    <T2> FlGenerator<T2> invoke(String m, Object... args);
+    @Override
+    default FlTemplate<T> snapshot() {
+        throw new UnsupportedOperationException("not copayble");
+    }
+
+    @Override
+    default <U, V> BiGenerator<U, V> split(BiConsumer<? super T, ? super BiConsumer<? super U, ? super V>> action) {
+        return bag -> action.accept(next(), bag);
+    }
     
+    @Override
+    default <U> BiGenerator<T, U> with(DataSource<U> source) {
+        Generator<U> gen2 = source.toGenerator();
+        return bag -> bag.accept(next(), gen2.next());
+    }
+    
+    @Override
+    default Stream<T> stream() {
+        class GSpliterator extends AbstractSpliterator<T> {
+            public GSpliterator() {
+                super(Long.MAX_VALUE, Spliterator.IMMUTABLE);
+            }
+            @Override
+            public boolean tryAdvance(Consumer<? super T> action) {
+                try {
+                    action.accept(next());
+                    return true;
+                } catch (GeneratorException e) {
+                    return false;
+                }
+            }
+        }
+        return StreamSupport.stream(new GSpliterator(), false);
+    }
 }

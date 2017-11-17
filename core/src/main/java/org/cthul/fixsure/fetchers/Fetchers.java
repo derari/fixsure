@@ -1,102 +1,141 @@
 package org.cthul.fixsure.fetchers;
 
+import org.cthul.fixsure.DataSource;
+import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.Generator;
-import org.hamcrest.Factory;
+import org.cthul.fixsure.distributions.UniformDistribution;
 
 /**
  *
  */
 public class Fetchers {
     
+    private static final int FEW_LOW = 3;
+    private static final int FEW_HIGH = 5;
+    private static final int SOME_LOW = 5;
+    private static final int SOME_HIGH = 8;
+    private static final int SEVERAL_LOW = 8;
+    private static final int SEVERAL_HIGH = 16;
+    private static final int MANY_LOW = 96;
+    private static final int MANY_HIGH = 128;
+    
     private static class Instances {
         private static final EagerFetcher ALL =    new EagerFetcher(-1);
         private static final LazyFetcher UNBOUND = new LazyFetcher(-1);
-        private static final LazyFetcher ONE =    new LazyFetcher(1);
-        private static final LazyFetcher TWO =    new LazyFetcher(2);
-        private static final LazyFetcher THREE =  new LazyFetcher(3);
-        private static final LazyFetcher FEW =    new LazyFetcher(3, 4);
-        private static final LazyFetcher SOME =   new LazyFetcher(5, 7);
-        private static final LazyFetcher SEVERAL = new LazyFetcher(8, 16);
-        private static final LazyFetcher MANY =   new LazyFetcher(96, 128);
+        private static final EagerFetcher ONE =    new EagerFetcher(1);
+        private static final EagerFetcher TWO =    new EagerFetcher(2);
+        private static final EagerFetcher THREE =  new EagerFetcher(3);
+        private static final EagerFetcher.Template FEW =    next(FEW_LOW, FEW_HIGH);
+        private static final EagerFetcher.Template SOME =   next(SOME_LOW, SOME_HIGH);
+        private static final EagerFetcher.Template SEVERAL = next(SEVERAL_LOW, SEVERAL_HIGH);
+        private static final EagerFetcher.Template MANY =   next(MANY_LOW, MANY_HIGH);
     }
     
-    @Factory
     public static EagerFetcher all() {
         return Instances.ALL;
     }
     
-    @Factory
+    public static LazyFetcher cache() {
+        return Instances.UNBOUND;
+    }
+    
     public static EagerFetcher next(int length) {
         return new EagerFetcher(length);
     }
     
-    @Factory
-    public static EagerFetcher next(int min, int max) {
-        return new EagerFetcher(min, max);
+    public static EagerFetcher.Template next(int min, int max) {
+        return () -> new EagerFetcher(min, max);
     }
     
-    @Factory
+    public static EagerFetcher.Template next(int min, int max, Distribution distribution) {
+        return () -> new EagerFetcher(min, max, distribution);
+    }
+    
+    public static EagerFetcher.Template next(int min, int max, long seed) {
+        return next(min, max, UniformDistribution.uniform(seed));
+    }
+    
+    public static EagerFetcher.Template next(DataSource<Integer> lengthGenerator) {
+        return () -> new EagerFetcher(lengthGenerator);
+    }
+    
     public static EagerFetcher next(Generator<Integer> lengthGenerator) {
         return new EagerFetcher(lengthGenerator);
     }
     
-    @Factory
     public static EagerFetcher first(int length) {
         return new EagerFetcher(length);
     }
     
-    @Factory
-    public static EagerFetcher first(int min, int max) {
-        return new EagerFetcher(min, max);
+    public static EagerFetcher.Template first(int min, int max) {
+        return () -> new EagerFetcher(min, max);
     }
     
-    @Factory
-    public static EagerFetcher first(Generator<Integer> lengthGenerator) {
-        return new EagerFetcher(lengthGenerator);
+    public static EagerFetcher.Template first(DataSource<Integer> lengthGenerator) {
+        return () -> new EagerFetcher(lengthGenerator);
     }
     
-    @Factory
-    public static LazyFetcher unbound() {
-        return Instances.UNBOUND;
-    }
-    
-    @Factory
-    public static LazyFetcher one() {
+    public static EagerFetcher one() {
         return Instances.ONE;
     }
     
-    @Factory
-    public static LazyFetcher two() {
+    public static EagerFetcher two() {
         return Instances.TWO;
     }
     
-    @Factory
-    public static LazyFetcher three() {
+    public static EagerFetcher three() {
         return Instances.THREE;
     }
     
-    @Factory
-    public static LazyFetcher few() {
+    public static EagerFetcher.Template few() {
         return Instances.FEW;
     }
     
-    @Factory
-    public static LazyFetcher some() {
+    public static EagerFetcher.Template some() {
         return Instances.SOME;
     }
     
-    @Factory
-    public static LazyFetcher several() {
+    public static EagerFetcher.Template several() {
         return Instances.SEVERAL;
     }
     
-    @Factory
-    public static LazyFetcher many() {
+    public static EagerFetcher.Template many() {
         return Instances.MANY;
     }
+    
+    public static EagerFetcher.Template few(Distribution distribution) {
+        return next(FEW_LOW, FEW_HIGH, distribution);
+    }
+    
+    public static EagerFetcher.Template some(Distribution distribution) {
+        return next(SOME_LOW, SOME_HIGH, distribution);
+    }
+    
+    public static EagerFetcher.Template several(Distribution distribution) {
+        return next(SEVERAL_LOW, SEVERAL_HIGH, distribution);
+    }
+    
+    public static EagerFetcher.Template many(Distribution distribution) {
+        return next(MANY_LOW, MANY_HIGH, distribution);
+    }
+    
+    public static EagerFetcher.Template few(long seed) {
+        return few(UniformDistribution.uniform(seed));
+    }
+    
+    public static EagerFetcher.Template some(long seed) {
+        return some(UniformDistribution.uniform(seed));
+    }
+    
+    public static EagerFetcher.Template several(long seed) {
+        return several(UniformDistribution.uniform(seed));
+    }
+    
+    public static EagerFetcher.Template many(long seed) {
+        return many(UniformDistribution.uniform(seed));
+    }
 
-    @Factory
-    public static LazyFetcher get(Generator<Integer> lengthGenerator) {
+    public static LazyFetcher any(DataSource<Integer> lengthGenerator) {
         return new LazyFetcher(lengthGenerator);
     }
 }

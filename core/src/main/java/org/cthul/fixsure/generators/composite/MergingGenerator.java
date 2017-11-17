@@ -1,30 +1,35 @@
 package org.cthul.fixsure.generators.composite;
 
+import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
-import org.cthul.fixsure.base.GeneratorBase;
-import org.cthul.fixsure.base.GeneratorTools;
-import org.cthul.fixsure.fluents.FlGeneratorTemplate;
-import org.hamcrest.Factory;
+import org.cthul.fixsure.generators.GeneratorTools;
+import org.cthul.fixsure.generators.CopyableGenerator;
+import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
 /**
  * Merges multiple generators that produce sorted values into one.
  */
-public class MergingGenerator<T>
-                extends GeneratorBase<T>
-                implements FlGeneratorTemplate<T> {
+public class MergingGenerator<T> implements CopyableGenerator<T> {
     
     private static final Object NO_VALUE = new Object();
     
-    @Factory
-    public static <T> MergingGenerator<T> merge(Generator<? extends T>... generators) {
-        return new MergingGenerator<>(generators);
+    public static <T> MergingGenerator<T> merge(DataSource<? extends T>... generators) {
+        return new MergingGenerator<T>(generators);
     }
     
     private final Generator<? extends T>[] generators;
     private final Object[] nextValues;
     private Class<?> valueType = void.class;
 
+    public MergingGenerator(DataSource<? extends T> first, DataSource<? extends T>[] more) {
+        this(DataSource.toGenerators((DataSource) first, (DataSource[]) more));
+    }
+
+    public MergingGenerator(DataSource<? extends T>[] generators) {
+        this(DataSource.toGenerators((DataSource[]) generators));
+    }
+    
     public MergingGenerator(Generator<? extends T>[] generators) {
         this.generators = generators;
         this.nextValues = new Object[generators.length];
@@ -33,7 +38,7 @@ public class MergingGenerator<T>
         }
     }
 
-    public MergingGenerator(Class<T> valueType, Generator<? extends T>[] generators) {
+    public MergingGenerator(Class<T> valueType, DataSource<? extends T>[] generators) {
         this(generators);
         this.valueType = valueType;
     }
@@ -41,7 +46,7 @@ public class MergingGenerator<T>
     public MergingGenerator(MergingGenerator<T> src) {
         this.generators = src.generators.clone();
         for (int i = 0; i < this.generators.length; i++) {
-            this.generators[i] = GeneratorTools.newGeneratorFromTemplate(this.generators[i]);
+            this.generators[i] = copyGenerator(this.generators[i]);
         }
         this.valueType = src.valueType;
         this.nextValues = src.nextValues;
@@ -78,7 +83,7 @@ public class MergingGenerator<T>
     private boolean lessThan(Object o1, Object o2) {
         Comparable c1 = (Comparable) o1;
         Comparable c2 = (Comparable) o2;
-        return c1.compareTo(o2) < 0;
+        return c1.compareTo(c2) < 0;
     }
 
     @Override
@@ -90,8 +95,7 @@ public class MergingGenerator<T>
     }
 
     @Override
-    public MergingGenerator<T> newGenerator() {
+    public MergingGenerator<T> copy() {
         return new MergingGenerator<>(this);
-    }
-    
+    }    
 }
