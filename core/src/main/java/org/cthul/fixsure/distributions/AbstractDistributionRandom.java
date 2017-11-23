@@ -1,11 +1,10 @@
 package org.cthul.fixsure.distributions;
 
 import java.util.Random;
-import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.fluents.FlDistribution;
 
 /**
- * Base class for {@link Distribution}s.
+ * Base class for {@link RandomNumbers}s.
  */
 public abstract class AbstractDistributionRandom implements FlDistribution.FlRandom {
     
@@ -49,7 +48,7 @@ public abstract class AbstractDistributionRandom implements FlDistribution.FlRan
 //    }
 
     /**
-     * The {@link Random} that should be used for genrating values.
+     * The {@link Random} that should be used for generating values.
      * @return random
      */
     protected Random rnd() {

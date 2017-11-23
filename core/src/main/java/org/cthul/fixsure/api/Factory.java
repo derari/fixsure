@@ -1,4 +1,4 @@
-package org.cthul.fixsure;
+package org.cthul.fixsure.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;

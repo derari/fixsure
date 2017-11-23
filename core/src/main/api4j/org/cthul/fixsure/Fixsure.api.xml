@@ -7,7 +7,7 @@
     <factory class="org.cthul.fixsure.generators.primitives.CharactersGenerator"/>
     <factory class="org.cthul.fixsure.generators.primitives.ConsecutiveIntegersSequence"/>
     <factory class="org.cthul.fixsure.generators.primitives.DoublesGenerator"/>
-    <factory class="org.cthul.fixsure.generators.primitives.IntegersGenerator"/>
+    <factory class="org.cthul.fixsure.generators.primitives.RandomIntegersGenerator"/>
     <factory class="org.cthul.fixsure.generators.primitives.StringsGenerator"/>
     
     <factory class="org.cthul.fixsure.generators.value.ConstantValue"/>

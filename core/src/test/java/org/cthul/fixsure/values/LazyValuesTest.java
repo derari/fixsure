@@ -3,7 +3,7 @@ package org.cthul.fixsure.values;
 import org.cthul.fixsure.Values;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlTemplate;
-import static org.cthul.fixsure.generators.primitives.IntegersGenerator.integers;
+import static org.cthul.fixsure.generators.primitives.RandomIntegersGenerator.integers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;

@@ -31,15 +31,15 @@ public class IntegersGeneratorTest {
 
     @Test
     public void test_generated_integers() {
-        FlGenerator<Integer> ig = IntegersGenerator.integers().newGenerator();
+        FlGenerator<Integer> ig = RandomIntegersGenerator.integers().newGenerator();
         for (int i = 0; i < 16; i++) {
-            assertThat(ig.next(), between(IntegersGenerator.DEFAULT_LOW, IntegersGenerator.DEFAULT_HIGH));
+            assertThat(ig.next(), between(RandomIntegersGenerator.DEFAULT_LOW, RandomIntegersGenerator.DEFAULT_HIGH));
         }
     }
     
     @Test
     public void test_generated_ranged_integers() {
-        FlTemplate<Integer> ig = IntegersGenerator.integers(17, 20);
+        FlTemplate<Integer> ig = RandomIntegersGenerator.integers(17, 20);
         ig.first(20).forEach(i -> {
             assertThat(i, between(17, 20));
         });

@@ -22,7 +22,7 @@ public class TestValues {
     private static final ItemsSequence<Double> SPECIAL_DOUBLES = sequence(
             Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
     
-    private static final FlTemplate<Integer> TEST_INTS = defaultIntegers().then(IntegersGenerator.integers());
+    private static final FlTemplate<Integer> TEST_INTS = defaultIntegers().then(RandomIntegersGenerator.integers());
     
     private static final FlTemplate<Double> TEST_DOUBLES = defaultDoubles().then(DoublesGenerator.doubles());
     

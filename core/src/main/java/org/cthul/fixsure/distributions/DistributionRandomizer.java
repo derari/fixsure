@@ -2,7 +2,11 @@ package org.cthul.fixsure.distributions;
 
 import java.util.Random;
 import java.util.function.LongSupplier;
+import org.cthul.fixsure.Distribution;
 
+/**
+ * Stores a global seed used by {@link Distribution}s.
+ */
 public final class DistributionRandomizer {
     
     private static final DistributionRandomizer GLOBAL = new DistributionRandomizer(toSeed(DistributionRandomizer.class));

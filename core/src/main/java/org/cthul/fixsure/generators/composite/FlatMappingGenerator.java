@@ -2,7 +2,9 @@ package org.cthul.fixsure.generators.composite;
 
 import java.util.function.Function;
 import org.cthul.fixsure.*;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
 /**
@@ -41,6 +43,12 @@ public class FlatMappingGenerator<T> implements CopyableGenerator<T> {
     @Override
     public FlatMappingGenerator<T> copy() {
         return new FlatMappingGenerator<>(this);
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return GeneratorTools.getRandomSeedHint(cnv.src) * 3 ^ 
+                DistributionRandomizer.toSeed(FlatMappingGenerator.class);
     }
     
     private static class Convert<Src, Out> {

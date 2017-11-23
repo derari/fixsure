@@ -2,6 +2,7 @@ package org.cthul.fixsure.generators.composite;
 
 import java.util.Arrays;
 import org.cthul.fixsure.Sequence;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.fluents.FlSequence;
 
@@ -74,5 +75,14 @@ public class RoundRobinSequence<T> implements FlSequence<T> {
             }
         }
         return length;
+    }
+
+    @Override
+    public long randomSeedHint() {
+        long seed = DistributionRandomizer.toSeed(getClass());
+        for (Sequence<?> s: sequences) {
+            seed ^= GeneratorTools.getRandomSeedHint(s);
+        }
+        return seed;
     }
 }

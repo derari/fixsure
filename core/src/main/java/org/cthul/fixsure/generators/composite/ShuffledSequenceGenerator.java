@@ -27,7 +27,7 @@ public class ShuffledSequenceGenerator<T> implements CopyableGenerator<T> {
     private long i = -1;
 
     public ShuffledSequenceGenerator(Sequence<T> source) {
-        this(source, UniformDistribution.uniform(), CLASS_SEED);
+        this(source, UniformDistribution.uniform(), CLASS_SEED ^ GeneratorTools.getRandomSeedHint(source));
     }
     
     public ShuffledSequenceGenerator(Sequence<T> source, Distribution randomSource, long seedHint) {
@@ -88,5 +88,9 @@ public class ShuffledSequenceGenerator<T> implements CopyableGenerator<T> {
     public ShuffledSequenceGenerator<T> copy() {
         return new ShuffledSequenceGenerator<>(this);
     }
-    
+
+    @Override
+    public long randomSeedHint() {
+        return GeneratorTools.getRandomSeedHint(source) ^ CLASS_SEED;
+    }
 }

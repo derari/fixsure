@@ -44,28 +44,28 @@ public class SimpleFetcherTest {
     
     @Test
     public void test_few() {
-        List<Integer> list = Fetchers.few().toItemConsumer().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.few().toFetcher().of(TestGenerator.gen());
         assertThat(list, hasSize(between(3, 6)));
         assertThat(list.subList(0, 3), contains(0, 1, 2));
     }
     
     @Test
     public void test_some() {
-        List<Integer> list = Fetchers.some().toItemConsumer().of(TestGenerator.gen());
-        assertThat(list, hasSize(between(5, 8)));
+        List<Integer> list = Fetchers.some().toFetcher().of(TestGenerator.gen());
+        assertThat(list, hasSize(between(5, 9)));
         assertThat(list.subList(0, 5), contains(0, 1, 2, 3, 4));
     }
     
     @Test
     public void test_several() {
-        List<Integer> list = Fetchers.several().toItemConsumer().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.several().toFetcher().of(TestGenerator.gen());
         assertThat(list, hasSize(between(8, 17)));
         assertThat(list.subList(0, 8), contains(0, 1, 2, 3, 4, 5, 6, 7));
     }
     
     @Test
     public void test_many() {
-        List<Integer> list = Fetchers.many().toItemConsumer().of(TestGenerator.gen());
+        List<Integer> list = Fetchers.many().toFetcher().of(TestGenerator.gen());
         assertThat(list, hasSize(between(96, 129)));
     }
     

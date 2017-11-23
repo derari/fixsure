@@ -14,7 +14,7 @@ public class DefaultFactories extends FactoryBase implements Factories, Factorie
      * Creates a new builder for factories.
      * @return factories setup
      */
-    @org.cthul.fixsure.Factory
+    @org.cthul.fixsure.api.Factory
     public static FactoriesSetup newFactoriesSetup() {
         return new DefaultFactories();
     }

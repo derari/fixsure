@@ -1,6 +1,6 @@
 package org.cthul.fixsure.generators.value;
 
-import org.cthul.fixsure.Factory;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.generators.BoundedSequence;
 
 /**
@@ -33,5 +33,10 @@ public class EmptySequence<T> extends BoundedSequence<T> {
     @Override
     public Class<T> getValueType() {
         return null;
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return 0;
     }
 }

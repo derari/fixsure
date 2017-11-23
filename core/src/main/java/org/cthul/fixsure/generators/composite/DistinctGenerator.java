@@ -5,6 +5,7 @@ import java.util.Set;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import org.cthul.fixsure.generators.GeneratorTools;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
@@ -42,6 +43,12 @@ public class DistinctGenerator<T> implements CopyableGenerator<T> {
         this.source = copyGenerator(src.source);
         this.oldValues = new HashSet<>(src.oldValues);
         this.maxAttempts = src.maxAttempts;
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return GeneratorTools.getRandomSeedHint(source) * 3 ^ 
+                DistributionRandomizer.toSeed(DistinctGenerator.class);
     }
     
     @Override

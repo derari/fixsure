@@ -2,9 +2,9 @@ package org.cthul.fixsure.fetchers;
 
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Distribution;
-import org.cthul.fixsure.fluents.FlFetcher;
 import org.cthul.fixsure.fluents.FlValues;
 import org.cthul.fixsure.values.EagerValues;
+import org.cthul.fixsure.fluents.FlCardinality;
 
 /**
  *
@@ -145,8 +145,8 @@ public class EagerFetcher extends FetcherWithScalar {
         }
     }    
     
-    public static interface Template extends FlFetcher.Template {
+    public static interface Template extends FlCardinality.Template {
         @Override
-        EagerFetcher toItemConsumer();
+        EagerFetcher toFetcher();
     }
 }

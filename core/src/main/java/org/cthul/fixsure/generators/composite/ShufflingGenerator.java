@@ -6,6 +6,7 @@ import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
 import static org.cthul.fixsure.distributions.DistributionRandomizer.toSeed;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.GeneratorWithDistribution;
 
 /**
@@ -21,6 +22,10 @@ public class ShufflingGenerator<T>
         return new ShufflingGenerator<>(source, 64);
     }
     
+    public static <T> ShufflingGenerator<T> shuffle(DataSource<T> source, long seed) {
+        return new ShufflingGenerator<>(source, 64, null, seed);
+    }
+    
     private final Generator<T> source;
     private final Object[] hold;
     private int end = -1;
@@ -30,7 +35,13 @@ public class ShufflingGenerator<T>
     }
 
     public ShufflingGenerator(DataSource<T> source, int hold, Distribution distribution) {
-        this(source, hold, distribution, CLASS_SEED);
+        this(source.toGenerator(), hold, distribution);
+    }
+
+    private ShufflingGenerator(Generator<T> source, int hold, Distribution distribution) {
+        super(distribution, CLASS_SEED ^ GeneratorTools.getRandomSeedHint(source));
+        this.source = source;
+        this.hold = new Object[hold];
     }
 
     public ShufflingGenerator(DataSource<T> source, int hold, Distribution distribution, long seedHint) {

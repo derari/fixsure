@@ -7,6 +7,7 @@ import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.value.EmptySequence;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
@@ -145,11 +146,17 @@ public class GeneratorQueue<T> implements CopyableGenerator<T> {
         return new GeneratorQueue<>(this);
     }
 
+    @Override
+    public long randomSeedHint() {
+        return values.randomSeedHint();
+    }
+
     protected static abstract class Fetch<T> {
         public abstract boolean hasNext();
         public abstract T fetch();
         public abstract boolean expectException();
         public abstract Fetch<T> copy();
+        public abstract long randomSeedHint();
     }
     
     private static class FetchFixed<T> extends Fetch<T> {
@@ -180,6 +187,10 @@ public class GeneratorQueue<T> implements CopyableGenerator<T> {
         public Generator<? extends T> newFromTemplate() {
             return copyGenerator(values);
         }
+        @Override
+        public long randomSeedHint() {
+            return GeneratorTools.getRandomSeedHint(values) ^ rem;
+        }
     }
     
     private static class FetchAll<T> extends Fetch<T> {
@@ -205,6 +216,10 @@ public class GeneratorQueue<T> implements CopyableGenerator<T> {
         }
         public Generator<? extends T> newFromTemplate() {
             return copyGenerator(values);
+        }
+        @Override
+        public long randomSeedHint() {
+            return GeneratorTools.getRandomSeedHint(values) ^ 0xa77a77a77L;
         }
     }
 }

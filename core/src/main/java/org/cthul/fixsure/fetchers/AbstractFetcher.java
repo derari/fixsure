@@ -1,16 +1,14 @@
 package org.cthul.fixsure.fetchers;
 
 import org.cthul.fixsure.DataSource;
-import org.cthul.fixsure.Fetcher;
-import org.cthul.fixsure.Generator;
-import org.cthul.fixsure.fluents.FlFetcher;
 import org.cthul.fixsure.fluents.FlValues;
 import org.cthul.fixsure.generators.value.EmptySequence;
+import org.cthul.fixsure.fluents.FlCardinality;
 
 /**
  * Base class for {@link Fetcher}s.
  */
-public abstract class AbstractFetcher implements FlFetcher.FlConsumer {
+public abstract class AbstractFetcher implements FlCardinality.FlFetcher {
 
     @Override
     public abstract int nextLength();

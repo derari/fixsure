@@ -7,7 +7,7 @@ import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Typed;
 import org.cthul.fixsure.fetchers.Fetchers;
 import org.cthul.fixsure.fluents.BiDataSource;
-import static org.cthul.fixsure.generators.primitives.IntegersGenerator.integers;
+import static org.cthul.fixsure.generators.primitives.RandomIntegersGenerator.integers;
 import static org.cthul.fixsure.generators.value.ItemsSequence.sequence;
 import org.junit.After;
 import org.junit.AfterClass;

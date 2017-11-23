@@ -8,6 +8,8 @@ import java.util.function.Predicate;
 
 /**
  *
+ * @param <T>
+ * @param <U>
  */
 public interface BiDataSource<T, U> {
     

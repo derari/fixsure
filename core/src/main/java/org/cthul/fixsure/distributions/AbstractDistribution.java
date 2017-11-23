@@ -1,10 +1,11 @@
 package org.cthul.fixsure.distributions;
 
 import java.util.function.LongSupplier;
+import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.fluents.FlDistribution;
 
 /**
- *
+ * Base class for implementations of {@link Distribution}.
  */
 public abstract class AbstractDistribution implements FlDistribution {
     

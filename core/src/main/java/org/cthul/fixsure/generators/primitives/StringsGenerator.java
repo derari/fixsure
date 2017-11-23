@@ -1,7 +1,7 @@
 package org.cthul.fixsure.generators.primitives;
 
 import org.cthul.fixsure.DataSource;
-import org.cthul.fixsure.Factory;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.fluents.FlTemplate;
 import org.cthul.fixsure.generators.CopyableGenerator;
@@ -62,7 +62,7 @@ public class StringsGenerator
      * @return random strings
      */
     @Factory
-    public static FlTemplate<String> strings(DataSource<Character> characters, Generator<Integer> length) {
+    public static FlTemplate<String> strings(DataSource<Character> characters, DataSource<Integer> length) {
         return () -> new StringsGenerator(characters, length);
     }
     

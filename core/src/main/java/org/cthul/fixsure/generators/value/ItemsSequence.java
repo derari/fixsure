@@ -1,7 +1,8 @@
 package org.cthul.fixsure.generators.value;
 
 import java.util.*;
-import org.cthul.fixsure.Factory;
+import org.cthul.fixsure.api.Factory;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.generators.BoundedSequence;
 import org.cthul.fixsure.generators.GeneratorTools;
@@ -77,6 +78,11 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
 //    }
 
     public ItemsSequence() {
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return length() ^ DistributionRandomizer.toSeed(getClass());
     }
     
     public static class FromArray<T> extends ItemsSequence<T> {

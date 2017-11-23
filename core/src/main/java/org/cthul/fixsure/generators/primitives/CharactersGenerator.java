@@ -2,8 +2,9 @@ package org.cthul.fixsure.generators.primitives;
 
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Distribution;
-import org.cthul.fixsure.Factory;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.Generator;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlTemplate;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import org.cthul.fixsure.generators.GeneratorWithScalar;
@@ -85,8 +86,8 @@ public abstract class CharactersGenerator
         super(scalarGenerator);
     }
 
-    public CharactersGenerator(int scalar, Distribution distribution) {
-        super(scalar, distribution);
+    public CharactersGenerator(int scalar, Distribution distribution, long seed) {
+        super(scalar, distribution, seed);
     }
 
     protected CharactersGenerator(CharactersGenerator src) {
@@ -107,6 +108,8 @@ public abstract class CharactersGenerator
     
     public static class FromString extends CharactersGenerator {
         
+        private static final long CLASS_SEED = DistributionRandomizer.toSeed(FromString.class);
+        
         private final String source;
 
         public FromString(String source) {
@@ -115,7 +118,7 @@ public abstract class CharactersGenerator
         }
         
         public FromString(String source, Distribution distribution) {
-            super(source.length(), distribution);
+            super(source.length(), distribution, source.length() ^ CLASS_SEED);
             this.source = source;
         }
 
@@ -136,13 +139,19 @@ public abstract class CharactersGenerator
     }
     
     public static class InRange extends CharactersGenerator {
+        
+        private static final long CLASS_SEED = DistributionRandomizer.toSeed(InRange.class);
+        
+        private static long seed(char min, char max) {
+            return CLASS_SEED ^ ((long) min << 32) ^ max;
+        }
 
         public InRange(char min, char max) {
-            super(IntegersGenerator.integers(min, max+1));
+            super(RandomIntegersGenerator.integers(min, max+1).random(seed(min,max)));
         }
         
         public InRange(char min, char max, Distribution distribution) {
-            super(IntegersGenerator.integers(min, max+1, distribution));
+            super(RandomIntegersGenerator.integers(min, max+1).random(distribution, seed(min,max)));
         }
         
         public InRange(Generator<Integer> range) {

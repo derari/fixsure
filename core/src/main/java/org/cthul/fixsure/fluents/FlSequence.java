@@ -10,8 +10,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import org.cthul.fixsure.Distribution;
+import org.cthul.fixsure.Fixsure;
 import org.cthul.fixsure.Sequence;
 import org.cthul.fixsure.SequenceLength;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.composite.RandomizedSequenceGenerator;
 import org.cthul.fixsure.generators.composite.RoundRobinSequence;
 import org.cthul.fixsure.generators.composite.ShuffledSequenceGenerator;
@@ -35,6 +38,10 @@ public interface FlSequence<T> extends FlTemplate<T>, Sequence<T> {
     @Override
     default Class<T> getValueType() {
         return null;
+    }
+    
+    default long randomSeedHint() {
+        return LAMBDA_SEED_HINT;
     }
     
     @Override
@@ -135,7 +142,19 @@ public interface FlSequence<T> extends FlTemplate<T>, Sequence<T> {
     }
     
     default FlTemplate<T> random() {
-        return () -> RandomizedSequenceGenerator.random(this);
+        return random(randomSeedHint());
+    }
+    
+    default FlTemplate<T> random(long seed) {
+        return random(Fixsure.uniformDistribution(), seed);
+    }
+    
+    default FlTemplate<T> random(Distribution distribution) {
+        return random(distribution, randomSeedHint());
+    }
+    
+    default FlTemplate<T> random(Distribution distribution, long seed) {
+        return () -> new RandomizedSequenceGenerator<>(this, distribution, seed);
     }
     
     default FlSequence<T> sorted() {
@@ -213,4 +232,6 @@ public interface FlSequence<T> extends FlTemplate<T>, Sequence<T> {
         }
         return StreamSupport.stream(new SSpliterator(), false);
     }
+    
+    static long LAMBDA_SEED_HINT = DistributionRandomizer.toSeed(FlSequence.class);
 }

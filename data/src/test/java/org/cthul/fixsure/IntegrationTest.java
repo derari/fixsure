@@ -60,7 +60,7 @@ public class IntegrationTest {
         Person p = factories.create(Person.class, "lastName", "Doe", "address.street.number", 13);
         assertEquals("Alice Doe, Apple Street 13, Berlin", p.toString());
         
-        List<Person> people = factories.generate(Person.class, "age", Fixsure.consecutiveIntegers()).several();
+        List<Person> people = factories.generate(Person.class, "age", Fixsure.integers().ordered()).several();
         assertTrue(people.size() >= 8);
         for (int i = 0; i < people.size(); i++) {
             assertEquals(i, people.get(i).getAge());

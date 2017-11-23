@@ -1,5 +1,6 @@
 package org.cthul.fixsure;
 
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.fluents.FlTemplate;
 
 /**

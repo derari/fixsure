@@ -28,7 +28,7 @@ public class RandomizedSequenceGenerator<T>
     }
 
     public RandomizedSequenceGenerator(Sequence<T> source, Distribution distribution) {
-        this(source, distribution, CLASS_SEED ^ source.length());
+        this(source, distribution, randomSeedHint(source));
     }
 
     public RandomizedSequenceGenerator(Sequence<T> source, Distribution distribution, long seedHint) {
@@ -56,6 +56,15 @@ public class RandomizedSequenceGenerator<T>
     @Override
     public RandomizedSequenceGenerator<T> copy() {
         return new RandomizedSequenceGenerator<>(this);
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return randomSeedHint(source); 
+    }
+    
+    private static long randomSeedHint(Sequence<?> source) {
+        return GeneratorTools.getRandomSeedHint(source) ^ CLASS_SEED; 
     }
     
     private static long maxLen(Sequence<?> source) {

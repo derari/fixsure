@@ -1,9 +1,10 @@
 package org.cthul.fixsure.generators.value;
 
 import java.util.function.Supplier;
-import org.cthul.fixsure.Factory;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Sequence;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlSequence;
 import org.cthul.fixsure.fluents.FlTemplate;
@@ -68,5 +69,10 @@ public class ConstantValue<T> implements FlSequence<T> {
     @Override
     public FlGenerator<T> newGenerator() {
         return Generator.generate(getValueType(), () -> value);
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return DistributionRandomizer.toSeed(getClass());
     }
 }

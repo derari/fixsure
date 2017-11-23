@@ -3,6 +3,7 @@ package org.cthul.fixsure.generators.composite;
 import java.util.function.Predicate;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
@@ -47,5 +48,11 @@ public class FilteringGenerator<T> implements CopyableGenerator<T> {
     @Override
     public Class<T> getValueType() {
         return GeneratorTools.typeOf(source);
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return GeneratorTools.getRandomSeedHint(source) * 3 ^
+                DistributionRandomizer.toSeed(getClass());
     }
 }

@@ -3,10 +3,10 @@ package org.cthul.fixsure;
 import org.cthul.fixsure.fluents.FlDistribution;
 
 /**
- * Provides random values between 0 and 1 in some distribution.
+ * Describes a distribution of random values between 0 and 1.
  */
 @FunctionalInterface
-public interface Distribution {
+public interface Distribution extends Typed<Double> {
 
     /**
      * If this is a random number generator, returns itself;
@@ -26,15 +26,29 @@ public interface Distribution {
     }
 
     /**
-     * Provides access to fluent methods on this distribution.
+     * Provides access to the {@linkplain FlDistribution fluent distribution} interface.
      * @return fluent
      */
     default FlDistribution fluentDistribution() {
         return FlDistribution.wrap(this);
     }
+
+    /**
+     * Type is always double.
+     * @return {@code Double.class}
+     */
+    @Override
+    default Class<Double> getValueType() {
+        return Double.class;
+    }
     
+    /**
+     * A random number generator based on a {@link Distribution}.
+     * <p>
+     * The values generated are random doubles between 0 and 1.
+     */
     @FunctionalInterface
-    interface RandomNumbers extends Distribution, Generator<Double>, Typed<Double> {
+    interface RandomNumbers extends Distribution, Generator<Double> {
     
         /**
          * Produces a random value {@code x}, with {@code 0 <= x < 1}.
@@ -52,9 +66,10 @@ public interface Distribution {
         }
 
         /**
+         * Returns self.
          * @param seedHint
-         * @return itself
-         * @deprecated redundant operation
+         * @return this
+         * @deprecated Redundant operation
          */
         @Deprecated
         @Override
@@ -63,9 +78,10 @@ public interface Distribution {
         }
 
         /**
+         * Returns self.
          * @param seed
          * @return this
-         * @deprecated redundant operation
+         * @deprecated Redundant operation
          */
         @Deprecated
         @Override
@@ -73,19 +89,22 @@ public interface Distribution {
             return this;
         }
         
+        /**
+         * Provides access to the {@linkplain FlDistribution.FlRandom fluent random} interface.
+         * @return fluent
+         */
         @Override
         default FlDistribution.FlRandom fluentDistribution() {
             return FlDistribution.wrap(this);
         }
 
+        /**
+         * Alias for {@link #nextValue()}.
+         * @return random value
+         */
         @Override
         default Double next() {
             return nextValue();
-        }
-
-        @Override
-        default Class<Double> getValueType() {
-            return Double.class;
         }
     }
 }

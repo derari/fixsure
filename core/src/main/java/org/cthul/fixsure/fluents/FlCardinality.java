@@ -1,71 +1,71 @@
 package org.cthul.fixsure.fluents;
 
 import org.cthul.fixsure.DataSource;
-import org.cthul.fixsure.Fetcher;
 import org.cthul.fixsure.fetchers.Fetchers;
 import org.cthul.fixsure.generators.value.ConstantValue;
+import org.cthul.fixsure.Cardinality;
 
 /**
  *
  */
 @FunctionalInterface
-public interface FlFetcher extends Fetcher {
+public interface FlCardinality extends Cardinality {
 
     @Override
-    FlConsumer toItemConsumer();
+    FlFetcher toFetcher();
     
-    default FlDataSource<FlConsumer> asConsumerSource() {
-        return ConstantValue.constant(this::toItemConsumer);
+    default FlDataSource<FlFetcher> asConsumerSource() {
+        return ConstantValue.constant(this::toFetcher);
     }
     
     @FunctionalInterface
-    interface FlConsumer extends Fetcher.ItemConsumer, FlFetcher {
+    interface FlFetcher extends Fetcher, FlCardinality {
         
         @Override
         default <T> FlValues<T> of(DataSource<T> generator) {
-            return Fetchers.next(this).toItemConsumer().of(generator);
+            return Fetchers.next(this).toFetcher().of(generator);
         }
 
         @Override
         default <T> FlValues<T> ofEach(DataSource<? extends T>... generators) {
-            return Fetchers.next(this).toItemConsumer().<T>ofEach(generators);
+            return Fetchers.next(this).toFetcher().<T>ofEach(generators);
         }
 
         @Override
-        default FlSequence<FlConsumer> asConsumerSource() {
-            return ConstantValue.<FlConsumer>constant(this);
+        default FlSequence<FlFetcher> asConsumerSource() {
+            return ConstantValue.<FlFetcher>constant(this);
         }
 
         @Override
-        default FlConsumer fluentFetcher() {
+        default FlFetcher fluentCardinality() {
             return this;
         }
 
         @Override
-        default FlConsumer toItemConsumer() {
+        default FlFetcher toFetcher() {
             return this;
         }
     }
     
     @FunctionalInterface
-    interface Template extends FlFetcher {
+    interface Template extends FlCardinality {
 
         @Override
-        FlConsumer toItemConsumer();
+        FlFetcher toFetcher();
         
         @Override
-        default FlTemplate<FlConsumer> asConsumerSource() {
-            return FlFetcher.super.asConsumerSource().snapshot();
+        default FlTemplate<FlFetcher> asConsumerSource() {
+            return FlCardinality.super.asConsumerSource().snapshot();
         }
 
         @Override
-        default Template fluentFetcher() {
+        default Template fluentCardinality() {
             return this;
         }
     }
     
-    static FlConsumer wrap(ItemConsumer consumer) {
-        return new FlConsumer() {
+    static FlFetcher wrap(Fetcher consumer) {
+        return new FlFetcher() {
             @Override
             public int nextLength() {
                 return consumer.nextLength();

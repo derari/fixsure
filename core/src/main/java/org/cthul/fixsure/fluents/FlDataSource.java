@@ -13,7 +13,7 @@ import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
 
 /**
- * Extends the {@link Generator} interface for fluent methods.
+ * Extends the {@link DataSource} interface with methods for data composition.
  * @param <T> value type
  */
 public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
@@ -26,8 +26,8 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
         return null;
     }
     
-    default FlValues<T> fetch(Fetcher fetcher) {
-        return fetcher.toItemConsumer().of(this).fluentData();
+    default FlValues<T> fetch(Cardinality cardinality) {
+        return cardinality.toFetcher().of(this).fluentData();
     }
 
     default LazyValues<T> cached() {
@@ -50,21 +50,13 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
         return Fetchers.three().of(this);
     }
     
-    default EagerValues<T> few() {
-        return Fetchers.few().toItemConsumer().of(this);
-    }
+    EagerValues<T> few();
     
-    default EagerValues<T> some() {
-        return Fetchers.some().toItemConsumer().of(this);
-    }
+    EagerValues<T> some();
     
-    default EagerValues<T> several() {
-        return Fetchers.several().toItemConsumer().of(this);
-    }
+    EagerValues<T> several();
     
-    default EagerValues<T> many() {
-        return Fetchers.many().toItemConsumer().of(this);
-    }
+    EagerValues<T> many();
     
     FlDataSource<T> distinct();
     
@@ -85,6 +77,8 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
     }
     
     FlDataSource<T> shuffle();
+    
+    FlDataSource<T> shuffle(long seed);
     
     FlDataSource<T> mixWith(DataSource<? extends T>... more);
     

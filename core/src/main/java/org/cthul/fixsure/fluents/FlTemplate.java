@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import org.cthul.fixsure.*;
+import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
 
 /**
@@ -38,6 +39,26 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     
     default LazyValues<T> first(Generator<Integer> length) {
         return LazyValues.any(length, this);
+    }
+
+    @Override
+    default EagerValues<T> few() {
+        return newGenerator().few();
+    }
+
+    @Override
+    default EagerValues<T> some() {
+        return newGenerator().some();
+    }
+
+    @Override
+    default EagerValues<T> several() {
+        return newGenerator().several();
+    }
+
+    @Override
+    default EagerValues<T> many() {
+        return newGenerator().many();
     }
         
     @Override
@@ -78,6 +99,11 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     @Override
     default FlTemplate<T> shuffle() {
         return () -> newGenerator().shuffle();
+    }
+
+    @Override
+    default FlTemplate<T> shuffle(long seed) {
+        return () -> newGenerator().shuffle(seed);
     }
 
     @Override

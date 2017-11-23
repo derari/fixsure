@@ -1,29 +1,40 @@
 package org.cthul.fixsure;
 
 /**
- * 
+ * Describes the length of a {@link Sequence}.
  */
 public interface SequenceLength {
     
     /**
      * Number of elements that can be accessed through {@link #value(long)};
-     * -1 if any positive long is accepted.
+     * negative if sequence is unbounded or allows negative indices.
      * @return length
      */
     long length();
     
+    /**
+     * Indicates whether every positive long is accepted.
+     * @return true if unbounded
+     */
     default boolean isUnbounded() {
         return length() <= L_UNBOUNDED;
     }
     
     /**
+     * Indicates whether negative indices are accepted.
      * Only if unbounded.
-     * @return 
+     * @return true if negative indices are supported.
      */
     default boolean negativeIndices() {
         return length() <= L_NEGATIVE_INDICES;
     }
 
+    /**
+     * Checks whether an index is in range.
+     * @param index
+     * @param length
+     * @return true if index is in range
+     */
     static boolean isInRange(long index, SequenceLength length) {
         if (index < 0) {
             return length.negativeIndices();

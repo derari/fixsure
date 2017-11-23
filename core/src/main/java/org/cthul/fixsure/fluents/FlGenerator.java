@@ -10,12 +10,15 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.cthul.fixsure.DataSource;
-import org.cthul.fixsure.Fetcher;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
+import org.cthul.fixsure.fetchers.Fetchers;
+import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.composite.*;
 import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
+import org.cthul.fixsure.Cardinality;
 
 /**
  * Extends the {@link Generator} interface for fluent methods.
@@ -36,6 +39,10 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
         return this;
     }
     
+    default long randomSeedHint() {
+        return LAMBDA_SEED_HINT;
+    }
+    
     default LazyValues<T> any(int length) {
         return LazyValues.any(length, toGenerator());
     }
@@ -52,8 +59,54 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
         return EagerValues.next(length, toGenerator());
     }
     
-    default FlValues<T> next(Fetcher fetcher) {
-        return fetcher.toItemConsumer().of(this).fluentData();
+    default FlValues<T> next(Cardinality fetcher) {
+        return fetcher.toFetcher().of(this).fluentData();
+    }
+    
+    @Override
+    default FlValues<T> fetch(Cardinality fetcher) {
+        return fetcher.toFetcher().of(this).fluentData();
+    }
+
+    @Override
+    default LazyValues<T> cached() {
+        return Fetchers.cache().of(this);
+    }
+    
+    @Override
+    default EagerValues<T> all() {
+        return Fetchers.all().of(this);
+    }
+    
+    @Override
+    default EagerValues<T> one() {
+        return Fetchers.one().of(this);
+    }
+    
+    @Override
+    default EagerValues<T> two() {
+        return Fetchers.two().of(this);
+    }
+    
+    @Override
+    default EagerValues<T> three() {
+        return Fetchers.three().of(this);
+    }
+    
+    default EagerValues<T> few() {
+        return GeneratorTools.cacheConsumers(this).getFew().of(this);
+    }
+    
+    default EagerValues<T> some() {
+        return GeneratorTools.cacheConsumers(this).getSome().of(this);
+    }
+    
+    default EagerValues<T> several() {
+        return GeneratorTools.cacheConsumers(this).getSeveral().of(this);
+    }
+    
+    default EagerValues<T> many() {
+        return GeneratorTools.cacheConsumers(this).getMany().of(this);
     }
 
     @Override
@@ -93,7 +146,12 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
 
     @Override
     default FlGenerator<T> shuffle() {
-        return ShufflingGenerator.shuffle(toGenerator());
+        return shuffle(randomSeedHint());
+    }
+
+    @Override
+    default FlGenerator<T> shuffle(long seed) {
+        return ShufflingGenerator.shuffle(toGenerator(), seed);
     }
     
     @Override
@@ -142,4 +200,6 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
         }
         return StreamSupport.stream(new GSpliterator(), false);
     }
+    
+    static long LAMBDA_SEED_HINT = DistributionRandomizer.toSeed(FlGenerator.class);
 }

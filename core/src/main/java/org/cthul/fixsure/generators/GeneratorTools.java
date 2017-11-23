@@ -3,7 +3,14 @@ package org.cthul.fixsure.generators;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 import org.cthul.fixsure.*;
+import static org.cthul.fixsure.distributions.DistributionRandomizer.toSeed;
+import org.cthul.fixsure.fetchers.EagerFetcher;
+import org.cthul.fixsure.fetchers.Fetchers;
+import org.cthul.fixsure.fluents.FlGenerator;
+import org.cthul.fixsure.fluents.FlSequence;
 import org.cthul.fixsure.generators.value.ConstantValue;
 import org.cthul.objects.Types;
 
@@ -67,12 +74,75 @@ public class GeneratorTools {
     
     public static <T> Generator<T> copyGenerator(Object generator) {
         if (generator instanceof CopyableGenerator) {
-            return ((CopyableGenerator) generator).asTemplate().newGenerator();
+            return ((CopyableGenerator) generator).copy();
         }
         if (generator instanceof Template) {
             return ((Template) generator).newGenerator();
         }
         throw new UnsupportedOperationException(
                 "Not copyable: " + generator);
-    }    
+    }
+    
+    public static synchronized Consumers cacheConsumers(FlGenerator<?> generator) {
+        return CONSUMERS.computeIfAbsent(generator, k -> new Consumers(k.randomSeedHint()));
+    }
+    
+    public static long getRandomSeedHint(Generator<?> generator) {
+        if (generator instanceof FlGenerator) {
+            return ((FlGenerator<?>) generator).randomSeedHint();
+        }
+        return GENERATOR_SEED;
+    }
+    
+    public static long getRandomSeedHint(Sequence<?> sequence) {
+        if (sequence instanceof FlSequence) {
+            return ((FlSequence<?>) sequence).randomSeedHint();
+        }
+        return SEQUENCE_SEED ^ sequence.length();
+    }
+    
+    private static final long GENERATOR_SEED = toSeed(GeneratorTools.class) ^ toSeed(Generator.class);
+    private static final long SEQUENCE_SEED = toSeed(GeneratorTools.class) ^ toSeed(Sequence.class);
+    private static final Map<FlGenerator<?>, Consumers> CONSUMERS = new WeakHashMap<>();
+    
+    public static class Consumers {
+        
+        private final long seed;
+        private EagerFetcher few = null;
+        private EagerFetcher some = null;
+        private EagerFetcher several = null;
+        private EagerFetcher many = null;
+
+        public Consumers(long seed) {
+            this.seed = seed;
+        }
+
+        public EagerFetcher getFew() {
+            if (few == null) {
+                few = Fetchers.few(seed).toFetcher();
+            }
+            return few;
+        }
+
+        public EagerFetcher getSome() {
+            if (some == null) {
+                some = Fetchers.some(seed).toFetcher();
+            }
+            return some;
+        }
+
+        public EagerFetcher getSeveral() {
+            if (several == null) {
+                several = Fetchers.several(seed).toFetcher();
+            }
+            return several;
+        }
+
+        public EagerFetcher getMany() {
+            if (many == null) {
+                many = Fetchers.many(seed).toFetcher();
+            }
+            return many;
+        }
+    }
 }
