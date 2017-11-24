@@ -84,4 +84,10 @@ public class ShufflingGenerator<T>
     public ShufflingGenerator<T> copy() {
         return new ShufflingGenerator<>(this);
     }
+    
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        source.toString(sb).append(".shuffle(");
+        return super.toString(sb).append(')');
+    }
 }

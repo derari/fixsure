@@ -12,7 +12,7 @@ import static org.hamcrest.MatcherAssert.*;
 /**
  *
  */
-public class UniqueGeneratorTest {
+public class DistinctGeneratorTest {
     
     @BeforeClass
     public static void setUpClass() {

@@ -83,6 +83,11 @@ public class GaussianDistribution extends AbstractDistribution {
     protected FlRandom newRandom(long seed) {
         return new GDRandom(seed);
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return super.toString(sb.append("Normal "));
+    }
     
     protected static class GDRandom extends AbstractDistributionRandom {
 
@@ -96,6 +101,11 @@ public class GaussianDistribution extends AbstractDistribution {
             if (d < 0) return 0;
             if (d >= 1) return Math.nextDown(1d);
             return d;
+        }
+        
+        @Override
+        public StringBuilder toString(StringBuilder sb) {
+            return super.toString(sb.append("Normal "));
         }
     }
 }

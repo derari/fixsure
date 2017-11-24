@@ -141,4 +141,10 @@ public class StringsGenerator
     public StringsGenerator copy() {
         return new StringsGenerator(this);
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        super.toString(sb).append(" of ");
+        return characters.toString(sb);
+    }
 }

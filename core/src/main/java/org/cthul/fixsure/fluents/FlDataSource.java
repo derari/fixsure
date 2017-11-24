@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.cthul.fixsure.*;
 import org.cthul.fixsure.fetchers.Fetchers;
+import org.cthul.fixsure.generators.AnonymousTemplate;
 import org.cthul.fixsure.generators.composite.RepeatingGenerator;
 import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
@@ -73,7 +74,16 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
     FlDataSource<T> then(DataSource<? extends T>... more);
     
     default FlTemplate<T> repeat() {
-        return () -> RepeatingGenerator.repeat(this);
+        return new AnonymousTemplate<T>() {
+            @Override
+            public FlGenerator<T> newGenerator() {
+                return RepeatingGenerator.repeat(FlDataSource.this);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                return FlDataSource.this.toString(sb).append(".repeat()");
+            }
+        };
     }
     
     FlDataSource<T> shuffle();
@@ -85,6 +95,8 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
     FlDataSource<T> alternateWith(DataSource<? extends T>... more);
     
     FlTemplate<T> snapshot();
+    
+    <U> BiDataSource<T, U> split(Function<? super T, ? extends U> function);
     
     <U, V> BiDataSource<U, V> split(BiConsumer<? super T, ? super BiConsumer<? super U, ? super V>> action);
     

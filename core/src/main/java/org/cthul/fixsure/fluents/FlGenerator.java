@@ -47,16 +47,16 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
         return LazyValues.any(length, toGenerator());
     }
     
-    default LazyValues<T> any(Generator<Integer> length) {
-        return LazyValues.any(length, toGenerator());
+    default LazyValues<T> any(DataSource<Integer> length) {
+        return LazyValues.any(length.toGenerator(), toGenerator());
     }
     
     default EagerValues<T> next(int length) {
         return EagerValues.next(length, toGenerator());
     }
     
-    default EagerValues<T> next(Generator<Integer> length) {
-        return EagerValues.next(length, toGenerator());
+    default EagerValues<T> next(DataSource<Integer> length) {
+        return EagerValues.next(length.toGenerator(), toGenerator());
     }
     
     default FlValues<T> next(Cardinality fetcher) {
@@ -93,18 +93,22 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
         return Fetchers.three().of(this);
     }
     
+    @Override
     default EagerValues<T> few() {
         return GeneratorTools.cacheConsumers(this).getFew().of(this);
     }
     
+    @Override
     default EagerValues<T> some() {
         return GeneratorTools.cacheConsumers(this).getSome().of(this);
     }
     
+    @Override
     default EagerValues<T> several() {
         return GeneratorTools.cacheConsumers(this).getSeveral().of(this);
     }
     
+    @Override
     default EagerValues<T> many() {
         return GeneratorTools.cacheConsumers(this).getMany().of(this);
     }
@@ -172,14 +176,50 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
     }
 
     @Override
+    default <U> BiGenerator<T, U> split(Function<? super T, ? extends U> function) {
+        return new BiGenerator.Anonymous<T, U>() {
+            @Override
+            public void next(BiConsumer<? super T, ? super U> bag) {
+                T t = FlGenerator.this.next();
+                bag.accept(t, function.apply(t));
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                FlGenerator.this.toString(sb).append(".split(");
+                return GeneratorTools.lambdaToString(function, sb).append(')');
+            }
+        };
+    }
+
+    @Override
     default <U, V> BiGenerator<U, V> split(BiConsumer<? super T, ? super BiConsumer<? super U, ? super V>> action) {
-        return bag -> action.accept(next(), bag);
+        return new BiGenerator.Anonymous<U, V>() {
+            @Override
+            public void next(BiConsumer<? super U, ? super V> bag) {
+                action.accept(FlGenerator.this.next(), bag);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                FlGenerator.this.toString(sb).append(".split(");
+                return GeneratorTools.lambdaToString(action, sb).append(')');
+            }
+        };
     }
     
     @Override
     default <U> BiGenerator<T, U> with(DataSource<U> source) {
         Generator<U> gen2 = source.toGenerator();
-        return bag -> bag.accept(next(), gen2.next());
+        return new BiGenerator.Anonymous<T, U>() {
+            @Override
+            public void next(BiConsumer<? super T, ? super U> bag) {
+                bag.accept(FlGenerator.this.next(), gen2.next());
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                FlGenerator.this.toString(sb.append('('));
+                return gen2.toString(sb.append(';')).append(')');
+            }
+        };
     }
     
     @Override

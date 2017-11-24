@@ -1,7 +1,10 @@
 package org.cthul.fixsure.generators;
 
+import org.cthul.fixsure.api.Stringify;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -81,6 +84,65 @@ public class GeneratorTools {
         }
         throw new UnsupportedOperationException(
                 "Not copyable: " + generator);
+    }
+    
+    public static StringBuilder lambdaToString(Object o, StringBuilder sb) {
+        if (o == null) {
+            return sb.append("null");
+        }
+        String str = o.getClass().getName();
+        if (str.contains("$$Lambda$")) {
+            int slash = str.indexOf('/');
+            if (slash < 0) slash = str.length();
+            int dot = str.lastIndexOf('.', slash) + 1;
+            if (dot < 0) dot = 0;
+            return sb.append(str, dot, slash);
+        } else {
+            return Stringify.toString(o, sb);
+        }
+    }
+    
+    public static StringBuilder toAscii(long value, StringBuilder sb) {
+        char[] values = new char[10];
+        long bit1 = value & 1;
+        value >>>= 1;
+        values[9] = (char) ('!' + 2 * (value % 47) + bit1);
+        value /= 47;
+        for (int i = 0; i < 9; i++) {
+            values[8-i] = (char) ('!' + value % 94);
+            value /= 94;
+        }
+        sb.append(values);
+        return sb;
+    }
+    
+    public static StringBuilder printList(Object first, Collection<?> list, StringBuilder sb) {
+        Stringify.toString(first, sb);
+        if (list == null || list.isEmpty()) return sb;
+        return printList(list, sb.append(','), 1);
+    }
+    
+    public static StringBuilder printList(Collection<?> list, StringBuilder sb) {
+        return printList(list, sb, 2);
+    }
+    
+    public static StringBuilder printList(Collection<?> list, StringBuilder sb, int max) {
+        int n = -1;
+        Iterator<?> it = list.iterator();
+        while (++n < max && it.hasNext()) {
+            if (n > 0) sb.append(',');
+            Stringify.toString(it.next(), sb);
+        }
+        int len = sb.length();
+        while (it.hasNext()) {
+            sb.append(',');
+            Stringify.toString(it.next(), sb);
+            if (sb.length() - len > 12) {
+                sb.setLength(len);
+                return sb.append(",").append(list.size()-max).append(" more...");
+            }
+        }
+        return sb;
     }
     
     public static synchronized Consumers cacheConsumers(FlGenerator<?> generator) {

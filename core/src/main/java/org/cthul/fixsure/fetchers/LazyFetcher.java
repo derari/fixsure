@@ -100,6 +100,11 @@ public class LazyFetcher extends FetcherWithScalar {
         return new LazyCombinedValues<>(g, n);
     }
     
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return super.toString(sb.append("Lazy "));
+    }
+    
     protected static class LazyCombinedValues<T> 
                     extends LazyValues<T>
                     implements CombinableValues<T> {

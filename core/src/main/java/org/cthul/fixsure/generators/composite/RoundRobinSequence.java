@@ -85,4 +85,9 @@ public class RoundRobinSequence<T> implements FlSequence<T> {
         }
         return seed;
     }
+    
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return GeneratorTools.printList(Arrays.asList(sequences), sb.append("Alternate(")).append(')');
+    }
 }

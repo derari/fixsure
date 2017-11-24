@@ -2,9 +2,10 @@ package org.cthul.fixsure;
 
 import org.cthul.fixsure.api.Factory;
 import java.util.function.LongFunction;
-import static org.cthul.fixsure.SequenceLength.isInRange;
+import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlSequence;
+import org.cthul.fixsure.generators.AnonymousSequence;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import org.cthul.fixsure.generators.GeneratorTools;
 
@@ -24,7 +25,7 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
 
     @Override
     default FlGenerator<T> newGenerator() {
-        class SequenceElements implements CopyableGenerator<T> {
+        class SequenceElements extends AbstractStringify implements CopyableGenerator<T> {
             private final Class<T> type = Typed.typeOf(Sequence.this);
             private long index = 0;
             @Override
@@ -51,6 +52,11 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
             @Override
             public long randomSeedHint() {
                 return GeneratorTools.getRandomSeedHint(Sequence.this);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                return Sequence.this.toString(sb)
+                        .append('[').append(index).append(']');
             }
         }
         return new SequenceElements();
@@ -106,12 +112,13 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
      */
     @Factory
     static <T> FlSequence<T> sequence(Class<T> clazz, long length, LongFunction<T> function) {
-        class TypedSequence implements FlSequence<T> {
+        class TypedSequence extends AnonymousSequence<T> {
+            public TypedSequence() {
+                super(length);
+            }
             @Override
             public T value(long n) {
-                if (!isInRange(n, this)) {
-                    throw new IndexOutOfBoundsException("" + n);
-                }
+                assertInRange(n);
                 return function.apply(n);
             }
             @Override
@@ -119,8 +126,8 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
                 return clazz;
             }
             @Override
-            public long length() {
-                return length;
+            public StringBuilder toString(StringBuilder sb) {
+                return GeneratorTools.lambdaToString(function, sb);
             }
         }
         return new TypedSequence();

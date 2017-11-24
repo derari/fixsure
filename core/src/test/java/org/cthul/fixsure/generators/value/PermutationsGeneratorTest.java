@@ -1,8 +1,6 @@
 package org.cthul.fixsure.generators.value;
 
-import org.cthul.fixsure.generators.value.PermutationsGenerator;
 import java.util.List;
-import org.cthul.fixsure.fetchers.EagerFetcher;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -67,5 +65,11 @@ public class PermutationsGeneratorTest {
                 i(2, 3, 1, 4), i(2, 3, 4, 1), i(2, 4, 3, 1), i(4, 2, 3, 1), 
                 i(4, 2, 1, 3), i(2, 4, 1, 3), i(2, 1, 4, 3), i(2, 1, 3, 4)
                 ));
+    }
+    
+    @Test
+    public void test_toString() {
+        FlGenerator<Integer[]> g = new PermutationsGenerator<>(i(1, 2, 3, 4));
+        assertThat(g.toString(), is("{1,2,3,4}.permutations()"));
     }
 }

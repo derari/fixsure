@@ -49,5 +49,13 @@ public abstract class FetcherWithScalar extends AbstractFetcher {
             return scalar;
         }
     }
-    
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        if (scalarGenerator != null) {
+            return scalarGenerator.toString(sb);
+        } else {
+            return sb.append(scalar);
+        }
+    }
 }

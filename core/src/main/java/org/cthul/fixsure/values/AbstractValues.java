@@ -16,7 +16,7 @@ public abstract class AbstractValues<T>
                 extends AbstractList<T> 
                 implements FlValues<T>, RandomAccess {
 
-    private FlSequence<T> generator = null;
+    private final FlSequence<T> generator = null;
     private final Class<T> valueType;
 
     public AbstractValues(Class<T> valueType) {

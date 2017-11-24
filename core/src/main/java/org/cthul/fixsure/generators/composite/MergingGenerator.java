@@ -1,5 +1,6 @@
 package org.cthul.fixsure.generators.composite;
 
+import java.util.Arrays;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
@@ -107,5 +108,10 @@ public class MergingGenerator<T> implements CopyableGenerator<T> {
             seed ^= GeneratorTools.getRandomSeedHint(g);
         }
         return seed;
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return GeneratorTools.printList(Arrays.asList(generators), sb.append("Merge(")).append(')');
     }
 }

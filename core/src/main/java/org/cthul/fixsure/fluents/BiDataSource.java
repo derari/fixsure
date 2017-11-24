@@ -5,13 +5,14 @@ import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import org.cthul.fixsure.api.Stringify;
 
 /**
  *
  * @param <T>
  * @param <U>
  */
-public interface BiDataSource<T, U> {
+public interface BiDataSource<T, U> extends Stringify {
     
     BiGenerator<T, U> toBiGenerator();
     

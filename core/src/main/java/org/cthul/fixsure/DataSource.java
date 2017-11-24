@@ -1,5 +1,6 @@
 package org.cthul.fixsure;
 
+import org.cthul.fixsure.api.Stringify;
 import org.cthul.fixsure.fluents.FlDataSource;
 import org.cthul.fixsure.fluents.FlTemplate;
 
@@ -8,7 +9,7 @@ import org.cthul.fixsure.fluents.FlTemplate;
  * @param <T> value type
  */
 @FunctionalInterface
-public interface DataSource<T> {
+public interface DataSource<T> extends Stringify {
     
     /**
      * Returns a generator for this data.
@@ -25,7 +26,7 @@ public interface DataSource<T> {
     default FlDataSource<T> fluentData() {
         return (FlTemplate<T>) () -> toGenerator().fluentData();
     }
-    
+      
     /**
      * Converts an array of data sources into generators by calling
      * {@link #toGenerator()} on each.

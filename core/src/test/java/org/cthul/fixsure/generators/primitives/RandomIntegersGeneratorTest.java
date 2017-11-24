@@ -12,21 +12,20 @@ import static org.hamcrest.MatcherAssert.*;
 
 /**
  *
- * @author Arian Treffer
  */
-public class IntegersGeneratorTest {
+public class RandomIntegersGeneratorTest {
     
-    public IntegersGeneratorTest() {
+    public RandomIntegersGeneratorTest() {
     }
     
     @BeforeClass
     public static void setUpClass() {
-        DistributionRandomizer.setSeed(IntegersGeneratorTest.class);
+        DistributionRandomizer.setSeed(RandomIntegersGeneratorTest.class);
     }
     
     @Before
     public void setUp() {
-        DistributionRandomizer.setSeed(IntegersGeneratorTest.class);
+        DistributionRandomizer.setSeed(RandomIntegersGeneratorTest.class);
     }
 
     @Test
@@ -47,5 +46,17 @@ public class IntegersGeneratorTest {
     
     protected CombinableMatcher<Integer> between(int low, int high) {
         return both(greaterThanOrEqualTo(low)).and(lessThan(high));
+    }
+    
+    @Test
+    public void test_to_string() {
+        FlTemplate<?> ig = RandomIntegersGenerator.integers(1, 12);
+        assertThat(ig.toString(), is("new {1-12}[Uniform :;p!?vm80u]"));
+    }
+    
+    @Test
+    public void test_toString_with_step() {
+        FlTemplate<?> ig = RandomIntegersGenerator.integers(1, 12).step(2);
+        assertThat(ig.toString(), is("new {1-6;2}[Uniform :;p!?vm81+]"));
     }
 }

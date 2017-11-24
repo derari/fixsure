@@ -42,4 +42,9 @@ public interface Template<T> extends DataSource<T> {
     static <T> FlTemplate<T> template(FlTemplate<T> template) {
         return template;
     }
+
+    @Override
+    default StringBuilder toString(StringBuilder sb) {
+        return newGenerator().toString(sb.append("new "));
+    }
 }

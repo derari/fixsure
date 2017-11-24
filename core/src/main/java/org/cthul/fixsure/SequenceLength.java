@@ -54,11 +54,8 @@ public interface SequenceLength {
     
     static SequenceLength min(SequenceLength a, SequenceLength b) {
         if (a.isUnbounded()) {
-            if (!b.isUnbounded()) return b;
-            if (a.negativeIndices() && !b.negativeIndices()) {
-                return b;
-            }
-            return a;
+            if (b.negativeIndices()) return a;
+            return b;
         }
         if (b.isUnbounded()) return a;
         return a.length() < b.length() ? a : b;

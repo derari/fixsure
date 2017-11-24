@@ -108,4 +108,11 @@ public class ConsecutiveIntegersSequence extends BoundedSequence<Integer> {
     public FlTemplate<Integer> random(Distribution distribution, long seed) {
         return random().random(distribution, seed);
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        sb.append('[').append(first).append("..").append(end);
+        if (step != 1) sb.append(';').append(step);
+        return sb.append(']');
+    }
 }

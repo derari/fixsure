@@ -62,6 +62,12 @@ public class RandomizedSequenceGenerator<T>
     public long randomSeedHint() {
         return randomSeedHint(source); 
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        source.toString(sb).append('[');
+        return super.toString(sb).append(']');
+    }
     
     private static long randomSeedHint(Sequence<?> source) {
         return GeneratorTools.getRandomSeedHint(source) ^ CLASS_SEED; 

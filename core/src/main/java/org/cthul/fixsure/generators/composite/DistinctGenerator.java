@@ -5,6 +5,7 @@ import java.util.Set;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import org.cthul.fixsure.generators.GeneratorTools;
@@ -13,7 +14,7 @@ import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 /**
  * Uses a HashSet to ensure values are not returned twice.
  */
-public class DistinctGenerator<T> implements CopyableGenerator<T> {
+public class DistinctGenerator<T> extends AbstractStringify implements CopyableGenerator<T> {
     
     public static <T> DistinctGenerator<T> distinct(DataSource<T> source) {
         return new DistinctGenerator<>(source);
@@ -72,5 +73,10 @@ public class DistinctGenerator<T> implements CopyableGenerator<T> {
     @Override
     public Class<T> getValueType() {
         return GeneratorTools.typeOf(source);
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return source.toString(sb).append(".distinct");
     }
 }

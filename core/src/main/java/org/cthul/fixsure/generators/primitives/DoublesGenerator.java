@@ -131,4 +131,10 @@ public class DoublesGenerator
     public DoublesGenerator copy() {
         return new DoublesGenerator(this);
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        sb.append(String.format("{%.2f-%.2f}[", base, base+len));
+        return super.toString(sb).append(']');
+    }
 }

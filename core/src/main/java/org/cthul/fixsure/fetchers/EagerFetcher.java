@@ -128,6 +128,11 @@ public class EagerFetcher extends FetcherWithScalar {
     protected <T> CombinableValues<T> newValues(int n, DataSource<? extends T> g) {
         return new EagerCombinedValues<>(g, n);
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return super.toString(sb.append("Eager "));
+    }
     
     protected static class EagerCombinedValues<T> 
                     extends EagerValues<T>

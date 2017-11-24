@@ -1,12 +1,14 @@
 package org.cthul.fixsure;
 
+import org.cthul.fixsure.api.Stringify;
 import org.cthul.fixsure.fluents.FlDistribution;
+import org.cthul.fixsure.generators.GeneratorTools;
 
 /**
  * Describes a distribution of random values between 0 and 1.
  */
 @FunctionalInterface
-public interface Distribution extends Typed<Double> {
+public interface Distribution extends Typed<Double>, Stringify {
 
     /**
      * If this is a random number generator, returns itself;

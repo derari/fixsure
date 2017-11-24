@@ -1,5 +1,6 @@
 package org.cthul.fixsure.generators.composite;
 
+import java.util.Arrays;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
@@ -67,5 +68,11 @@ public class MixingGenerator<T>
             seed ^= GeneratorTools.getRandomSeedHint(g);
         }
         return seed;
+    }
+    
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        super.toString(sb.append("Mix(")).append(':');
+        return GeneratorTools.printList(Arrays.asList(generators), sb).append(')');
     }
 }

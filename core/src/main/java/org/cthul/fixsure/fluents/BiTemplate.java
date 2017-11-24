@@ -7,6 +7,8 @@ import java.util.function.Predicate;
 
 /**
  *
+ * @param <T>
+ * @param <U>
  */
 @FunctionalInterface
 public interface BiTemplate<T, U> extends BiDataSource<T, U> {

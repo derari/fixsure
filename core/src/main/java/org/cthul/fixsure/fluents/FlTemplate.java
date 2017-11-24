@@ -122,6 +122,11 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     }
 
     @Override
+    default <U> BiTemplate<T, U> split(Function<? super T, ? extends U> function) {
+        return () -> newGenerator().split(function);
+    }
+
+    @Override
     default <U, V> BiTemplate<U, V> split(BiConsumer<? super T, ? super BiConsumer<? super U, ? super V>> action) {
         return () -> newGenerator().split(action);
     }

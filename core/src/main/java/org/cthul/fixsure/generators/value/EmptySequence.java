@@ -39,4 +39,9 @@ public class EmptySequence<T> extends BoundedSequence<T> {
     public long randomSeedHint() {
         return 0;
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return sb.append("{}");
+    }
 }

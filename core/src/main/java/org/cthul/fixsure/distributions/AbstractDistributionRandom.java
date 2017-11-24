@@ -1,19 +1,23 @@
 package org.cthul.fixsure.distributions;
 
 import java.util.Random;
+import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.fluents.FlDistribution;
+import org.cthul.fixsure.generators.GeneratorTools;
 
 /**
  * Base class for {@link RandomNumbers}s.
  */
-public abstract class AbstractDistributionRandom implements FlDistribution.FlRandom {
+public abstract class AbstractDistributionRandom extends AbstractStringify implements FlDistribution.FlRandom {
     
     private final Random myRandom;
-//    private boolean dirty = false;
+    private boolean dirty = false;
+    private final long seed;
 //    private long resetCount = -1;
 
     public AbstractDistributionRandom(long seed) {
         myRandom = new Random(seed);
+        this.seed = seed;
     }
 //    
 //    protected AbstractDistributionRandom(AbstractDistributionRandom source) {
@@ -53,7 +57,7 @@ public abstract class AbstractDistributionRandom implements FlDistribution.FlRan
      */
     protected Random rnd() {
 //        checkReset();
-//        dirty = true;
+        dirty = true;
         return myRandom;
     }
 
@@ -95,4 +99,11 @@ public abstract class AbstractDistributionRandom implements FlDistribution.FlRan
 //        F_RANDOM_SEED = fSeed;
 //        F_SEED_EX = ex;
 //    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        GeneratorTools.toAscii(seed, sb);
+        if (dirty) sb.append('\'');
+        return sb;
+    }
 }

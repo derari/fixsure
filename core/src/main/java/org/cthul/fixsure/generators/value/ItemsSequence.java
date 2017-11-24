@@ -85,6 +85,13 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
         return length() ^ DistributionRandomizer.toSeed(getClass());
     }
     
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return GeneratorTools.printList(dataForPrinting(), sb.append('{')).append('}');
+    }
+    
+    protected abstract Collection<?> dataForPrinting();
+    
     public static class FromArray<T> extends ItemsSequence<T> {
         
         private final T[] data;
@@ -107,7 +114,11 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
         public long length() {
             return data.length;
         }
-        
+
+        @Override
+        protected Collection<?> dataForPrinting() {
+            return Arrays.asList(data);
+        }
     }
     
     public static class FromRAList<T> extends ItemsSequence<T> {
@@ -140,6 +151,11 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
         @Override
         public long length() {
             return data.size();
+        }
+
+        @Override
+        protected Collection<?> dataForPrinting() {
+            return data;
         }
     }
     
@@ -184,6 +200,11 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
         @Override
         public long length() {
             return data.size();
-        }        
+        }
+        
+        @Override
+        protected Collection<?> dataForPrinting() {
+            return data;
+        }
     }
 }

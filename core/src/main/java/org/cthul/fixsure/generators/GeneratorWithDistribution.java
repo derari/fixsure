@@ -2,6 +2,7 @@ package org.cthul.fixsure.generators;
 
 import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.Generator;
+import org.cthul.fixsure.api.AbstractStringify;
 import static org.cthul.fixsure.distributions.DistributionRandomizer.toSeed;
 import org.cthul.fixsure.distributions.UniformDistribution;
 import org.cthul.fixsure.fluents.FlDistribution;
@@ -12,7 +13,7 @@ import org.cthul.fixsure.fluents.FlGenerator;
  * If none is specified, {@link UniformDistribution} will be used.
  * @param <T>
  */
-public abstract class GeneratorWithDistribution<T> implements FlGenerator<T>{
+public abstract class GeneratorWithDistribution<T> extends AbstractStringify implements FlGenerator<T>{
 
     private final FlDistribution.FlRandom random;
 
@@ -43,6 +44,11 @@ public abstract class GeneratorWithDistribution<T> implements FlGenerator<T>{
     @Override
     public long randomSeedHint() {
         return toSeed(getClass());
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return random.toString(sb);
     }
     
     private static FlDistribution.FlRandom toRnd(Distribution distribution, long seedHint) {

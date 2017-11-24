@@ -52,6 +52,12 @@ public class MappingGenerator<T> implements CopyableGenerator<T> {
         return GeneratorTools.getRandomSeedHint(cnv.src) * 3 ^ 
                 DistributionRandomizer.toSeed(MappingGenerator.class);
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        cnv.src.toString(sb).append(".map(");
+        return GeneratorTools.lambdaToString(cnv.function, sb).append(')');
+    }
     
     private static class Convert<Src, Out> {
         private final Generator<Src> src;

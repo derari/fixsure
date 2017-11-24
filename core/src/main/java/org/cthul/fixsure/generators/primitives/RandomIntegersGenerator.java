@@ -1,10 +1,12 @@
 package org.cthul.fixsure.generators.primitives;
 
 import org.cthul.fixsure.Distribution;
+import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.api.Factory;
 import static org.cthul.fixsure.distributions.DistributionRandomizer.toSeed;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlTemplate;
+import org.cthul.fixsure.generators.AnonymousTemplate;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import org.cthul.fixsure.generators.GeneratorWithDistribution;
 
@@ -155,8 +157,15 @@ public class RandomIntegersGenerator
     public long randomSeedHint() {
         return CLASS_SEED ^ (len * mult) ^ ((long) base << 32);
     }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        sb.append('{').append(base).append('-').append(base+len);
+        if (Math.abs(mult) != 1) sb.append(';').append(Math.abs(mult));
+        return super.toString(sb.append("}[")).append(']');
+    }
     
-    public static class Template implements FlTemplate<Integer> {
+    public static class Template extends AnonymousTemplate<Integer> {
 
         private final Distribution distribution;
         private final int start, end, step;

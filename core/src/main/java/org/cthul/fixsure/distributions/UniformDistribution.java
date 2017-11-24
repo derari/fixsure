@@ -84,6 +84,11 @@ public class UniformDistribution extends AbstractDistribution {
         return new UDRandom(seed);
     }
     
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return super.toString(sb.append("Uniform "));
+    }
+    
     protected static class UDRandom extends AbstractDistributionRandom {
 
         public UDRandom(long seed) {
@@ -123,6 +128,11 @@ public class UniformDistribution extends AbstractDistribution {
         @Override
         public long nextLong(long n) {
             return nextPositiveLong() % n;
+        }
+        
+        @Override
+        public StringBuilder toString(StringBuilder sb) {
+            return super.toString(sb.append("Uniform "));
         }
     }
 }

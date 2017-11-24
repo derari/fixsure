@@ -4,6 +4,8 @@ import java.util.function.Supplier;
 import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Sequence;
+import org.cthul.fixsure.api.Stringify;
+import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlSequence;
@@ -12,7 +14,7 @@ import org.cthul.fixsure.fluents.FlTemplate;
 /**
  *
  */
-public class ConstantValue<T> implements FlSequence<T> {
+public class ConstantValue<T> extends AbstractStringify implements FlSequence<T> {
     
     private static final ConstantValue NULLS = new ConstantValue(null);
     
@@ -74,5 +76,10 @@ public class ConstantValue<T> implements FlSequence<T> {
     @Override
     public long randomSeedHint() {
         return DistributionRandomizer.toSeed(getClass());
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return Stringify.toString(value, sb.append("Repeat(")).append(')');
     }
 }
