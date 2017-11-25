@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.factory.FactoriesSetup.BuilderSetupBase;
+import org.cthul.fixsure.factory.Factory.ValueMap;
 import org.cthul.fixsure.fluents.FlGenerator;
 
 /**
@@ -26,7 +27,7 @@ public abstract class DefaultBuilderBase<V, This extends BuilderSetupBase<V,This
     private final Class<V> clazz;
     private final Function<? super Factory.ValueMap, ? extends V> newInstance;
     private final Map<String, ValueEntry> valueMap;
-    private final List<DefValueDeclaration<?>> steps = new ArrayList<>();
+    private final List<BiFunction<? super V, ? super ValueMap, ? extends V>> steps = new ArrayList<>();
 
     public DefaultBuilderBase(DefaultFactories owner, FactoryBase parent, String id, Class<V> clazz, Function<? super Factory.ValueMap, ? extends V> newInstance, Map<String, ValueEntry> valueMap) {
         super(parent);
@@ -49,14 +50,19 @@ public abstract class DefaultBuilderBase<V, This extends BuilderSetupBase<V,This
         return valueMap;
     }
     
-    protected <VD extends DefValueDeclaration<?>> VD addStep(String key, VD valueDeclaration) {
+    protected <VD extends DefValueDeclaration<?>> VD addValue(String key, VD valueDeclaration) {
         valueMap.put(key, valueDeclaration);
-        steps.add(valueDeclaration);
         return valueDeclaration;
     }
 
     @Override
-    public abstract <T> FactoriesSetup.ValueDeclaration<T, This> apply(String key, BiFunction<? super V, T, ? extends V> setter);
+    public abstract <T> FactoriesSetup.ValueDeclaration<T, ? extends This> assign(String key);
+
+    @Override
+    public This applyValues(BiFunction<? super V, ? super ValueMap, ? extends V> function) {
+        steps.add(function);
+        return (This) this;
+    }
 
     @Override
     public Class<V> getValueType() {
@@ -74,8 +80,8 @@ public abstract class DefaultBuilderBase<V, This extends BuilderSetupBase<V,This
     
     public V create(Factory.ValueMap vm) {
         V instance = newInstance(vm);
-        for (DefValueDeclaration<?> value: steps) {
-            instance = value.set(instance, vm);
+        for (BiFunction<? super V, ? super ValueMap, ? extends V> step: steps) {
+            instance = step.apply(instance, vm);
         }
         return instance;
     }
@@ -83,19 +89,12 @@ public abstract class DefaultBuilderBase<V, This extends BuilderSetupBase<V,This
     protected class DefValueDeclaration<T> implements FactoriesSetup.ValueDeclaration<T,This>, ValueEntry {
         
         private final String id;
-        private final BiFunction<? super V, T, ? extends V> setter;
         private Function<Factory.ValueMap, ? extends T> valueFunction = null;
         private String factoryId = null;
 
-        public DefValueDeclaration(String id, BiFunction<? super V, T, ? extends V> setter) {
+        public DefValueDeclaration(String id) {
             Objects.requireNonNull(id, "id");
-            Objects.requireNonNull(setter, "setter");
             this.id = id;
-            this.setter = setter;
-        }
-
-        public V set(V builder, Factory.ValueMap valueMap) {
-            return setter.apply(builder, valueMap.get(id));
         }
 
         @Override

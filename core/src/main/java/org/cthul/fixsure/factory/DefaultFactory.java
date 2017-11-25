@@ -31,10 +31,10 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
     }
 
     @Override
-    public <T> FactoryValueSetup<R, T> apply(String key, BiFunction<? super R, T, ? extends R> setter) {
-        return addStep(key, new FactoryValueDeclaration<>(key, setter));
+    public <T> ValueDeclaration<T, ? extends FactorySetup<R>> assign(String key) {
+        return addValue(key, new FactoryValueDeclaration<>(key));
     }
-
+    
     @Override
     public R create() {
         return generate().next();
@@ -190,8 +190,8 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
 
     protected class FactoryValueDeclaration<T> extends DefValueDeclaration<T> implements FactoriesSetup.FactoryValueSetup<R, T> {
 
-        public FactoryValueDeclaration(String id, BiFunction<? super R, T, ? extends R> setter) {
-            super(id, setter);
+        public FactoryValueDeclaration(String id) {
+            super(id);
         }
 
         @Override
@@ -254,8 +254,8 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
         }
 
         @Override
-        public <T> FactoriesSetup.BuilderValueSetup<B, R, T> apply(String key, BiFunction<? super B, T, ? extends B> setter) {
-            return addStep(key, new BuilderValueDeclaration(key, setter));
+        public <T> ValueDeclaration<T, ? extends BuilderSetup<B, R>> assign(String key) {
+            return addValue(key, new BuilderValueDeclaration(key));
         }
 
         @Override
@@ -278,8 +278,8 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
         
         protected class BuilderValueDeclaration<T> extends DefValueDeclaration<T> implements FactoriesSetup.BuilderValueSetup<B, R, T> {
 
-            public BuilderValueDeclaration(String id, BiFunction<? super B, T, ? extends B> setter) {
-                super(id, setter);
+            public BuilderValueDeclaration(String id) {
+                super(id);
             }
 
             @Override
@@ -322,6 +322,10 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
     
     static String uniqueIdStr() {
         return Long.toHexString(uniqueId());
+    }
+    
+    static String anonymousKey() {
+        return "<anonymous>@" + uniqueIdStr();
     }
     
     protected static class NewInstance<T> implements Supplier<T> {

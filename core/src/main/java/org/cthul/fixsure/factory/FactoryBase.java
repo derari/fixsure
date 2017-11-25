@@ -3,7 +3,6 @@ package org.cthul.fixsure.factory;
 import java.util.HashMap;
 import java.util.Map;
 import org.cthul.fixsure.DataSource;
-import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.fluents.FlGenerator;
 
 /**
