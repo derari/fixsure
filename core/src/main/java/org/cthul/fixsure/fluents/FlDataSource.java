@@ -73,6 +73,10 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
     
     FlDataSource<T> then(DataSource<? extends T>... more);
     
+    FlDataSource<Values<T>> aggregate(int length);
+    
+    FlDataSource<Values<T>> aggregate(DataSource<Integer> length);
+    
     default FlTemplate<T> repeat() {
         return new AnonymousTemplate<T>() {
             @Override
@@ -104,5 +108,9 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
     
     default Stream<T> stream() {
         return toGenerator().fluentData().stream();
+    }
+    
+    default <R> R transformSource(Function<? super FlDataSource<? extends T>, ? extends R> function) {
+        return function.apply(this);
     }
 }

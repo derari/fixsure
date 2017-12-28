@@ -1,6 +1,7 @@
 package org.cthul.fixsure.fluents;
 
 import org.cthul.fixsure.*;
+import org.cthul.fixsure.api.AbstractStringify;
 
 /**
  *
@@ -21,9 +22,7 @@ public interface FlDistribution extends Distribution {
     }
 
     @Override
-    default FlDataSource<Double> values(long seed) {
-        return FlDistribution.template(this, seed);
-    }
+    FlDataSource<Double> values(long seed);
     
     interface FlRandom extends Distribution.RandomNumbers, FlDistribution {
 
@@ -86,7 +85,7 @@ public interface FlDistribution extends Distribution {
         }
 
         default FlGenerator<Double> values() {
-            return FlDistribution.generator(this);
+            return fluentData();
         }
 
         /**
@@ -121,18 +120,18 @@ public interface FlDistribution extends Distribution {
         return () -> distribution.toRandomNumbers(seed).fluentData();
     }
     
-    static FlGenerator<Double> generator(RandomNumbers randomNumbers) {
-        return Generator.generate(Double.class, randomNumbers::nextValue);
-    }
-    
     static FlDistribution wrap(Distribution distribution) {
         if (distribution instanceof FlDistribution) {
             return (FlDistribution) distribution;
         }
-        class FlDistributionTemplate implements FlDistribution.Template {
+        class FlDistributionTemplate extends AbstractStringify implements FlDistribution.Template {
             @Override
             public FlRandom toRandomNumbers(long seedHint) {
-                return wrap(distribution.toRandomNumbers(seedHint));
+                return distribution.toRandomNumbers(seedHint).fluentDistribution();
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                return distribution.toString(sb);
             }
         }
         return new FlDistributionTemplate();
@@ -142,7 +141,7 @@ public interface FlDistribution extends Distribution {
         if (generator instanceof FlRandom) {
             return (FlRandom) generator;
         }
-        return new FlRandom() {
+        class FlRandomWrapper extends AbstractStringify implements FlRandom {
             @Override
             public double nextValue() {
                 return generator.nextValue();
@@ -151,6 +150,11 @@ public interface FlDistribution extends Distribution {
             public FlRandom copy() {
                 return wrap(generator.copy());
             }
-        };
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                return generator.toString(sb);
+            }
+        }
+        return new FlRandomWrapper();
     }
 }

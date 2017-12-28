@@ -9,7 +9,7 @@ import org.cthul.fixsure.generators.GeneratorTools;
 /**
  * Base class for implementations of {@link Distribution}.
  */
-public abstract class AbstractDistribution extends AbstractStringify implements FlDistribution {
+public abstract class AbstractDistribution extends AbstractStringify implements FlDistribution.Template {
     
     private final LongSupplier seedSupplier;
     private final String seedStr;

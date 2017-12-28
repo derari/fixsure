@@ -28,12 +28,12 @@ public class BooleansGenerator
     
     /**
      * Generates random booleans.
-     * @param threshold threshold for truth
+     * @param ratio ratio of true values
      * @return random booleans
      */
     @Factory
-    public static FlTemplate<Boolean> booleans(double threshold) {
-        return () -> new BooleansGenerator(threshold);
+    public static FlTemplate<Boolean> booleans(double ratio) {
+        return () -> new BooleansGenerator(ratio);
     }
     
     /**
@@ -45,8 +45,13 @@ public class BooleansGenerator
     public static FlTemplate<Boolean> booleans(Distribution distribution) {
         return () -> new BooleansGenerator(distribution);
     }
+    
+    @Factory
+    public static FlTemplate<Boolean> booleans(double threshold, Distribution distribution, long seedHint) {
+        return () -> new BooleansGenerator(threshold, distribution, seedHint);
+    }
 
-    private final double threshold;
+    private final double ratio;
 
     public BooleansGenerator() {
         this(null, CLASS_SEED);
@@ -70,17 +75,17 @@ public class BooleansGenerator
 
     public BooleansGenerator(double threshold, Distribution distribution, long seedHint) {
         super(distribution, seedHint);
-        this.threshold = threshold;
+        this.ratio = threshold;
     }
 
     protected BooleansGenerator(BooleansGenerator src) {
         super(src);
-        this.threshold = src.threshold;
+        this.ratio = src.ratio;
     }
 
     @Override
     public Boolean next() {
-        return rnd().nextValue() >= threshold;
+        return rnd().nextValue() < ratio;
     }
 
     @Override
@@ -96,7 +101,7 @@ public class BooleansGenerator
     @Override
     public StringBuilder toString(StringBuilder sb) {
         sb.append("Booleans(");
-        sb.append(String.format(Locale.ENGLISH, "%.2f<", threshold));
+        sb.append(String.format(Locale.ENGLISH, "%.2f>", ratio));
         return super.toString(sb).append(')');
     }
 }

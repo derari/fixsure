@@ -13,6 +13,7 @@ import org.cthul.fixsure.fluents.FlTemplate;
 
 /**
  *
+ * @param <T>
  */
 public class ConstantValue<T> extends AbstractStringify implements FlSequence<T> {
     

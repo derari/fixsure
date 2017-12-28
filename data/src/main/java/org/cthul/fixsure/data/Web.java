@@ -9,16 +9,35 @@ import org.cthul.fixsure.generators.value.ItemsSequence;
  */
 public class Web {
     
+    /**
+     * Returns a sequence of three elements: 
+     * {@code "example.com"}, {@code "example.net"}, and {@code "example.org"}.
+     * @return domains
+     */
     public static FlSequence<String> domains() {
         return SEQ_DOMAINS;
     }
-    
+
+    /**
+     * Returns a sequence of 7019142 unique elements in the form
+     * {@code <Fruit><5-digit int>.example.<com|net|org>}.
+     * @return more domains
+     */
     public static FlSequence<String> moreDomains() {
         return SEQ_MORE_DOMAINS;
     }
     
+    /**
+     * Returns an unbounded sequence of email addresses in the form
+     * {@code <firstName>.<lastName>@example.<com|net|org>.
+     * @return email addresses
+     */
     public static FlSequence<String> emailAddresses() {
         return SEQ_EMAILS;
+    }
+    
+    public static UrlGenerator.Template urls() {
+        return UrlGenerator.urls();
     }
     
     private static final String[] DOMAINS = {"example.com", "example.net", "example.org"};

@@ -65,19 +65,19 @@ public class English {
     /**
      * Returns a {@link BiSequence} of popular first names,
      * with a character signifying the gender ('M' or 'F').
-     * @return sequence of names
+     * @return sequence of names and gender
      */
-    public static BiSequence<Character, String> firstNamesWithGender() {
+    public static BiSequence<String, Character> firstNamesWithGender() {
         if (SEQ_firstNamesWithGender == null) {
             Character[] genders = Arrays.stream(DataLoader.readLines(<@thisclass/>, "en/FirstNames.txt"))
                     .map(s -> s.charAt(0))
                     .collect(Collectors.toList())
                     .toArray(new Character[0]);
-            SEQ_firstNamesWithGender = sequence(genders).with(firstNames());
+            SEQ_firstNamesWithGender = firstNames().with(sequence(genders));
         }
         return SEQ_firstNamesWithGender;
     }
-    private static BiSequence<Character, String> SEQ_firstNamesWithGender;
+    private static BiSequence<String, Character> SEQ_firstNamesWithGender;
 
     /**
      * Returns a {@link Sequence} of first names with initial letters from A to Z.
@@ -88,16 +88,16 @@ public class English {
     /**
      * Returns a {@link Sequence} of first names with initial letters from A to Z,
      * with a character signifying the gender ('M' or 'F').
-     * @return sequence of gender and names
+     * @return sequence of names and gender
      */    
-    public static BiSequence<Character, String> aliceBobWithGender() {
+    public static BiSequence<String, Character> aliceBobWithGender() {
         if (SEQ_aliceBobWithGender == null) {
-            SEQ_aliceBobWithGender = Sequence.sequence(n -> (n < 12) ^ (n % 2 == 0) ? 'M' : 'F')
-                                     .with(aliceBob());
+            SEQ_aliceBobWithGender = aliceBob()
+                    .with(Sequence.sequence(n -> (n < 12) ^ (n % 2 == 0) ? 'M' : 'F'));
         }
         return SEQ_aliceBobWithGender;
     }
-    private static BiSequence<Character, String> SEQ_aliceBobWithGender;
+    private static BiSequence<String, Character> SEQ_aliceBobWithGender;
 
     /**
      * Returns a {@link Sequence} of fruits with initial letters from A to Z.

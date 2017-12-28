@@ -39,15 +39,16 @@ public class IntegrationTest {
     
     Factories factories = Factories.build()
             .newFactory(Person.class)
-                .assign("firstName").to(English.aliceBob())
+                .assign("firstName", "gender", English.aliceBobWithGender())
+                .assign("title").to(v -> v.c("gender") == 'F' ? "Mrs" : "Mr")
                 .assign("lastName").to(English.lastNames())
-                .set("name").to(v -> v.getStr("firstName") + " " + v.getStr("lastName"))
+                .set("name").to(v -> v.str("title") + " " + v.str("firstName") + " " + v.str("lastName"))
                 .set("age").to(Fixsure.integers(18, 100))
                 .set("address").toNext(Address.class)
             .newFactory("street+nr")
                 .with(StringBuilder::new)
                 .apply("name", StringBuilder::append).to(English.fruitsA2Z().map(f -> f + " Street"))
-                .apply(StringBuilder::append).to(" ")
+                .then(sb -> sb.append(' '))
                 .apply("number", StringBuilder::append).to(Fixsure.integers(1, 10))
                 .build(StringBuilder::toString)
             .newFactory(Address.class)
@@ -58,7 +59,7 @@ public class IntegrationTest {
     @Test
     public void test() {
         Person p = factories.create(Person.class, "lastName", "Doe", "address.street.number", 13);
-        assertEquals("Alice Doe, Apple Street 13, Berlin", p.toString());
+        assertEquals("Mrs Alice Doe, Apple Street 13, Berlin", p.toString());
         
         List<Person> people = factories.generate(Person.class, "age", Fixsure.integers().ordered()).several();
         assertTrue(people.size() >= 8);
@@ -69,19 +70,19 @@ public class IntegrationTest {
     
     @Test
     public void test_pseudorandom1() {
-        Person p = factories.create(Person.class, "lastName", "Doe", "address.street.number", 13);
-        assertEquals("Alice Doe, Apple Street 13, Berlin", p.toString());
+        Person p = factories.create(Person.class, "address.street.number", Fixsure.integers(0, 100));
+        assertEquals("Mrs Alice Smith, Apple Street 84, Berlin", p.toString());
     }
     
     @Test
     public void test_pseudorandom2() {
-        Person p = factories.create(Person.class, "lastName", "Doe", "address.street.number", 13);
-        assertEquals("Alice Doe, Apple Street 13, Berlin", p.toString());
+        Person p = factories.create(Person.class, "address.street.number", Fixsure.integers(0, 100));
+        assertEquals("Mrs Alice Smith, Apple Street 84, Berlin", p.toString());
     }
     
     @Test
     public void test_pseudorandom3() {
-        Person p = factories.create(Person.class, "lastName", "Doe", "address.street.number", 13);
-        assertEquals("Alice Doe, Apple Street 13, Berlin", p.toString());
+        Person p = factories.create(Person.class, "address.street.number", Fixsure.integers(0, 100));
+        assertEquals("Mrs Alice Smith, Apple Street 84, Berlin", p.toString());
     }
 }

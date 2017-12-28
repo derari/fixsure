@@ -97,6 +97,16 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     }
 
     @Override
+    default FlTemplate<Values<T>> aggregate(DataSource<Integer> length) {
+        return () -> newGenerator().aggregate(length);
+    }
+
+    @Override
+    default FlTemplate<Values<T>> aggregate(int length) {
+        return () -> newGenerator().aggregate(length);
+    }
+
+    @Override
     default FlTemplate<T> shuffle() {
         return () -> newGenerator().shuffle();
     }
@@ -134,5 +144,9 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     @Override
     default <U> BiTemplate<T, U> with(DataSource<U> source) {
         return () -> newGenerator().with(source);
+    }
+    
+    default <R> R transform(Function<? super FlTemplate<? extends T>, ? extends R> function) {
+        return function.apply(this);
     }
 }

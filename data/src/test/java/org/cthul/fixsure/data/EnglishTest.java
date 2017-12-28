@@ -44,10 +44,10 @@ public class EnglishTest {
     
     @Test
     public void test_aliceBob() {
-        assertThat(English.aliceBobWithGender().pairs().value( 0), is(new Pair<>('F', "Alice")));
-        assertThat(English.aliceBobWithGender().pairs().value(11), is(new Pair<>('M', "Louis")));
-        assertThat(English.aliceBobWithGender().pairs().value(12), is(new Pair<>('M', "Mallory")));
-        assertThat(English.aliceBobWithGender().pairs().value(13), is(new Pair<>('F', "Nancy")));
-        assertThat(English.aliceBobWithGender().pairs().value(25), is(new Pair<>('F', "Zoe")));
+        assertThat(English.aliceBobWithGender().pairs().value( 0), is(new Pair<>("Alice", 'F')));
+        assertThat(English.aliceBobWithGender().pairs().value(11), is(new Pair<>("Louis", 'M')));
+        assertThat(English.aliceBobWithGender().pairs().value(12), is(new Pair<>("Mallory", 'M')));
+        assertThat(English.aliceBobWithGender().pairs().value(13), is(new Pair<>("Nancy", 'F')));
+        assertThat(English.aliceBobWithGender().pairs().value(25), is(new Pair<>("Zoe", 'F')));
     }
 }

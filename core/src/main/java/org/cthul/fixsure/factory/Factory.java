@@ -32,6 +32,10 @@ public interface Factory<T> extends FlGenerator<T>, Typed<T> {
         FactoryGenerator<T> set(Object... keyValues);
         
         <V> ValueDeclaration<V, FactoryGenerator<T>> set(String key);
+        
+        default <V> ValueDeclaration<V, FactoryGenerator<T>> set(Typed<V> token) {
+            return set(token.toString());
+        }
     }
     
     interface ValueMap extends Factories {
@@ -39,15 +43,15 @@ public interface Factory<T> extends FlGenerator<T>, Typed<T> {
         <T> T get(String key);
         
         default int getInt(String key) {
-            return this.<Number>get(key).intValue();
+            return i(key);
         }
         
         default String getStr(String key) {
-            return Objects.toString(get(key), null);
+            return str(key);
         }
         
         default boolean getBool(String key) {
-            return get(key);
+            return x(key);
         }
         
         default <T> T get(Typed<T> token) {
@@ -64,6 +68,38 @@ public interface Factory<T> extends FlGenerator<T>, Typed<T> {
         
         default boolean getBool(Typed<Boolean> token) {
             return getBool(token.toString());
+        }
+        
+        default byte b(String key) {
+            return this.<Number>get(key).byteValue();
+        }
+
+        default char c(String key) {
+            return this.<Character>get(key);
+        }
+        
+        default double d(String key) {
+            return this.<Number>get(key).doubleValue();
+        }
+        
+        default double f(String key) {
+            return this.<Number>get(key).floatValue();
+        }
+        
+        default long l(String key) {
+            return this.<Number>get(key).longValue();
+        }
+        
+        default int i(String key) {
+            return this.<Number>get(key).intValue();
+        }
+        
+        default boolean x(String key) {
+            return this.<Boolean>get(key);
+        }
+        
+        default String str(String key) {
+            return Objects.toString(get(key), null);
         }
 
         @Override
