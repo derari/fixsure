@@ -501,6 +501,12 @@ public interface FactoriesSetup {
          * @return builder setup
          */
         <B> BuilderSetup<B,R> builder(Function<? super ValueMap, ? extends B> newBuilder);
+        
+        FactorySetup<R> extend(String id);
+        
+        default FactorySetup<R> extend(Class<R> clazz) {
+            return extend(clazz.getName());
+        }
     }
     
     /**
@@ -515,7 +521,7 @@ public interface FactoriesSetup {
         
         @Override
         default FactoriesSetup factoriesSetup() {
-            return build(new NewInstance<>(getValueType())).factoriesSetup();
+            return useDefaultConstructor().factoriesSetup();
         }
         
         default FactorySetup<R> useDefaultConstructor() {
@@ -568,7 +574,7 @@ public interface FactoriesSetup {
          * @param valueFunction
          * @return parent setup
          */
-        BuilderSetup to(Function<ValueMap, ? extends T> valueFunction);
+        BuilderSetup to(Function<? super ValueMap, ? extends T> valueFunction);
         
         /**
          * Use the data source to obtain values.

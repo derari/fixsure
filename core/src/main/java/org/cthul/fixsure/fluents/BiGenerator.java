@@ -94,6 +94,12 @@ public interface BiGenerator<T, U> extends BiDataSource<T, U> {
                 U u = bag.get2();
                 bag2.accept(function.apply(t), u);
             }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                BiGenerator.this.toString(sb).append(".map1(");
+                GeneratorTools.lambdaToString(function, sb);
+                return sb.append(')');
+            }
         };
     }
 
@@ -107,6 +113,12 @@ public interface BiGenerator<T, U> extends BiDataSource<T, U> {
                 T t = bag.get1();
                 U u = bag.get2();
                 bag2.accept(t, function.apply(u));
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                BiGenerator.this.toString(sb).append(".map2(");
+                GeneratorTools.lambdaToString(function, sb);
+                return sb.append(')');
             }
         };
     }

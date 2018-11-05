@@ -20,9 +20,14 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
                            Factory<R> {
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public DefaultFactory(DefaultFactories owner, FactoryBase parent, String id, Class<R> clazz, Function<? super ValueMap, ? extends R> newBuilder, Map<String, ValueEntry> valueMap) {
-        super(owner, parent, id, clazz, newBuilder, valueMap);
+    public DefaultFactory(DefaultFactories owner, FactoryBase parent, String id, Class<R> clazz, String instanceKey, Map<String, ValueEntry> valueMap) {
+        super(owner, parent, id, clazz, instanceKey, valueMap);
         owner.addFactory(id, this);
+    }
+    
+    public DefaultFactory(DefaultFactories owner, FactoryBase parent, String id, Class<R> clazz, Function<? super ValueMap, ? extends R> newBuilder, Map<String, ValueEntry> valueMap) {
+        this(owner, parent, id, clazz, INSTANCE_KEY, valueMap);
+        assign(INSTANCE_KEY).to(newBuilder);
     }
 
     @Override
@@ -31,7 +36,7 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
     }
 
     @Override
-    public <T> ValueDeclaration<T, ? extends FactorySetup<R>> assign(String key) {
+    public final <T> ValueDeclaration<T, ? extends FactorySetup<R>> assign(String key) {
         return addValue(key, new FactoryValueDeclaration<>(key));
     }
     
@@ -118,10 +123,10 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
             
         protected <V> ValueDeclaration<V, FactoryGenerator<R>> setLocal(String key) {
             class ValueOverride implements ValueEntry, ValueDeclaration<V, FactoryGenerator<R>> {
-                private Function<ValueMap, ? extends V> valueFunction = null;
+                private Function<? super ValueMap, ? extends V> valueFunction = null;
                 private String generatorId;
                 @Override
-                public FactoryGenerator<R> to(Function<ValueMap, ? extends V> valueFunction) {
+                public FactoryGenerator<R> to(Function<? super ValueMap, ? extends V> valueFunction) {
                     replace();
                     this.valueFunction = valueFunction;
                     return Generator.this;
@@ -149,7 +154,7 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
                 }
                 @Override
                 public String toString() {
-                    return "!!" + key;
+                    return "Override " + key;
                 }
                 private void replace() {
                     if (valueMap == getValueMap()) {
@@ -165,13 +170,18 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
             ValueDeclaration<V, ?> nestedValue = nested.set(key);
             return new ValueDeclaration<V, FactoryGenerator<R>>() {
                 @Override
-                public FactoryGenerator<R> to(Function<ValueMap, ? extends V> valueFunction) {
+                public FactoryGenerator<R> to(Function<? super ValueMap, ? extends V> valueFunction) {
                     nestedValue.to(valueFunction);
                     return Generator.this;
                 }
                 @Override
                 public FactoryGenerator<R> to(DataSource<? extends V> dataSource) {
                     nestedValue.to(dataSource);
+                    return Generator.this;
+                }
+                @Override
+                public FactoryGenerator<R> to(V value) {
+                    nestedValue.to(value);
                     return Generator.this;
                 }
                 @Override
@@ -205,7 +215,7 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
         private final DefaultFactories owner;
         private final String id;
         private final Class<R> clazz;
-        private final List<Consumer<BuilderSetup<?,?>>> assignments = new ArrayList<>();
+        private final List<Consumer<BuilderSetupBase<?,?>>> assignments = new ArrayList<>();
 
         public New(DefaultFactories owner, String id, Class<R> clazz) {
             this.owner = owner;
@@ -219,8 +229,21 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
         }
 
         @Override
+        public FactorySetup<R> extend(String id) {
+            DefaultFactory<R> parent = (DefaultFactory<R>) owner.factory(id);
+            Class<R> valType = clazz != null ? clazz : parent.getValueType();
+            DefaultFactory<R> factory = new DefaultFactory<>(owner, parent, this.id, valType, INSTANCE_KEY, new HashMap<>());
+            assignments.forEach(c -> c.accept(factory));
+            return factory;
+//            Builder b = new Builder<>(owner, extendFactory, id, clazz, null);
+//            return b.build(Function.identity());
+//            return build(new ExtendInstance());
+//            return new DefaultFactory<>(getFactories(), this, getId(), instanceClass, new NewInstance(), getValueMap());
+        }
+
+        @Override
         public <B> BuilderSetup<B, R> builder(Function<? super ValueMap, ? extends B> newBuilder) {
-            Builder b = new Builder<>(owner, id, clazz, null, newBuilder);
+            Builder b = new Builder<>(owner, owner, id, clazz, null, newBuilder);
             assignments.forEach(c -> c.accept(b));
             return b;
         }
@@ -229,13 +252,18 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
         public <T> ValueDeclaration<T, FactoriesSetup.NewFactory<R>> assign(String key) {
             return new ValueDeclaration<T, NewFactory<R>>() {
                 @Override
-                public NewFactory<R> to(Function<ValueMap, ? extends T> valueFunction) {
+                public NewFactory<R> to(Function<? super ValueMap, ? extends T> valueFunction) {
                     assignments.add(b -> b.assign(key).to(valueFunction));
                     return New.this;
                 }
                 @Override
                 public NewFactory<R> to(DataSource<? extends T> dataSource) {
                     assignments.add(b -> b.assign(key).to(dataSource));
+                    return New.this;
+                }
+                @Override
+                public NewFactory<R> to(T value) {
+                    assignments.add(b -> b.assign(key).to(value));
                     return New.this;
                 }
             };
@@ -248,13 +276,18 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
         
         private final Class<R> instanceClass;
 
-        public Builder(DefaultFactories factories, String id, Class<R> instanceClass, Class<B> clazz, Function<? super ValueMap, ? extends B> newBuilder) {
-            super(factories, factories, id, clazz, newBuilder, new HashMap<>());
+        public Builder(DefaultFactories factories, FactoryBase parent, String id, Class<R> instanceClass, Class<B> clazz) {
+            super(factories, parent, id, clazz, BUILDER_KEY, new HashMap<>());
             this.instanceClass = instanceClass;
         }
 
+        public Builder(DefaultFactories factories, FactoryBase parent, String id, Class<R> instanceClass, Class<B> clazz, Function<? super ValueMap, ? extends B> newBuilder) {
+            this(factories, parent, id, instanceClass, clazz);
+            assign(BUILDER_KEY).to(newBuilder);
+        }
+
         @Override
-        public <T> ValueDeclaration<T, ? extends BuilderSetup<B, R>> assign(String key) {
+        public final <T> ValueDeclaration<T, ? extends BuilderSetup<B, R>> assign(String key) {
             return addValue(key, new BuilderValueDeclaration(key));
         }
 
@@ -263,7 +296,7 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
             class NewInstance implements Function<ValueMap, R> {
                 @Override
                 public R apply(ValueMap vm) {
-                    B builder = create(vm);
+                    B builder = create((DefaultValueMap) vm);
                     return buildFunction.apply(builder, vm);
                 }
             }
@@ -289,6 +322,8 @@ public class DefaultFactory<R> extends DefaultBuilderBase<R, FactoriesSetup.Fact
         }
     }
     
+    private static final String BUILDER_KEY = "org/cthul/fixsure/DefaultFactory#BUILDER";
+    private static final String INSTANCE_KEY = "org/cthul/fixsure/DefaultFactory#INSTANCE";
     
     protected static <T> BiConsumer<Object,T> defaultSetter(Class<?> clazz, String id) {
         for (Field f: clazz.getDeclaredFields()) {

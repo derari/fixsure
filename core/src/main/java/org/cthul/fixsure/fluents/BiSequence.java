@@ -3,7 +3,6 @@ package org.cthul.fixsure.fluents;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import org.cthul.fixsure.Sequence;
 import org.cthul.fixsure.SequenceLength;
 import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.fluents.BiGenerator.Bag;
@@ -56,11 +55,23 @@ public interface BiSequence<T, U> extends BiTemplate<T, U>, SequenceLength {
 
     @Override
     default <R> FlSequence<R> map(BiFunction<? super T, ? super U, ? extends R> function) {
-        Bag<T,U> bag = new Bag<>();
-        return Sequence.sequence(this, l -> {
-            value(l, bag);
-            return function.apply(bag.t, bag.u);
-        });
+        return new AnonymousSequence<R>(this) {
+            Bag<T,U> bag = new Bag<>();
+            @Override
+            public Class<R> getValueType() {
+                return null;
+            }
+            @Override
+            public R value(long n) {
+                BiSequence.this.value(n, bag);
+                return function.apply(bag.t, bag.u);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                BiSequence.this.toString(sb).append(".map(");
+                return GeneratorTools.lambdaToString(function, sb).append(')');
+            }
+        };
     }
 
     @Override

@@ -25,17 +25,17 @@ public abstract class DefaultBuilderBase<V, This extends BuilderSetupBase<V,This
     private final DefaultFactories factories;
     private final String id;
     private final Class<V> clazz;
-    private final Function<? super Factory.ValueMap, ? extends V> newInstance;
+    private final String instanceKey;
     private final Map<String, ValueEntry> valueMap;
     private final List<BiFunction<? super V, ? super ValueMap, ? extends V>> steps = new ArrayList<>();
 
-    public DefaultBuilderBase(DefaultFactories owner, FactoryBase parent, String id, Class<V> clazz, Function<? super Factory.ValueMap, ? extends V> newInstance, Map<String, ValueEntry> valueMap) {
+    public DefaultBuilderBase(DefaultFactories owner, FactoryBase parent, String id, Class<V> clazz, String instanceKey, Map<String, ValueEntry> valueMap) {
         super(parent);
         this.factories = owner;
         this.id = id;
         this.clazz = clazz;
         this.valueMap = valueMap;
-        this.newInstance = newInstance;
+        this.instanceKey = instanceKey;
     }
 
     protected DefaultFactories getFactories() {
@@ -74,22 +74,23 @@ public abstract class DefaultBuilderBase<V, This extends BuilderSetupBase<V,This
         return id;
     }
 
-    protected V newInstance(Factory.ValueMap vm) {
-        return newInstance.apply(vm);
-    }
+//    protected V newInstance(Factory.ValueMap vm) {
+//        return newInstance.apply(vm);
+//    }
     
-    public V create(Factory.ValueMap vm) {
-        V instance = newInstance(vm);
+    protected V create(DefaultValueMap vm) {
+        V instance = vm.get(instanceKey);
         for (BiFunction<? super V, ? super ValueMap, ? extends V> step: steps) {
             instance = step.apply(instance, vm);
         }
+        vm.values.put(instanceKey, instance);
         return instance;
     }
     
     protected class DefValueDeclaration<T> implements FactoriesSetup.ValueDeclaration<T,This>, ValueEntry {
         
         private final String id;
-        private Function<Factory.ValueMap, ? extends T> valueFunction = null;
+        private Function<? super Factory.ValueMap, ? extends T> valueFunction = null;
         private String factoryId = null;
 
         public DefValueDeclaration(String id) {
@@ -121,7 +122,7 @@ public abstract class DefaultBuilderBase<V, This extends BuilderSetupBase<V,This
         }
 
         @Override
-        public This to(Function<Factory.ValueMap, ? extends T> valueFunction) {
+        public This to(Function<? super Factory.ValueMap, ? extends T> valueFunction) {
             this.valueFunction = valueFunction;
             return (This) DefaultBuilderBase.this;
         }
@@ -170,20 +171,41 @@ public abstract class DefaultBuilderBase<V, This extends BuilderSetupBase<V,This
 
         @Override
         public <T> T get(String key) {
-            return (T) values.computeIfAbsent(key, k -> {
-                if (!recursionGuard.add(k)) {
-                    throw new IllegalArgumentException("recursion: " + recursionGuard);
+//            return (T) values.computeIfAbsent(key, k -> {
+//                if (!recursionGuard.add(k)) {
+//                    throw new IllegalArgumentException("recursion: " + recursionGuard);
+//                }
+//                try {
+//                    ValueEntry val = valueMap.get(k);
+//                    if (val != null) { // && val.getGeneratorId() == null
+//                        return val.get(this);
+//                    }
+//                    return generator(k).next();
+//                } finally {
+//                    recursionGuard.remove(k);
+//                }
+//            });
+            Object v = values.get(key);
+            if (v == null) {
+                v = computeValue(key);
+                values.put(key, v);
+            }
+            return (T) v;
+        }
+        
+        protected Object computeValue(String key) {
+            if (!recursionGuard.add(key)) {
+                throw new IllegalArgumentException("recursion: " + recursionGuard);
+            }
+            try {
+                ValueEntry val = valueMap.get(key);
+                if (val != null) { // && val.getGeneratorId() == null
+                    return val.get(this);
                 }
-                try {
-                    ValueEntry val = valueMap.get(k);
-                    if (val != null) { // && val.getGeneratorId() == null
-                        return val.get(this);
-                    }
-                    return generator(k).next();
-                } finally {
-                    recursionGuard.remove(k);
-                }
-            });
+                return generator(key).next();
+            } finally {
+                recursionGuard.remove(key);
+            }
         }
 
         @Override

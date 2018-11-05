@@ -1,7 +1,6 @@
 package org.cthul.fixsure.generators.primitives;
 
 import org.cthul.fixsure.Distribution;
-import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.api.Factory;
 import static org.cthul.fixsure.distributions.DistributionRandomizer.toSeed;
 import org.cthul.fixsure.fluents.FlGenerator;

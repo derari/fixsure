@@ -1,6 +1,5 @@
 package org.cthul.fixsure.generators.primitives;
 
-import java.util.Locale;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.api.Factory;
