@@ -13,6 +13,8 @@ import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Fetcher;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
+import org.cthul.fixsure.fetchers.Fetchers;
 import org.cthul.fixsure.generators.composite.*;
 import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
@@ -34,6 +36,15 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
     @Override
     default FlGenerator<T> fluentData() {
         return this;
+    }
+    
+    default long randomSeedHint() {
+        return LAMBDA_SEED_HINT;
+    }
+
+    @Override
+    default EagerValues<T> few() {
+        return Fetchers.few(randomSeedHint()).toItemConsumer().of(this);
     }
     
     default LazyValues<T> any(int length) {
@@ -142,4 +153,6 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
         }
         return StreamSupport.stream(new GSpliterator(), false);
     }
+    
+    static long LAMBDA_SEED_HINT = DistributionRandomizer.toSeed(FlGenerator.class);
 }

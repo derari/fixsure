@@ -39,7 +39,7 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     default LazyValues<T> first(Generator<Integer> length) {
         return LazyValues.any(length, this);
     }
-        
+
     @Override
     default FlTemplate<T> distinct() {
         return () -> newGenerator().distinct();

@@ -66,6 +66,9 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
         return Fetchers.many().toItemConsumer().of(this);
     }
     
+    // al methods will be implemented by FlGenerator or FlTemplate,
+    // implementing them here would have no clear semantic
+    
     FlDataSource<T> distinct();
     
     FlDataSource<T> filter(Predicate<? super T> predicate);
