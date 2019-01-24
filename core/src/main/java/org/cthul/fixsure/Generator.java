@@ -1,6 +1,8 @@
 package org.cthul.fixsure;
 
+import org.cthul.fixsure.api.Factory;
 import java.util.function.Supplier;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
@@ -33,8 +35,9 @@ public interface Generator<T> extends Supplier<T>, DataSource<T> {
     }
 
     /**
+     * Returns self.
      * @return this
-     * @deprecated redundant operation
+     * @deprecated Redundant operation
      */
     @Override
     @Deprecated
@@ -42,6 +45,10 @@ public interface Generator<T> extends Supplier<T>, DataSource<T> {
         return this;
     }
     
+    /**
+     * Provides access to the {@linkplain FlGenerator fluent generator} interface.
+     * @return fluent
+     */
     @Override
     default FlGenerator<T> fluentData() {
         return Generator.generate(this);
@@ -89,12 +96,16 @@ public interface Generator<T> extends Supplier<T>, DataSource<T> {
                 return clazz;
             }
             @Override
-            public Supplier<T> copy() {
-                return generate(clazz, copyGenerator(supplier));
+            public CopyableGenerator<T> copy() {
+                return (CopyableGenerator) generate(clazz, copyGenerator(supplier));
             }
             @Override
             public Generator<T> toGenerator() {
                 return actual != null ? actual : this;
+            }
+            @Override
+            public long randomSeedHint() {
+                return DistributionRandomizer.toSeed(clazz) ^ 0x1337cafe;
             }
         }
         return new TypedGenerator();

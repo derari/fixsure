@@ -6,7 +6,10 @@ import java.util.Queue;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.api.AbstractStringify;
+import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.value.EmptySequence;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
@@ -14,7 +17,7 @@ import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
  * A queue of generators that fetches a certain number of elements from
  * each and then uses the next.
  */
-public class GeneratorQueue<T> implements CopyableGenerator<T> {
+public class GeneratorQueue<T> extends AbstractStringify implements CopyableGenerator<T> {
     
     public static <T> GeneratorQueue<T> beginWith(DataSource<T> values) {
         return new GeneratorQueue<>(values);
@@ -75,9 +78,9 @@ public class GeneratorQueue<T> implements CopyableGenerator<T> {
     }
 
     private void copyAll(Collection<? extends Fetch<T>> src, Collection<Fetch<T>> target) {
-        for (Fetch<T> f: src) {
+        src.forEach(f -> {
             target.add(f.copy());
-        }
+        });
     }
     
     protected void _add(DataSource<? extends T> value) {
@@ -132,6 +135,11 @@ public class GeneratorQueue<T> implements CopyableGenerator<T> {
         return then(n.next(), moreValues);
     }
 
+    @Override
+    public GeneratorQueue<T> then(DataSource<? extends T>... more) {
+        return thenAll(more);
+    }
+
     public GeneratorQueue<T> thenAll(DataSource<? extends T>... moreValues) {
         GeneratorQueue<T> r = new GeneratorQueue<>(this);
         for (DataSource<? extends T> g: moreValues) {
@@ -145,11 +153,22 @@ public class GeneratorQueue<T> implements CopyableGenerator<T> {
         return new GeneratorQueue<>(this);
     }
 
-    protected static abstract class Fetch<T> {
+    @Override
+    public long randomSeedHint() {
+        return values.randomSeedHint();
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return GeneratorTools.printList(values, moreValues, sb.append('{')).append('}');
+    }
+
+    protected static abstract class Fetch<T> extends AbstractStringify {
         public abstract boolean hasNext();
         public abstract T fetch();
         public abstract boolean expectException();
         public abstract Fetch<T> copy();
+        public abstract long randomSeedHint();
     }
     
     private static class FetchFixed<T> extends Fetch<T> {
@@ -180,6 +199,15 @@ public class GeneratorQueue<T> implements CopyableGenerator<T> {
         public Generator<? extends T> newFromTemplate() {
             return copyGenerator(values);
         }
+        @Override
+        public long randomSeedHint() {
+            return GeneratorTools.getRandomSeedHint(values) ^ rem;
+        }
+
+        @Override
+        public StringBuilder toString(StringBuilder sb) {
+            return values.toString(sb.append(rem).append(" of "));
+        }
     }
     
     private static class FetchAll<T> extends Fetch<T> {
@@ -205,6 +233,14 @@ public class GeneratorQueue<T> implements CopyableGenerator<T> {
         }
         public Generator<? extends T> newFromTemplate() {
             return copyGenerator(values);
+        }
+        @Override
+        public long randomSeedHint() {
+            return GeneratorTools.getRandomSeedHint(values) ^ 0xa77a77a77L;
+        }
+        @Override
+        public StringBuilder toString(StringBuilder sb) {
+            return values.toString(sb);
         }
     }
 }

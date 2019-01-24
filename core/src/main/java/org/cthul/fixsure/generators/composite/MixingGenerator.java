@@ -1,11 +1,13 @@
 package org.cthul.fixsure.generators.composite;
 
+import java.util.Arrays;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.GeneratorWithScalar;
 import org.cthul.fixsure.generators.CopyableGenerator;
-import org.cthul.fixsure.generators.primitives.IntegersGenerator;
+import org.cthul.fixsure.generators.primitives.RandomIntegersGenerator;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
 /**
@@ -23,7 +25,7 @@ public class MixingGenerator<T>
     private Class<?> valueType = void.class;
 
     public MixingGenerator(DataSource<? extends T>[] sources) {
-        super(IntegersGenerator.integers(sources.length));
+        super(RandomIntegersGenerator.integers(sources.length));
         this.generators = DataSource.toGenerators((DataSource[]) sources);
     }
 
@@ -57,5 +59,20 @@ public class MixingGenerator<T>
     @Override
     public MixingGenerator<T> copy() {
         return new MixingGenerator<>(this);
+    }
+
+    @Override
+    public long randomSeedHint() {
+        long seed = DistributionRandomizer.toSeed(getClass());
+        for (Generator<?> g: generators) {
+            seed ^= GeneratorTools.getRandomSeedHint(g);
+        }
+        return seed;
+    }
+    
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        super.toString(sb.append("Mix(")).append(':');
+        return GeneratorTools.printList(Arrays.asList(generators), sb).append(')');
     }
 }

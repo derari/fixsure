@@ -1,13 +1,15 @@
 package org.cthul.fixsure;
 
+import org.cthul.fixsure.api.Stringify;
 import org.cthul.fixsure.fluents.FlDataSource;
 import org.cthul.fixsure.fluents.FlTemplate;
 
 /**
  * A source of data, either a {@link Generator} or a {@link Template}.
+ * @param <T> value type
  */
 @FunctionalInterface
-public interface DataSource<T> {
+public interface DataSource<T> extends Stringify {
     
     /**
      * Returns a generator for this data.
@@ -18,13 +20,20 @@ public interface DataSource<T> {
     Generator<T> toGenerator();
     
     /**
-     * Provides access to fluent methods on this data.
+     * Provides access to the {@linkplain FlDataSource fluent data source} interface.
      * @return fluent
      */
     default FlDataSource<T> fluentData() {
         return (FlTemplate<T>) () -> toGenerator().fluentData();
     }
-    
+      
+    /**
+     * Converts an array of data sources into generators by calling
+     * {@link #toGenerator()} on each.
+     * @param <T>
+     * @param sources
+     * @return generators
+     */
     static <T> Generator<T>[] toGenerators(DataSource<T>... sources) {
         Generator<T>[] result = new Generator[sources.length];
         for (int i = 0; i < sources.length; i++) {
@@ -32,7 +41,15 @@ public interface DataSource<T> {
         }
         return result;
     }
-    
+
+    /**
+     * Converts data sources into generators by calling
+     * {@link #toGenerator()} on each.
+     * @param <T>
+     * @param first
+     * @param more
+     * @return generators
+     */
     static <T> Generator<T>[] toGenerators(DataSource<T> first, DataSource<T>... more) {
         Generator<T>[] result = new Generator[more.length+1];
         result[0] = first.toGenerator();

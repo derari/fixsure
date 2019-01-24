@@ -3,8 +3,10 @@ package org.cthul.fixsure.generators;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.Generator;
+import org.cthul.fixsure.api.AbstractStringify;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
-import org.cthul.fixsure.generators.primitives.IntegersGenerator;
+import org.cthul.fixsure.generators.primitives.RandomIntegersGenerator;
 
 /**
  * A {@link Generator} that requires a scalar value (e.g., to generate 
@@ -12,7 +14,7 @@ import org.cthul.fixsure.generators.primitives.IntegersGenerator;
  * <p>
  * The value can be specified as a constant, or as an integer generator.
  */
-public abstract class GeneratorWithScalar<T> implements FlGenerator<T> {
+public abstract class GeneratorWithScalar<T> extends AbstractStringify implements FlGenerator<T> {
     
     private final int scalar;
     private final Generator<Integer> scalarGenerator;
@@ -27,8 +29,8 @@ public abstract class GeneratorWithScalar<T> implements FlGenerator<T> {
         this.scalarGenerator = scalarGenerator.toGenerator();
     }
     
-    public GeneratorWithScalar(int scalar, Distribution distribution) {
-        this(IntegersGenerator.integers(scalar, distribution));
+    public GeneratorWithScalar(int scalar, Distribution distribution, long seed) {
+        this(RandomIntegersGenerator.integers(scalar).random(distribution, seed));
     }
 
     protected GeneratorWithScalar(GeneratorWithScalar src) {
@@ -45,6 +47,28 @@ public abstract class GeneratorWithScalar<T> implements FlGenerator<T> {
             return scalarGenerator.next();
         } else {
             return scalar;
+        }
+    }
+
+    @Override
+    public long randomSeedHint() {
+        if (scalarGenerator != null) {
+            return GeneratorTools.getRandomSeedHint(scalarGenerator) ^ classSeed();
+        } else {
+            return scalar ^ classSeed();
+        }
+    }
+    
+    protected long classSeed() {
+        return DistributionRandomizer.toSeed(getClass());
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        if (scalarGenerator != null) {
+            return scalarGenerator.toString(sb);
+        } else {
+            return sb.append(scalar);
         }
     }
 }

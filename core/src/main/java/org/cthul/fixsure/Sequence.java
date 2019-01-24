@@ -1,15 +1,17 @@
 package org.cthul.fixsure;
 
+import org.cthul.fixsure.api.Factory;
 import java.util.function.LongFunction;
-import java.util.function.Supplier;
-import static org.cthul.fixsure.SequenceLength.isInRange;
+import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlSequence;
+import org.cthul.fixsure.generators.AnonymousSequence;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 
 /**
- * A produces elements, but allows random access.
- * The elements don't need to be unique.
+ * A source of values supporting random access.
+ * @param <T>
  */
 public interface Sequence<T> extends Template<T>, SequenceLength {
     
@@ -20,32 +22,10 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
      * @throws IndexOutOfBoundsException
      */
     T value(long n);
-    
-    /**
-     * Number of elements that can be accessed through {@link #value(long)};
-     * -1 if any positive long is accepted.
-     * @return length
-     */
-    @Override
-    long length();
-    
-    @Override
-    default boolean isUnbounded() {
-        return length() <= L_UNBOUNDED;
-    }
-    
-    /**
-     * Only if unbounded.
-     * @return 
-     */
-    @Override
-    default boolean negativeIndices() {
-        return length() <= L_NEGATIVE_INDICES;
-    }
 
     @Override
     default FlGenerator<T> newGenerator() {
-        class SequenceElements implements CopyableGenerator<T> {
+        class SequenceElements extends AbstractStringify implements CopyableGenerator<T> {
             private final Class<T> type = Typed.typeOf(Sequence.this);
             private long index = 0;
             @Override
@@ -64,10 +44,19 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
                 return type;
             }
             @Override
-            public Supplier<T> copy() {
+            public CopyableGenerator<T> copy() {
                 SequenceElements copy = new SequenceElements();
                 copy.index = index;
                 return copy;
+            }
+            @Override
+            public long randomSeedHint() {
+                return GeneratorTools.getRandomSeedHint(Sequence.this);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                return Sequence.this.toString(sb)
+                        .append('[').append(index).append(']');
             }
         }
         return new SequenceElements();
@@ -78,6 +67,13 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
         return sequence(this, this::value);
     }
     
+    /**
+     * Creates a sequence with the given length from a long function.
+     * @param <T>
+     * @param length
+     * @param function
+     * @return sequence
+     */
     static <T> FlSequence<T> sequence(SequenceLength length, LongFunction<T> function) {
         return sequence(SequenceLength.toLong(length), function);
     }
@@ -116,12 +112,13 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
      */
     @Factory
     static <T> FlSequence<T> sequence(Class<T> clazz, long length, LongFunction<T> function) {
-        class TypedSequence implements FlSequence<T> {
+        class TypedSequence extends AnonymousSequence<T> {
+            public TypedSequence() {
+                super(length);
+            }
             @Override
             public T value(long n) {
-                if (!isInRange(n, this)) {
-                    throw new IndexOutOfBoundsException("" + n);
-                }
+                assertInRange(n);
                 return function.apply(n);
             }
             @Override
@@ -129,8 +126,8 @@ public interface Sequence<T> extends Template<T>, SequenceLength {
                 return clazz;
             }
             @Override
-            public long length() {
-                return length;
+            public StringBuilder toString(StringBuilder sb) {
+                return GeneratorTools.lambdaToString(function, sb);
             }
         }
         return new TypedSequence();

@@ -1,11 +1,15 @@
 package org.cthul.fixsure.generators.value;
 
-import org.cthul.fixsure.Factory;
+import java.util.Arrays;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.api.AbstractStringify;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlTemplate;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 
-public class PermutationsGenerator<T> implements CopyableGenerator<T[]> {
+public class PermutationsGenerator<T> extends AbstractStringify implements CopyableGenerator<T[]> {
     
     /**
      * Generates permutations of an array
@@ -128,5 +132,16 @@ public class PermutationsGenerator<T> implements CopyableGenerator<T[]> {
                 directions[i] = setDirection(v, LEFT);
             }
         }
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return array.length ^ DistributionRandomizer.toSeed(getClass());
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return GeneratorTools.printList(Arrays.asList(array), sb.append('{'))
+                .append("}.permutations()");
     }
 }

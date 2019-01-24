@@ -4,7 +4,9 @@ import java.util.function.Function;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Typed;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
 /**
@@ -43,6 +45,18 @@ public class MappingGenerator<T> implements CopyableGenerator<T> {
     @Override
     public MappingGenerator<T> copy() {
         return new MappingGenerator<>(this);
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return GeneratorTools.getRandomSeedHint(cnv.src) * 3 ^ 
+                DistributionRandomizer.toSeed(MappingGenerator.class);
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        cnv.src.toString(sb).append(".map(");
+        return GeneratorTools.lambdaToString(cnv.function, sb).append(')');
     }
     
     private static class Convert<Src, Out> {

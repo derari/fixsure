@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import org.cthul.fixsure.*;
+import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
 
 /**
@@ -40,6 +41,26 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
         return LazyValues.any(length, this);
     }
 
+    @Override
+    default EagerValues<T> few() {
+        return newGenerator().few();
+    }
+
+    @Override
+    default EagerValues<T> some() {
+        return newGenerator().some();
+    }
+
+    @Override
+    default EagerValues<T> several() {
+        return newGenerator().several();
+    }
+
+    @Override
+    default EagerValues<T> many() {
+        return newGenerator().many();
+    }
+        
     @Override
     default FlTemplate<T> distinct() {
         return () -> newGenerator().distinct();
@@ -76,8 +97,23 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     }
 
     @Override
+    default FlTemplate<Values<T>> aggregate(DataSource<Integer> length) {
+        return () -> newGenerator().aggregate(length);
+    }
+
+    @Override
+    default FlTemplate<Values<T>> aggregate(int length) {
+        return () -> newGenerator().aggregate(length);
+    }
+
+    @Override
     default FlTemplate<T> shuffle() {
         return () -> newGenerator().shuffle();
+    }
+
+    @Override
+    default FlTemplate<T> shuffle(long seed) {
+        return () -> newGenerator().shuffle(seed);
     }
 
     @Override
@@ -96,6 +132,11 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     }
 
     @Override
+    default <U> BiTemplate<T, U> split(Function<? super T, ? extends U> function) {
+        return () -> newGenerator().split(function);
+    }
+
+    @Override
     default <U, V> BiTemplate<U, V> split(BiConsumer<? super T, ? super BiConsumer<? super U, ? super V>> action) {
         return () -> newGenerator().split(action);
     }
@@ -103,5 +144,9 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     @Override
     default <U> BiTemplate<T, U> with(DataSource<U> source) {
         return () -> newGenerator().with(source);
+    }
+    
+    default <R> R transform(Function<? super FlTemplate<? extends T>, ? extends R> function) {
+        return function.apply(this);
     }
 }

@@ -2,11 +2,14 @@ package org.cthul.fixsure.factory;
 
 import java.util.function.*;
 import org.cthul.fixsure.*;
-import org.cthul.fixsure.factory.DefaultFactory.NewInstance;
+import static org.cthul.fixsure.factory.DefaultFactories.anonymousKey;
+import static org.cthul.fixsure.factory.DefaultFactories.defaultSetter;
+import static org.cthul.fixsure.factory.DefaultFactories.uniqueIdStr;
 import org.cthul.fixsure.factory.Factory.ValueMap;
+import org.cthul.fixsure.factory.DefaultNewFactory.NewInstance;
+import org.cthul.fixsure.factory.Factory.Include;
 import org.cthul.fixsure.fluents.BiDataSource;
 import org.cthul.fixsure.fluents.BiDataSource.Pair;
-import org.cthul.fixsure.generators.value.ConstantValue;
 
 /**
  * Builds a {@link Factories} instance.
@@ -15,32 +18,32 @@ public interface FactoriesSetup {
 
     /**
      * Adds a data source.
-     * The data can be accessed by the given id.
+     * The data can be accessed by the given key.
      * If the factories are reset, {@link DataSource#toGenerator() toGenerator()}
      * will be called again to obtain a new generator.
      * Thus it is recommended to pass a {@link Template} instead of a 
      * {@link Generator}, but not required.
-     * @param id
+     * @param key
      * @param dataSource
      * @return this
      */
-    FactoriesSetup add(String id, DataSource<?> dataSource);
+    FactoriesSetup add(String key, DataSource<?> dataSource);
     
     /**
      * Adds a supplier as a data source.
-     * @param id
+     * @param key
      * @param dataSupplier
      * @return this
      * @see #add(java.lang.String, org.cthul.fixsure.DataSource) 
      */
-    default FactoriesSetup add(String id, Supplier<? extends DataSource<?>> dataSupplier) {
+    default FactoriesSetup add(String key, Supplier<? extends DataSource<?>> dataSupplier) {
         DataSource<?> ds = () -> (Generator) dataSupplier.get().toGenerator();
-        return add(id, ds);
+        return add(key, ds);
     }
 
     /**
      * Adds a data source.
-     * The data can be accessed by the given id.
+     * The data can be accessed by the given key.
      * If the factories are reset, {@link DataSource#toGenerator() toGenerator()}
      * will be called again to obtain a new generator.
      * Thus it is recommended to pass a {@link Template} instead of a 
@@ -66,14 +69,16 @@ public interface FactoriesSetup {
         return add(token.toString(), dataSupplier);
     }
     
+    FactoriesSetup add(String key, Factory<?> factory);
+    
     /**
      * Builds a new factory for instances of {@code clazz}
      * @param <T>
-     * @param id
+     * @param key
      * @param clazz
      * @return new factory setup
      */
-    <T> NewFactory<T> newFactory(String id, Class<T> clazz);
+    <T> NewFactory<T> newFactory(String key, Class<T> clazz);
     
     /**
      * Builds a new factory for instances of {@code clazz}
@@ -106,8 +111,8 @@ public interface FactoriesSetup {
         return newFactory(token.toString(), token.getValueType());
     }
     
-    default <T> NewBuilder<T,?> newFactory(String id) {
-        return newFactory(id, (Class<T>) null);
+    default <T> NewBuilder<T,?> newFactory(String key) {
+        return newFactory(key, (Class<T>) null);
     }
     
     /**
@@ -117,56 +122,13 @@ public interface FactoriesSetup {
     Factories toFactories();
     
     /**
-     * Base interface for setting up a {@link BuilderSetup builder} or
-     * {@link FactorySetup factory}.
-     * See {@link FactorySetup} for details
+     * Base interface for setting up a value mapping.
      * @param <B>
      * @param <This> 
-     * @see FactoriesSetup
+     * @see BuilderSetupBase
+     * @see NewBuilder
      */
-    interface BuilderSetupBase<B,This extends BuilderSetupBase<B,This>> 
-                        extends Typed<B> {
-        
-        /**
-         * Sets the given field via reflection.
-         * @param key
-         * @return value declaration
-         */
-        default ValueDeclaration<Object, This> set(String key) {
-            return set(key, DefaultFactory.defaultSetter(getValueType(), key));
-        }
-        
-        /**
-         * Sets a value using a setter.
-         * @param <T>
-         * @param key
-         * @param setter
-         * @return value declaration
-         */
-        default <T> ValueDeclaration<T, This> set(String key, BiConsumer<? super B, ? super T> setter) {
-            return apply(key, (b,t) -> { setter.accept(b, t); return b; });
-        }
-        
-        /**
-         * Sets the given field via reflection.
-         * @param <T>
-         * @param token
-         * @return value declaration
-         */
-        default <T> ValueDeclaration<T, This> set(Typed<T> token) {
-            return (ValueDeclaration) set(token.toString());
-        }
-        
-        /**
-         * Sets a value using a setter.
-         * @param <T>
-         * @param token
-         * @param setter
-         * @return value declaration
-         */
-        default <T> ValueDeclaration<T, This> set(Typed<T> token, BiConsumer<? super B, ? super T> setter) {
-            return set(token.toString(), setter);
-        }
+    interface ValueSetupBase<B,This extends ValueSetupBase<B,This>> extends Typed<B> {
         
         /**
          * Assigns a value to the value map, but does not modify the object.
@@ -175,7 +137,16 @@ public interface FactoriesSetup {
          * @return value declaration
          */
         default <T> ValueDeclaration<T, ? extends This> assign(String key) {
-            return apply(key, (b,t) -> { return b; });
+            return new ValueDeclaration<T, This>() {
+                @Override
+                public This toValuesOf(ValueSource<? extends T> valueSource) {
+                    return ValueSetupBase.this.assignValues(key, valueSource);
+                }
+                @Override
+                public This include(Include<? extends T> include) {
+                    return ValueSetupBase.this.include(key, include);
+                }
+            };
         }
         
         /**
@@ -196,7 +167,7 @@ public interface FactoriesSetup {
          * @return value declaration
          */
         default ValueDeclaration<Pair<?,?>, ? extends This> assign(String id1, String id2) {
-            String pairId = "(" + id1 + ";" + id2 + ")@" + DefaultFactory.uniqueIdStr();
+            String pairId = "(" + id1 + ";" + id2 + ")@" + uniqueIdStr();
             return assign(id1).to(vm -> vm.<Pair>get(pairId).v1())
                     .assign(id2).to(vm -> vm.<Pair>get(pairId).v2())
                     .assign(pairId);
@@ -237,6 +208,81 @@ public interface FactoriesSetup {
             return (ValueDeclaration) assign(token1.toString(), token2.toString());
         }
         
+        This assignValues(String key, ValueSource<?> valueSource);
+        
+        This include(String key, Include<?> include);
+        
+        default This include(String key, Factory<?> factory) {
+            return include(key, factory.generate().asInclude());
+        }
+        
+        default This include(String key, String factoryKey) {
+            return include(key, (Include<?>) null);
+        }
+    }
+    
+    /**
+     * Base interface for setting up a {@link BuilderSetup builder} or
+     * {@link FactorySetup factory}.
+     * See {@link FactorySetup} for details
+     * @param <B>
+     * @param <This> 
+     * @see FactoriesSetup
+     */
+    interface BuilderSetupBase<B,This extends BuilderSetupBase<B,This>> 
+                        extends ValueSetupBase<B, This> {
+        
+        /**
+         * Applies values and replaces the object under construction with the
+         * function result.
+         * @param function
+         * @return this
+         */
+        This applyValues(BiFunction<? super B, ? super ValueMap, ? extends B> function);
+        
+        /**
+         * Sets the given field via reflection.
+         * @param key
+         * @return value declaration
+         */
+        default ValueDeclaration<Object, This> set(String key) {
+            return set(key, defaultSetter(getValueType(), key));
+        }
+        
+        /**
+         * Sets a value using a setter.
+         * @param <T>
+         * @param key
+         * @param setter
+         * @return value declaration
+         */
+        default <T> ValueDeclaration<T, This> set(String key, BiConsumer<? super B, ? super T> setter) {
+            // in case of NewFactory: self != this
+            This self = applyValues((b, v) -> { setter.accept(b, v.<T>get(key)); return b;});
+            return (ValueDeclaration) self.assign(key);
+        }
+        
+        /**
+         * Sets the given field via reflection.
+         * @param <T>
+         * @param token
+         * @return value declaration
+         */
+        default <T> ValueDeclaration<T, This> set(Typed<T> token) {
+            return (ValueDeclaration) set(token.toString());
+        }
+        
+        /**
+         * Sets a value using a setter.
+         * @param <T>
+         * @param token
+         * @param setter
+         * @return value declaration
+         */
+        default <T> ValueDeclaration<T, This> set(Typed<T> token, BiConsumer<? super B, ? super T> setter) {
+            return set(token.toString(), setter);
+        }
+        
         /**
          * Applies a value and replaces the object under construction with the
          * function result.
@@ -245,7 +291,11 @@ public interface FactoriesSetup {
          * @param function
          * @return value declaration
          */
-        <T> ValueDeclaration<T, This> apply(String key, BiFunction<? super B, T, ? extends B> function);
+        default <T> ValueDeclaration<T, This> apply(String key, BiFunction<? super B, T, ? extends B> function) {
+            // in case of NewFactory: self != this
+            This self = applyValues((b, v) -> function.apply(b, v.<T>get(key)));
+            return (ValueDeclaration) self.assign(key);
+        }
         
         /**
          * Applies a value and replaces the object under construction with the
@@ -266,7 +316,7 @@ public interface FactoriesSetup {
          * @return value declaration
          */
         default <T> ValueDeclaration<T, This> set(BiConsumer<? super B, T> setter) {
-            return apply((b,t) -> { setter.accept(b, t); return b; });
+            return set(anonymousKey(), setter);
         }
         
         /**
@@ -277,7 +327,7 @@ public interface FactoriesSetup {
          * @return value declaration
          */
         default <T> ValueDeclaration<T, This> apply(BiFunction<? super B, T, ? extends B> setter) {
-            return apply("<anonymous>@" + DefaultFactory.uniqueIdStr(), setter);
+            return apply(anonymousKey(), setter);
         }
         
         /**
@@ -286,7 +336,7 @@ public interface FactoriesSetup {
          * @return this
          */
         default This then(Consumer<? super B> action) {
-            return then((b,v) -> action.accept(b));
+            return applyValues((b, v) -> { action.accept(b); return b;});
         }
         
         /**
@@ -295,7 +345,7 @@ public interface FactoriesSetup {
          * @return this
          */
         default This then(BiConsumer<? super B, ? super ValueMap> action) {
-            return set(action).to(vm -> vm);
+            return applyValues((b, v) -> { action.accept(b, v); return b;});
         }
         
         /**
@@ -304,7 +354,7 @@ public interface FactoriesSetup {
          * @return this
          */
         default This thenApply(Function<? super B, ? extends B> action) {
-            return thenApply((b,v) -> action.apply(b));
+            return applyValues((b, v) -> action.apply(b));
         }
         
         /**
@@ -313,7 +363,7 @@ public interface FactoriesSetup {
          * @return this
          */
         default This thenApply(BiFunction<? super B, ? super ValueMap, ? extends B> action) {
-            return apply(action).to(vm -> vm);
+            return applyValues(action);
         }
     }
     
@@ -344,6 +394,24 @@ public interface FactoriesSetup {
          * @return factory setup
          */
         FactorySetup<R> build(BiFunction<? super B, ? super ValueMap, ? extends R> buildFunction);
+
+        @Override
+        default <T> BuilderValueSetup<B,R,T> assign(String key) {
+            return new BuilderValueSetup<B, R, T>() {
+                @Override
+                public BuilderSetup<B, R> builderSetup() {
+                    return BuilderSetup.this;
+                }
+                @Override
+                public BuilderSetup<B, R> toValuesOf(ValueSource<? extends T> valueSource) {
+                    return BuilderSetup.this.assignValues(key, valueSource);
+                }
+                @Override
+                public BuilderSetup<B, R> include(Include<? extends T> include) {
+                    return BuilderSetup.this.include(key, include);
+                }
+            };
+        }
         
         @Override
         default BuilderValueSetup<B,R,Object> set(String key) {
@@ -356,7 +424,9 @@ public interface FactoriesSetup {
         }
         
         @Override
-        <T> BuilderValueSetup<B,R,T> apply(String key, BiFunction<? super B, T, ? extends B> setter);
+        default <T> BuilderValueSetup<B,R,T> apply(String key, BiFunction<? super B, T, ? extends B> setter) {
+            return (BuilderValueSetup) BuilderSetupBase.super.apply(key, setter);
+        }
         
         @Override
         default <T> BuilderValueSetup<B,R,T> set(Typed<T> token) {
@@ -373,10 +443,11 @@ public interface FactoriesSetup {
             return (BuilderValueSetup) BuilderSetupBase.super.apply(token, setter);
         }
     }
-    
+        
     /**
      * Configures a factory.
      * <p>
+     * 
      * A factory will apply steps to initialize an object.
      * Each step is associated with a value.
      * When a step is named, the {@link ValueMap} will contain its value.
@@ -389,18 +460,43 @@ public interface FactoriesSetup {
         FactoriesSetup factoriesSetup();
         
         @Override
-        default FactoriesSetup add(String id, DataSource<?> dataSource) {
-            return factoriesSetup().add(id, dataSource);
+        default FactoriesSetup add(String key, DataSource<?> dataSource) {
+            return factoriesSetup().add(key, dataSource);
+        }
+
+        @Override
+        default FactoriesSetup add(String key, Factory<?> factory) {
+            return factoriesSetup().add(key, factory);
         }
         
         @Override
-        default <T> NewFactory<T> newFactory(String id, Class<T> clazz) {
-            return factoriesSetup().newFactory(id, clazz);
+        default <T> NewFactory<T> newFactory(String key, Class<T> clazz) {
+            return factoriesSetup().newFactory(key, clazz);
         }
         
         @Override
         default Factories toFactories() {
             return factoriesSetup().toFactories();
+        }
+
+        @Override
+        default <T> ValueDeclaration<T, ? extends FactorySetup<R>> assign(String key) {
+            // don't change the return type of `assign` methods, 
+            // the extended is only needed for `set` methods
+            return new FactoryValueSetup<R, T>() {
+                @Override
+                public FactorySetup<R> factorySetup() {
+                    return FactorySetup.this;
+                }
+                @Override
+                public FactorySetup<R> toValuesOf(ValueSource<? extends T> valueSource) {
+                    return FactorySetup.this.assignValues(key, valueSource);
+                }
+                @Override
+                public FactorySetup<R> include(Include<? extends T> include) {
+                    return FactorySetup.this.include(key, include);
+                }
+            };
         }
         
         @Override
@@ -414,9 +510,6 @@ public interface FactoriesSetup {
         }
         
         @Override
-        <T> FactoryValueSetup<R,T> apply(String key, BiFunction<? super R, T, ? extends R> setter);
-        
-        @Override
         default <T> FactoryValueSetup<R,T> set(Typed<T> token) {
             return (FactoryValueSetup) BuilderSetupBase.super.set(token);
         }
@@ -427,24 +520,22 @@ public interface FactoriesSetup {
         }
         
         @Override
+        default <T> FactoryValueSetup<R,T> apply(String key, BiFunction<? super R, T, ? extends R> setter) {
+            return (FactoryValueSetup) BuilderSetupBase.super.apply(key, setter);
+        }
+        
+        @Override
         default <T> FactoryValueSetup<R,T> apply(Typed<T> token, BiFunction<? super R, T, ? extends R> setter) {
             return (FactoryValueSetup) BuilderSetupBase.super.apply(token, setter);
         }
     }
     
-    interface NewBuilder<R, This extends NewBuilder<R, This>> {
-
-        <T> ValueDeclaration<T, ? extends This> assign(String key);
-
-        ValueDeclaration<Pair<?, ?>, ? extends This> assign(String id1, String id2);
-
-        This assign(String id1, String id2, BiDataSource<?, ?> dataSource);
-
-        <T> ValueDeclaration<T, ? extends This> assign(Typed<T> token);
-
-        <T,U> ValueDeclaration<Pair<T, U>, ? extends This> assign(Typed<T> token1, Typed<U> token2);
-
-        <T,U> This assign(Typed<T> token1, Typed<U> token2, BiDataSource<? extends T, ? extends U> dataSource);
+    /**
+     * Prepares a factory that requires a builder.
+     * @param <R>
+     * @param <This> 
+     */
+    interface NewBuilder<R, This extends ValueSetupBase<R, This>> extends ValueSetupBase<R, This> {
         
         /**
          * The factory will get new instances from the supplier.
@@ -481,6 +572,14 @@ public interface FactoriesSetup {
          * @return builder setup
          */
         <B> BuilderSetup<B,R> builder(Function<? super ValueMap, ? extends B> newBuilder);
+        
+        FactorySetup<R> extend(Factory<R> factory);
+        
+        FactorySetup<R> extend(String key);
+        
+        default FactorySetup<R> extend(Class<R> clazz) {
+            return extend(clazz.getName());
+        }
     }
     
     /**
@@ -491,20 +590,31 @@ public interface FactoriesSetup {
      * default constructor).
      * @param <R> 
      */
-    interface NewFactory<R> extends FactorySetup<R>, NewBuilder<R, NewFactory<R>> {
+    interface NewFactory<R> extends FactorySetup<R>, NewBuilder<R, FactorySetup<R>> {
         
         @Override
         default FactoriesSetup factoriesSetup() {
-            return build(new NewInstance<>(getValueType())).factoriesSetup();
+            return useDefaultConstructor().factoriesSetup();
+        }
+        
+        default FactorySetup<R> useDefaultConstructor() {
+            return build(new NewInstance<>(getValueType()));
         }
 
         @Override
-        default <T> FactoryValueSetup<R, T> apply(String key, BiFunction<? super R, T, ? extends R> setter) {
-            return build(new NewInstance<>(getValueType())).apply(key, setter);
+        default FactorySetup<R> applyValues(BiFunction<? super R, ? super ValueMap, ? extends R> function) {
+            return useDefaultConstructor().applyValues(function);
         }
 
         @Override
-        <T> ValueDeclaration<T, NewFactory<R>> assign(String key);
+        default <T> ValueDeclaration<T, NewFactory<R>> assign(String key) {
+            return (ValueDeclaration) FactorySetup.super.assign(key);
+        }
+
+        @Override
+        default <T> ValueDeclaration<T, NewFactory<R>> assign(Typed<T> token) {
+            return (ValueDeclaration) FactorySetup.super.assign(token);
+        }
 
         @Override
         default ValueDeclaration<Pair<?, ?>, NewFactory<R>> assign(String id1, String id2) {
@@ -512,13 +622,11 @@ public interface FactoriesSetup {
         }
 
         @Override
-        default NewFactory<R> assign(String id1, String id2, BiDataSource<?, ?> dataSource) {
-            return (NewFactory) FactorySetup.super.assign(id1, id2, dataSource);
-        }
+        NewFactory<R> assignValues(String key, ValueSource<?> valueSource);
 
         @Override
-        default <T> ValueDeclaration<T, NewFactory<R>> assign(Typed<T> token) {
-            return assign(token.toString());
+        default NewFactory<R> assign(String id1, String id2, BiDataSource<?, ?> dataSource) {
+            return (NewFactory) FactorySetup.super.assign(id1, id2, dataSource);
         }
 
         @Override
@@ -530,6 +638,19 @@ public interface FactoriesSetup {
         default <T,U> NewFactory<R> assign(Typed<T> token1, Typed<U> token2, BiDataSource<? extends T, ? extends U> dataSource) {
             return assign(token1.toString(), token2.toString(), dataSource);
         }
+
+        @Override
+        NewFactory<R> include(String key, Include<?> include);
+
+        @Override
+        default NewFactory<R> include(String key, Factory<?> factory) {
+            return (NewFactory) FactorySetup.super.include(key, factory);
+        }
+
+        @Override
+        default NewFactory<R> include(String key, String factoryKey) {
+            return (NewFactory) FactorySetup.super.include(key, factoryKey);
+        }
     }
     
     /**
@@ -539,12 +660,25 @@ public interface FactoriesSetup {
      */
     interface ValueDeclaration<T, BuilderSetup> {
         
+        BuilderSetup toValuesOf(ValueSource<? extends T> valueSource);
+        
+        /**
+         * Use the function to obtain the value.
+         * @param valueGenerator
+         * @return parent setup
+         */
+        default BuilderSetup toValues(ValueGenerator<? extends T> valueGenerator) {
+            return toValuesOf(ValueSource.fromGenerator(valueGenerator));
+        }
+        
         /**
          * Use the function to obtain the value.
          * @param valueFunction
          * @return parent setup
          */
-        BuilderSetup to(Function<ValueMap, ? extends T> valueFunction);
+        default BuilderSetup to(Function<? super ValueMap, ? extends T> valueFunction) {
+            return toValuesOf(ValueSource.fromFunction(valueFunction));
+        }
         
         /**
          * Use the data source to obtain values.
@@ -552,7 +686,9 @@ public interface FactoriesSetup {
          * @param dataSource
          * @return parent setup
          */
-        BuilderSetup to(DataSource<? extends T> dataSource);
+        default BuilderSetup to(DataSource<? extends T> dataSource) {
+            return toValuesOf(ValueSource.fromDataSource(dataSource));
+        }
         
         /**
          * Use a supplier as a data source to obtain values.
@@ -560,8 +696,7 @@ public interface FactoriesSetup {
          * @return parent setup
          */
         default BuilderSetup to(Supplier<? extends DataSource<? extends T>> dataSupplier) {
-            DataSource<? extends T> ds = () -> (Generator<T>) dataSupplier.get().toGenerator();
-            return to(ds);
+            return toValuesOf(ValueSource.fromDataSupply(dataSupplier));
         }
         
         /**
@@ -570,7 +705,7 @@ public interface FactoriesSetup {
          * @return parent setup
          */
         default BuilderSetup to(T value) {
-            return to(ConstantValue.constant(value));
+            return toValuesOf(ValueSource.constant(value));
         }
         
         /**
@@ -579,7 +714,7 @@ public interface FactoriesSetup {
          * @return parent setup
          */
         default BuilderSetup toNext(String key) {
-            return to(vm -> vm.next(key));
+            return toValuesOf(ValueSource.nextKey(key));
         }
         
         /**
@@ -616,7 +751,17 @@ public interface FactoriesSetup {
          * @return parent setup
          */
         default BuilderSetup toValue(String key) {
-            return to(vm -> vm.get(key));
+            return toValuesOf(ValueSource.getKey(key));
+        }
+        
+        BuilderSetup include(Include<? extends T> include);
+        
+        default BuilderSetup include(Factory<? extends T> factory) {
+            return include(factory.generate().asInclude());
+        }
+        
+        default BuilderSetup include(String key) {
+            return include((Include<T>) null);
         }
     }
     
@@ -640,8 +785,18 @@ public interface FactoriesSetup {
         }
 
         @Override
-        default <T> BuilderValueSetup<B, R, T> apply(String key, BiFunction<? super B, T, ? extends B> setter) {
-            return builderSetup().apply(key, setter);
+        public default BuilderSetup<B, R> applyValues(BiFunction<? super B, ? super ValueMap, ? extends B> function) {
+            return builderSetup().applyValues(function);
+        }
+
+        @Override
+        public default BuilderSetup<B, R> assignValues(String key, ValueSource<?> valueSource) {
+            return builderSetup().assignValues(key, valueSource);
+        }
+
+        @Override
+        default BuilderSetup<B, R> include(String key, Include<?> include) {
+            return builderSetup().include(key, include);
         }
 
         @Override
@@ -667,15 +822,30 @@ public interface FactoriesSetup {
         default FactoriesSetup factoriesSetup() {
             return factorySetup().factoriesSetup();
         }
+
+        @Override
+        default <T> ValueDeclaration<T, ? extends FactorySetup<R>> assign(String key) {
+            return factorySetup().assign(key);
+        }
         
         @Override
-        default <T> FactoryValueSetup<R, T> apply(String key, BiFunction<? super R, T, ? extends R> setter) {
-            return factorySetup().apply(key, setter);
+        default FactorySetup<R> applyValues(BiFunction<? super R, ? super ValueMap, ? extends R> function) {
+            return factorySetup().applyValues(function);
         }
 
         @Override
-        public default Class<R> getValueType() {
+        default Class<R> getValueType() {
             return factorySetup().getValueType();
+        }
+
+        @Override
+        default FactorySetup<R> assignValues(String key, ValueSource<?> valueSource) {
+            return factorySetup().assignValues(key, valueSource);
+        }
+
+        @Override
+        default FactorySetup<R> include(String key, Include<?> include) {
+            return factorySetup().include(key, include);
         }
     }
 }

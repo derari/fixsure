@@ -1,5 +1,6 @@
 package org.cthul.fixsure.fetchers;
 
+import org.cthul.fixsure.Cardinality;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.Generator;
@@ -53,6 +54,20 @@ public class Fetchers {
     
     public static EagerFetcher.Template next(int min, int max, long seed) {
         return next(min, max, UniformDistribution.uniform(seed));
+    }
+    
+    public static Cardinality cardinality(DataSource<Integer> lengthGenerator) {
+        if (lengthGenerator instanceof Cardinality) {
+            return (Cardinality) lengthGenerator;
+        }
+        return () -> new EagerFetcher(lengthGenerator);
+    }
+    
+    public static Cardinality.Fetcher fetcher(DataSource<Integer> lengthGenerator) {
+        if (lengthGenerator instanceof Cardinality) {
+            return ((Cardinality) lengthGenerator).toFetcher();
+        }
+        return new EagerFetcher(lengthGenerator);
     }
     
     public static EagerFetcher.Template next(DataSource<Integer> lengthGenerator) {

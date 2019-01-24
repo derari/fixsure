@@ -12,34 +12,33 @@ import static org.hamcrest.MatcherAssert.*;
 
 /**
  *
- * @author Arian Treffer
  */
-public class IntegersGeneratorTest {
+public class RandomIntegersGeneratorTest {
     
-    public IntegersGeneratorTest() {
+    public RandomIntegersGeneratorTest() {
     }
     
     @BeforeClass
     public static void setUpClass() {
-        DistributionRandomizer.setSeed(IntegersGeneratorTest.class);
+        DistributionRandomizer.setSeed(RandomIntegersGeneratorTest.class);
     }
     
     @Before
     public void setUp() {
-        DistributionRandomizer.setSeed(IntegersGeneratorTest.class);
+        DistributionRandomizer.setSeed(RandomIntegersGeneratorTest.class);
     }
 
     @Test
     public void test_generated_integers() {
-        FlGenerator<Integer> ig = IntegersGenerator.integers().newGenerator();
+        FlGenerator<Integer> ig = RandomIntegersGenerator.integers().newGenerator();
         for (int i = 0; i < 16; i++) {
-            assertThat(ig.next(), between(IntegersGenerator.DEFAULT_LOW, IntegersGenerator.DEFAULT_HIGH));
+            assertThat(ig.next(), between(RandomIntegersGenerator.DEFAULT_LOW, RandomIntegersGenerator.DEFAULT_HIGH));
         }
     }
     
     @Test
     public void test_generated_ranged_integers() {
-        FlTemplate<Integer> ig = IntegersGenerator.integers(17, 20);
+        FlTemplate<Integer> ig = RandomIntegersGenerator.integers(17, 20);
         ig.first(20).forEach(i -> {
             assertThat(i, between(17, 20));
         });
@@ -47,5 +46,17 @@ public class IntegersGeneratorTest {
     
     protected CombinableMatcher<Integer> between(int low, int high) {
         return both(greaterThanOrEqualTo(low)).and(lessThan(high));
+    }
+    
+    @Test
+    public void test_to_string() {
+        FlTemplate<?> ig = RandomIntegersGenerator.integers(1, 12);
+        assertThat(ig.toString(), is("new {1-12}[Uniform :;p!?vm80u]"));
+    }
+    
+    @Test
+    public void test_toString_with_step() {
+        FlTemplate<?> ig = RandomIntegersGenerator.integers(1, 12).step(2);
+        assertThat(ig.toString(), is("new {1-6;2}[Uniform :;p!?vm81+]"));
     }
 }

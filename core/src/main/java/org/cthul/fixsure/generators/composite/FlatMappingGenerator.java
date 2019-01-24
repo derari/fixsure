@@ -2,13 +2,16 @@ package org.cthul.fixsure.generators.composite;
 
 import java.util.function.Function;
 import org.cthul.fixsure.*;
+import org.cthul.fixsure.api.AbstractStringify;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
 /**
  *
  */
-public class FlatMappingGenerator<T> implements CopyableGenerator<T> {
+public class FlatMappingGenerator<T> extends AbstractStringify implements CopyableGenerator<T> {
     
     public static <In, Out> FlatMappingGenerator<Out> map(DataSource<In> src, Function<? super In, ? extends DataSource<Out>> function) {
         return new FlatMappingGenerator<>(src, function);
@@ -41,6 +44,19 @@ public class FlatMappingGenerator<T> implements CopyableGenerator<T> {
     @Override
     public FlatMappingGenerator<T> copy() {
         return new FlatMappingGenerator<>(this);
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return GeneratorTools.getRandomSeedHint(cnv.src) * 3 ^ 
+                DistributionRandomizer.toSeed(FlatMappingGenerator.class);
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        cnv.src.toString(sb).append(".flatMap(");
+        GeneratorTools.lambdaToString(cnv.function, sb);
+        return sb.append(")");
     }
     
     private static class Convert<Src, Out> {

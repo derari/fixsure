@@ -1,7 +1,8 @@
 package org.cthul.fixsure.generators.value;
 
 import java.util.*;
-import org.cthul.fixsure.Factory;
+import org.cthul.fixsure.api.Factory;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.generators.BoundedSequence;
 import org.cthul.fixsure.generators.GeneratorTools;
@@ -78,6 +79,18 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
 
     public ItemsSequence() {
     }
+
+    @Override
+    public long randomSeedHint() {
+        return length() ^ DistributionRandomizer.toSeed(getClass());
+    }
+    
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return GeneratorTools.printList(dataForPrinting(), sb.append('{')).append('}');
+    }
+    
+    protected abstract Collection<?> dataForPrinting();
     
     public static class FromArray<T> extends ItemsSequence<T> {
         
@@ -101,7 +114,11 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
         public long length() {
             return data.length;
         }
-        
+
+        @Override
+        protected Collection<?> dataForPrinting() {
+            return Arrays.asList(data);
+        }
     }
     
     public static class FromRAList<T> extends ItemsSequence<T> {
@@ -134,6 +151,11 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
         @Override
         public long length() {
             return data.size();
+        }
+
+        @Override
+        protected Collection<?> dataForPrinting() {
+            return data;
         }
     }
     
@@ -178,6 +200,11 @@ public abstract class ItemsSequence<T> extends BoundedSequence<T> {
         @Override
         public long length() {
             return data.size();
-        }        
+        }
+        
+        @Override
+        protected Collection<?> dataForPrinting() {
+            return data;
+        }
     }
 }

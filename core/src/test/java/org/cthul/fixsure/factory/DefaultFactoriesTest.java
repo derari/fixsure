@@ -7,8 +7,6 @@ import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Typed;
 import org.cthul.fixsure.fetchers.Fetchers;
 import org.cthul.fixsure.fluents.BiDataSource;
-import static org.cthul.fixsure.generators.primitives.IntegersGenerator.integers;
-import static org.cthul.fixsure.generators.value.ItemsSequence.sequence;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -16,6 +14,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.cthul.fixsure.generators.primitives.RandomIntegersGenerator.integers;
+import static org.cthul.fixsure.generators.value.ItemsSequence.sequence;
 
 /**
  *
@@ -34,7 +34,7 @@ public class DefaultFactoriesTest {
         DataSource<String> cities = sequence("Amsterdam", "Berlin", "Cape Town").repeat();
         DataSource<String> firstNames = sequence("Alice", "Bob", "Carol", "Dave", "Eve").repeat();
         DataSource<String> lastNames = sequence("Doe", "Smith", "Black").repeat();
-        factories = new DefaultFactories()
+        factories = new DefaultFactories.Setup()
                 .add("number", numbers)
                 .add("city", cities)
                 .add("firstName", firstNames)
@@ -135,7 +135,7 @@ public class DefaultFactoriesTest {
     @Test
     public void test_create_overriding_complex_arg() {
         Generator<String> names = sequence("Alice", "Bob").repeat().newGenerator();
-        Factories factories2 = new DefaultFactories()
+        Factories factories2 = new DefaultFactories.Setup()
                 .newFactory(Person.class)
                     .set("name").to(vm -> names.next())
                 .toFactories();
@@ -168,7 +168,7 @@ public class DefaultFactoriesTest {
     @Test
     public void test_create_overriding_nested_complex_arg() {
         Generator<String> streets = sequence("A", "B").repeat().newGenerator();
-        Factories factories2 = new DefaultFactories()
+        Factories factories2 = new DefaultFactories.Setup()
                 .newFactory(Address.class)
                     .set("street").to(vm -> streets.next())
                 .newFactory(Person.class)
@@ -204,7 +204,7 @@ public class DefaultFactoriesTest {
     
     @Test
     public void test_assign_with_builder() {
-        Factories factories2 = new DefaultFactories()
+        Factories factories2 = new DefaultFactories.Setup()
                 .newFactory("string", String.class)
                     .with(() -> new StringBuilder())
                     .assign("key1").to(sequence(1, 2, 3))
@@ -231,7 +231,7 @@ public class DefaultFactoriesTest {
         BiDataSource<Character, String> firstNames =
                 sequence('F', 'M')
                 .with(sequence("Alice", "Bob"));
-        Factories factories2 = new DefaultFactories()
+        Factories factories2 = new DefaultFactories.Setup()
                 .add("gender,firstName", firstNames.pairs())
                 .newFactory(Person.class)
                     .assign("gender", "firstName").toValue("gender,firstName")
@@ -248,7 +248,7 @@ public class DefaultFactoriesTest {
     public void test_create_list() {
         Typed<List<Person>> PEOPLE = Typed.token("people");
         
-        Factories factories2 = new DefaultFactories()
+        Factories factories2 = new DefaultFactories.Setup()
                 .newFactory(Person.class)
                     .set("name").to(sequence("Alice", "Bob", "Carol").repeat())
                     .set("address").toNext(Address.class)
@@ -268,6 +268,17 @@ public class DefaultFactoriesTest {
         
         people = factories2.create(PEOPLE, "size", 3);
         assertThat(people, hasSize(3));
+    }
+    
+    @Test
+    public void test_extend() {
+        Factories factories2 = new DefaultFactories.Setup()
+                .newFactory(Person.class)
+                    .extend(factories.factory(Person.class))
+                    .assign("name").to("Zoe")
+                .toFactories();
+        Person p = factories2.create(Person.class);
+        assertThat(p.name, is("Zoe"));
     }
 
     public static class Address {

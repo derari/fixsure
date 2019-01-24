@@ -1,5 +1,6 @@
 package org.cthul.fixsure;
 
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.fluents.FlTemplate;
 
 /**
@@ -40,5 +41,10 @@ public interface Template<T> extends DataSource<T> {
     @Factory
     static <T> FlTemplate<T> template(FlTemplate<T> template) {
         return template;
+    }
+
+    @Override
+    default StringBuilder toString(StringBuilder sb) {
+        return newGenerator().toString(sb.append("new "));
     }
 }

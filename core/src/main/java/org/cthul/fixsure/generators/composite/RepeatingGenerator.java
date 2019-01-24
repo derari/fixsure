@@ -1,5 +1,6 @@
 package org.cthul.fixsure.generators.composite;
 
+import java.util.Arrays;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
@@ -7,6 +8,7 @@ import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 import org.cthul.fixsure.Template;
+import org.cthul.fixsure.distributions.DistributionRandomizer;
 
 /**
  * Converts a list of finite generators into an inifinte generator.
@@ -74,5 +76,24 @@ public class RepeatingGenerator<T> implements CopyableGenerator<T> {
         }
         return (Class) valueType;
     }
+
+    @Override
+    public long randomSeedHint() {
+        return GeneratorTools.getRandomSeedHint(current) * 3 ^
+                DistributionRandomizer.toSeed(getClass());
+    }
     
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        if (templates.length == 1) {
+            return templates[0].toString(sb).append(".repeat()");
+        }
+        Object[] all = templates;
+        if (current != null) {
+            Arrays.copyOf(templates, templates.length, Object[].class);
+            int i = (nextIndex + templates.length - 1) % templates.length;
+            all[i] = current;
+        }
+        return GeneratorTools.printList(Arrays.asList(all), sb.append("Repeat(")).append(')');
+    }
 }

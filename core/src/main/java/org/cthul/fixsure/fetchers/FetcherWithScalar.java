@@ -2,9 +2,8 @@ package org.cthul.fixsure.fetchers;
 
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Distribution;
-import org.cthul.fixsure.Fetcher;
 import org.cthul.fixsure.Generator;
-import org.cthul.fixsure.generators.primitives.IntegersGenerator;
+import org.cthul.fixsure.generators.primitives.RandomIntegersGenerator;
 
 /**
  * A {@link Fetcher} that requires a scalar value.
@@ -27,15 +26,15 @@ public abstract class FetcherWithScalar extends AbstractFetcher {
     }
     
     public FetcherWithScalar(int scalar, Distribution distribution) {
-        this(IntegersGenerator.integers(scalar, distribution));
+        this(RandomIntegersGenerator.integers(scalar, distribution));
     }
     
     public FetcherWithScalar(int min, int max) {
-        this(IntegersGenerator.integers(min, max+1));
+        this(RandomIntegersGenerator.integers(min, max+1));
     }
     
     public FetcherWithScalar(int min, int max, Distribution distribution) {
-        this(IntegersGenerator.integers(min, max+1, distribution));
+        this(RandomIntegersGenerator.integers(min, max+1, distribution));
     }
 
     protected FetcherWithScalar(FetcherWithScalar src) {
@@ -50,5 +49,13 @@ public abstract class FetcherWithScalar extends AbstractFetcher {
             return scalar;
         }
     }
-    
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        if (scalarGenerator != null) {
+            return scalarGenerator.toString(sb);
+        } else {
+            return sb.append(scalar);
+        }
+    }
 }

@@ -2,7 +2,7 @@ package org.cthul.fixsure.generators;
 
 import java.util.List;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
-import static org.cthul.fixsure.generators.primitives.IntegersGenerator.integers;
+import static org.cthul.fixsure.generators.primitives.RandomIntegersGenerator.integers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import org.junit.After;

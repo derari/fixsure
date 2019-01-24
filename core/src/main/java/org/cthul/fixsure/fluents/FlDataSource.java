@@ -8,12 +8,13 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.cthul.fixsure.*;
 import org.cthul.fixsure.fetchers.Fetchers;
+import org.cthul.fixsure.generators.AnonymousTemplate;
 import org.cthul.fixsure.generators.composite.RepeatingGenerator;
 import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
 
 /**
- * Extends the {@link Generator} interface for fluent methods.
+ * Extends the {@link DataSource} interface with methods for data composition.
  * @param <T> value type
  */
 public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
@@ -26,8 +27,8 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
         return null;
     }
     
-    default FlValues<T> fetch(Fetcher fetcher) {
-        return fetcher.toItemConsumer().of(this).fluentData();
+    default FlValues<T> fetch(Cardinality cardinality) {
+        return cardinality.toFetcher().of(this).fluentData();
     }
 
     default LazyValues<T> cached() {
@@ -50,21 +51,13 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
         return Fetchers.three().of(this);
     }
     
-    default EagerValues<T> few() {
-        return Fetchers.few().toItemConsumer().of(this);
-    }
+    EagerValues<T> few();
     
-    default EagerValues<T> some() {
-        return Fetchers.some().toItemConsumer().of(this);
-    }
+    EagerValues<T> some();
     
-    default EagerValues<T> several() {
-        return Fetchers.several().toItemConsumer().of(this);
-    }
+    EagerValues<T> several();
     
-    default EagerValues<T> many() {
-        return Fetchers.many().toItemConsumer().of(this);
-    }
+    EagerValues<T> many();
     
     // al methods will be implemented by FlGenerator or FlTemplate,
     // implementing them here would have no clear semantic
@@ -83,11 +76,26 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
     
     FlDataSource<T> then(DataSource<? extends T>... more);
     
+    FlDataSource<Values<T>> aggregate(int length);
+    
+    FlDataSource<Values<T>> aggregate(DataSource<Integer> length);
+    
     default FlTemplate<T> repeat() {
-        return () -> RepeatingGenerator.repeat(this);
+        return new AnonymousTemplate<T>() {
+            @Override
+            public FlGenerator<T> newGenerator() {
+                return RepeatingGenerator.repeat(FlDataSource.this);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                return FlDataSource.this.toString(sb).append(".repeat()");
+            }
+        };
     }
     
     FlDataSource<T> shuffle();
+    
+    FlDataSource<T> shuffle(long seed);
     
     FlDataSource<T> mixWith(DataSource<? extends T>... more);
     
@@ -95,11 +103,17 @@ public interface FlDataSource<T> extends DataSource<T>, Typed<T> {
     
     FlTemplate<T> snapshot();
     
+    <U> BiDataSource<T, U> split(Function<? super T, ? extends U> function);
+    
     <U, V> BiDataSource<U, V> split(BiConsumer<? super T, ? super BiConsumer<? super U, ? super V>> action);
     
     <U> BiDataSource<T, U> with(DataSource<U> source);
     
     default Stream<T> stream() {
         return toGenerator().fluentData().stream();
+    }
+    
+    default <R> R transformSource(Function<? super FlDataSource<? extends T>, ? extends R> function) {
+        return function.apply(this);
     }
 }

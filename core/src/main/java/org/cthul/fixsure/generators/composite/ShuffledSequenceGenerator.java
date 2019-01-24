@@ -3,6 +3,7 @@ package org.cthul.fixsure.generators.composite;
 import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.GeneratorException;
 import org.cthul.fixsure.Sequence;
+import org.cthul.fixsure.api.AbstractStringify;
 import static org.cthul.fixsure.distributions.DistributionRandomizer.toSeed;
 import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.distributions.UniformDistribution;
@@ -13,7 +14,7 @@ import org.cthul.fixsure.generators.CopyableGenerator;
 /**
  * Returns the elements of a sequence in random order.
  */
-public class ShuffledSequenceGenerator<T> implements CopyableGenerator<T> {
+public class ShuffledSequenceGenerator<T> extends AbstractStringify implements CopyableGenerator<T> {
     
     private static final long CLASS_SEED = toSeed(ShuffledSequenceGenerator.class);
     
@@ -27,7 +28,7 @@ public class ShuffledSequenceGenerator<T> implements CopyableGenerator<T> {
     private long i = -1;
 
     public ShuffledSequenceGenerator(Sequence<T> source) {
-        this(source, UniformDistribution.uniform(), CLASS_SEED);
+        this(source, UniformDistribution.uniform(), CLASS_SEED ^ GeneratorTools.getRandomSeedHint(source));
     }
     
     public ShuffledSequenceGenerator(Sequence<T> source, Distribution randomSource, long seedHint) {
@@ -88,5 +89,19 @@ public class ShuffledSequenceGenerator<T> implements CopyableGenerator<T> {
     public ShuffledSequenceGenerator<T> copy() {
         return new ShuffledSequenceGenerator<>(this);
     }
-    
+
+    @Override
+    public long randomSeedHint() {
+        return GeneratorTools.getRandomSeedHint(source) ^ CLASS_SEED;
+    }
+
+    @Override
+    public StringBuilder toString(StringBuilder sb) {
+        return source.toString(sb)
+                .append(".shuffle(")
+                .append(first).append(';')
+                .append(a).append(';')
+                .append(c).append(';')
+                .append(i).append(')');
+    }
 }
