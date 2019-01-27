@@ -3,8 +3,8 @@ package org.cthul.fixsure.generators.composite;
 import java.util.Arrays;
 import org.cthul.fixsure.Sequence;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
-import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.fluents.FlSequence;
+import org.cthul.fixsure.generators.GeneratorTools;
 
 /**
  *
@@ -12,11 +12,11 @@ import org.cthul.fixsure.fluents.FlSequence;
 public class RoundRobinSequence<T> implements FlSequence<T> {
     
     public static <T> RoundRobinSequence<T> rotate(Sequence<? extends T>... generators) {
-        return new RoundRobinSequence<T>(generators);
+        return new RoundRobinSequence<>(generators);
     }
     
     public static <T> RoundRobinSequence<T> alternate(Sequence<? extends T>... generators) {
-        return new RoundRobinSequence<T>(generators);
+        return new RoundRobinSequence<>(generators);
     }
     
     private final Sequence<? extends T>[] sequences;

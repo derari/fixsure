@@ -2,11 +2,10 @@ package org.cthul.fixsure.generators.composite;
 
 import java.util.List;
 import org.cthul.fixsure.DataSource;
-import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.generators.value.ItemsSequence;
-import org.junit.Test;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
+import org.junit.Test;
 
 /**
  *

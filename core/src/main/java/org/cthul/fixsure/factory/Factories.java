@@ -10,13 +10,13 @@ import org.cthul.fixsure.fluents.FlGenerator;
 public interface Factories {
     
     static FactoriesSetup build() {
-        return DefaultFactories.newFactoriesSetup();
+        return new DefaultFactories.Setup();
     }
     
-    <T> FlGenerator<T> generator(String id);
+    <T> FlGenerator<T> generator(String key);
     
-    default <T> T next(String id) {
-        return this.<T>generator(id).next();
+    default <T> T next(String key) {
+        return this.<T>generator(key).next();
     }
     
     default <T> FlGenerator<T> generator(Typed<T> token) {
@@ -35,7 +35,7 @@ public interface Factories {
         return factory(token.toString());
     }
     
-    <T> Factory<T> factory(String id);
+    <T> Factory<T> factory(String key);
     
     default <T> T create(Typed<T> token) {
         return factory(token).create();
@@ -69,20 +69,20 @@ public interface Factories {
         return factory(clazz).generate(keyValues);
     }
     
-    default <T> T create(String id) {
-        return this.<T>factory(id).create();
+    default <T> T create(String key) {
+        return this.<T>factory(key).create();
     }
     
-    default <T> T create(String id, Object... keyValues) {
-        return this.<T>factory(id).create(keyValues);
+    default <T> T create(String key, Object... keyValues) {
+        return this.<T>factory(key).create(keyValues);
     }
     
-    default <T> FactoryGenerator<T> generate(String id) {
-        return this.<T>factory(id).generate();
+    default <T> FactoryGenerator<T> generate(String key) {
+        return this.<T>factory(key).generate();
     }
     
-    default <T> FactoryGenerator<T> generate(String id, Object... keyValues) {
-        return this.<T>factory(id).generate(keyValues);
+    default <T> FactoryGenerator<T> generate(String key, Object... keyValues) {
+        return this.<T>factory(key).generate(keyValues);
     }
     
     void reset();

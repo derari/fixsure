@@ -1,9 +1,9 @@
 package org.cthul.fixsure;
 
 import org.cthul.fixsure.fetchers.Fetchers;
+import org.cthul.fixsure.fluents.FlCardinality;
 import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
-import org.cthul.fixsure.fluents.FlCardinality;
 
 /**
  * Describes how and how many values should be fetched from a {@link Generator}.
@@ -72,7 +72,7 @@ public interface Cardinality extends DataSource<Integer>, Typed<Integer> {
         default<T> Values<T> of(DataSource<T> generator) {
             // as a functional interface, this only produces integers
             // rely on existing implementations to implement ´of´
-            return Fetchers.next(this).toFetcher().of(generator);
+            return Fetchers.next(this).of(generator);
         }
 
         /**
@@ -81,10 +81,11 @@ public interface Cardinality extends DataSource<Integer>, Typed<Integer> {
          * @param generators
          * @return values
          */
+        @SuppressWarnings("varargs")
         default<T> Values<T> ofEach(DataSource<? extends T>... generators) {
             // as a functional interface, this only produces integers
             // rely on existing implementations to implement ´ofEach´
-            return Fetchers.next(this).toFetcher().<T>ofEach(generators);
+            return Fetchers.next(this).<T>ofEach(generators);
         }
 
         /**

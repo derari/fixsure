@@ -2,9 +2,7 @@ package org.cthul.fixsure.fluents;
 
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
-import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import org.cthul.fixsure.SequenceLength;
 import org.cthul.fixsure.api.AbstractStringify;
 import org.cthul.fixsure.fluents.BiGenerator.Bag;
@@ -25,7 +23,7 @@ public interface BiSequence<T, U> extends BiTemplate<T, U>, SequenceLength {
             @Override
             public T value(long n) {
                 BiSequence.this.value(n, bag);
-                return bag.t;
+                return bag.get1();
             }
             @Override
             public StringBuilder toString(StringBuilder sb) {
@@ -41,7 +39,7 @@ public interface BiSequence<T, U> extends BiTemplate<T, U>, SequenceLength {
             @Override
             public U value(long n) {
                 BiSequence.this.value(n, bag);
-                return bag.u;
+                return bag.get2();
             }
             @Override
             public StringBuilder toString(StringBuilder sb) {
@@ -66,7 +64,7 @@ public interface BiSequence<T, U> extends BiTemplate<T, U>, SequenceLength {
             @Override
             public R value(long n) {
                 BiSequence.this.value(n, bag);
-                return function.apply(bag.t, bag.u);
+                return function.apply(bag.get1(), bag.get2());
             }
             @Override
             public StringBuilder toString(StringBuilder sb) {

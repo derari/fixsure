@@ -1,11 +1,11 @@
 package org.cthul.fixsure.generators.value;
 
 import java.util.function.Supplier;
-import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Sequence;
-import org.cthul.fixsure.api.Stringify;
 import org.cthul.fixsure.api.AbstractStringify;
+import org.cthul.fixsure.api.Factory;
+import org.cthul.fixsure.api.Stringify;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlSequence;

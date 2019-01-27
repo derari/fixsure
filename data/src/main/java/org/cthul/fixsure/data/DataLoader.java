@@ -12,6 +12,9 @@ import java.util.List;
  */
 public class DataLoader {
 
+    private DataLoader() {
+    }
+
     public static String[] readLines(Class clazz, String resource) {
         return readLines(clazz.getResourceAsStream(resource));
     }

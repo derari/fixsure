@@ -14,6 +14,7 @@ public interface Typed<T> {
      */
     Class<T> getValueType();
  
+    @SuppressWarnings("unchecked")
     static <T> Class<T> typeOf(Object typed) {
         if (typed instanceof Typed) {
             return ((Typed) typed).getValueType();

@@ -5,11 +5,11 @@ import org.cthul.fixsure.GeneratorException;
 import org.cthul.fixsure.Sequence;
 import org.cthul.fixsure.api.AbstractStringify;
 import static org.cthul.fixsure.distributions.DistributionRandomizer.toSeed;
-import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.distributions.UniformDistribution;
 import org.cthul.fixsure.fluents.FlDistribution;
 import org.cthul.fixsure.fluents.FlDistribution.FlRandom;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 
 /**
  * Returns the elements of a sequence in random order.

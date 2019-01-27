@@ -7,11 +7,10 @@ import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
 import org.cthul.fixsure.api.AbstractStringify;
-import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import org.cthul.fixsure.generators.GeneratorTools;
-import org.cthul.fixsure.generators.value.EmptySequence;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
+import org.cthul.fixsure.generators.value.EmptySequence;
 
 /**
  * A queue of generators that fetches a certain number of elements from

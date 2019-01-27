@@ -94,6 +94,7 @@ public interface FlDistribution extends Distribution {
          * @deprecated seed not supported, use #fluentData
          */
         @Override
+        @Deprecated
         default FlGenerator<Double> values(long seed) {
             return fluentData();
         }
@@ -111,6 +112,7 @@ public interface FlDistribution extends Distribution {
         }
 
         @Override
+        @Deprecated
         default Template fluentDistribution() {
             return this;
         }

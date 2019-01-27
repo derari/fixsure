@@ -3,13 +3,13 @@ package org.cthul.fixsure.generators.value;
 import java.util.List;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.hamcrest.Matcher;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.*;
 
 public class PermutationsGeneratorTest {
     

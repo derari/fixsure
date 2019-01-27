@@ -1,7 +1,7 @@
 package org.cthul.fixsure;
 
-import org.cthul.fixsure.api.Factory;
 import java.util.function.Supplier;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.generators.CopyableGenerator;
@@ -100,6 +100,7 @@ public interface Generator<T> extends Supplier<T>, DataSource<T> {
                 return (CopyableGenerator) generate(clazz, copyGenerator(supplier));
             }
             @Override
+            @Deprecated
             public Generator<T> toGenerator() {
                 return actual != null ? actual : this;
             }

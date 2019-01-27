@@ -1,8 +1,8 @@
 package org.cthul.fixsure.generators.primitives;
 
 import org.cthul.fixsure.DataSource;
-import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.Generator;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.fluents.FlTemplate;
 import org.cthul.fixsure.generators.CopyableGenerator;
 import org.cthul.fixsure.generators.GeneratorTools;

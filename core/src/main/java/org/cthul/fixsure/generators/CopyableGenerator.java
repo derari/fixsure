@@ -10,13 +10,9 @@ public interface CopyableGenerator<T> extends FlGenerator<T> {
     
     CopyableGenerator<T> copy();
     
-//    default FlTemplate<T> asTemplate() {
-//        return () -> Generator.generate(copy());
-//    }
-
     @Override
     default FlTemplate<T> snapshot() {
-        CopyableGenerator<T> proto = copy();
-        return () -> proto.copy();
+        CopyableGenerator<T> prototype = copy();
+        return prototype::copy;
     }
 }

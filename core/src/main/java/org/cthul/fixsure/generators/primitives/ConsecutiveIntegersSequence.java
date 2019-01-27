@@ -1,8 +1,8 @@
 package org.cthul.fixsure.generators.primitives;
 
 import org.cthul.fixsure.Distribution;
-import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.fluents.FlTemplate;
 import org.cthul.fixsure.generators.BoundedSequence;
 

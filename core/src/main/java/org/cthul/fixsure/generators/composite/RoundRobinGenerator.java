@@ -4,8 +4,8 @@ import java.util.Arrays;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
-import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 
 /**
  *
@@ -13,11 +13,11 @@ import org.cthul.fixsure.generators.CopyableGenerator;
 public class RoundRobinGenerator<T> implements CopyableGenerator<T> {
     
     public static <T> RoundRobinGenerator<T> rotate(DataSource<? extends T>... generators) {
-        return new RoundRobinGenerator<T>(generators);
+        return new RoundRobinGenerator<>(generators);
     }
     
     public static <T> RoundRobinGenerator<T> alternate(DataSource<? extends T>... generators) {
-        return new RoundRobinGenerator<T>(generators);
+        return new RoundRobinGenerator<>(generators);
     }
     
     private final Generator<? extends T>[] generators;

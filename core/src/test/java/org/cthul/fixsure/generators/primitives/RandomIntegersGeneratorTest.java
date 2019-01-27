@@ -3,12 +3,12 @@ package org.cthul.fixsure.generators.primitives;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlTemplate;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import org.hamcrest.core.CombinableMatcher;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.*;
 
 /**
  *

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.cthul.fixsure.factory.Factory.Include;
+import org.cthul.fixsure.factory.ValueSource.FactoryMap;
 
 /**
  * Implements generator lookup
@@ -28,7 +29,7 @@ public abstract class FactoryBase implements FactoryParent {
         this.parent = parent;
     }
     
-    protected abstract Factories getFactories();
+    protected abstract FactoryMap getFactoryMap();
     
     protected void reset() {
         if (resetting) return;
@@ -96,32 +97,38 @@ public abstract class FactoryBase implements FactoryParent {
     
     protected ValueGenerator<?> newGenerator(String key) {
         ValueSource<?> src = sources.get(key);
-        if (src != null) return src.generate(getFactories());
+        if (src != null) return src.generate(getFactoryMap());
         // 2) includes' sources
-        for (Include<?> inc: includes) {
-            src = inc.attributeSource(key, false);
-            if (src != null) {
-                sources.put(key, src);
-                return src.generate(getFactories());
-            }
-        }
+        src = getSourceFromInclude(key);
+        if (src != null) return src.generate(getFactoryMap());
         // 3) parent generator
         if (parent != null) {
             ValueGenerator<?> gen = parent.peekGenerator(key);
-            if (gen != null) return gen;
+            if (gen != null) return gen.link(getFactoryMap());
         }
         // 4) default generator
         for (Include<?> inc: includes) {
             src = inc.attributeSource(key, true);
             if (src != null) {
                 sources.put(key, src);
-                return src.generate(getFactories());
+                return src.generate(getFactoryMap());
             }
         }
         return NO_VALUE;
     }
     
-    protected ValueGenerator<?> peekParentGenerator(String key) {
+    protected ValueSource<?> getSourceFromInclude(String key) {
+        for (Include<?> inc: includes) {
+            ValueSource<?> src = inc.attributeSource(key, false);
+            if (src != null) {
+                sources.put(key, src);
+                return src;
+            }
+        }
+        return null;
+    }
+    
+    protected <T> ValueGenerator<T> peekParentGenerator(String key) {
         return parent.peekGenerator(key);
     }
     
@@ -131,12 +138,8 @@ public abstract class FactoryBase implements FactoryParent {
         ValueSource<?> src = sources.get(key);
         if (src != null) return (ValueSource) src;
         // 2) includes' sources
-        for (Include<?> inc: includes) {
-            src = inc.attributeSource(key, useDefault);
-            if (src != null) {
-                return (ValueSource) src;
-            }
-        }
+        src = getSourceFromInclude(key);
+        if (src != null) return (ValueSource) src;
         // 3) parent generator
         if (parent != null) {
             src = parent.peekSource(key, useDefault);
@@ -144,15 +147,26 @@ public abstract class FactoryBase implements FactoryParent {
         }
         return null;
     }
+
+    protected <T, B> FactoriesSetup.ValueDeclaration<T, B> set(String key, B builder) {
+        int i = key.indexOf('.');
+        if (i > -1) {
+            return valueGenerator(key.substring(0, i)).set(key.substring(i + 1), builder);
+        }
+        return new FactoriesSetup.ValueDeclaration<T, B>() {
+            @Override
+            public B toValuesOf(ValueSource<? extends T> valueSource) {
+                putValueSource(key, valueSource);
+                return builder;
+            }
+
+            @Override
+            public B include(Include<? extends T> include) {
+                addInclude(key, include);
+                return builder;
+            }
+        };
+    }
     
-    protected static final ValueGenerator<?> NO_VALUE = new ValueGenerator<Object>() {
-        @Override
-        public Object next(Factory.ValueMap valueMap) {
-            return null;
-        }
-        @Override
-        public Class<Object> getValueType() {
-            return null;
-        }
-    };
+    protected static final ValueGenerator<?> NO_VALUE = ValueGenerator.constant(null);
 }

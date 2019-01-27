@@ -8,6 +8,9 @@ import org.cthul.fixsure.generators.value.ItemsSequence;
  *
  */
 public class Web {
+
+    private Web() {
+    }
     
     /**
      * Returns a sequence of three elements: 
@@ -29,7 +32,7 @@ public class Web {
     
     /**
      * Returns an unbounded sequence of email addresses in the form
-     * {@code <firstName>.<lastName>@example.<com|net|org>.
+     * {@code <firstName>.<lastName>@example.<com|net|org>}.
      * @return email addresses
      */
     public static FlSequence<String> emailAddresses() {

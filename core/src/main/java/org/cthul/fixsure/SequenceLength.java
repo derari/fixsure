@@ -6,7 +6,7 @@ package org.cthul.fixsure;
 public interface SequenceLength {
     
     /**
-     * Number of elements that can be accessed through {@link #value(long)};
+     * Number of elements that can be accessed through {@link Sequence#value(long)};
      * negative if sequence is unbounded or allows negative indices.
      * @return length
      */

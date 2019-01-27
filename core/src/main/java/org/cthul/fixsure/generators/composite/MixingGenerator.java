@@ -4,11 +4,11 @@ import java.util.Arrays;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
-import org.cthul.fixsure.generators.GeneratorTools;
-import org.cthul.fixsure.generators.GeneratorWithScalar;
 import org.cthul.fixsure.generators.CopyableGenerator;
-import org.cthul.fixsure.generators.primitives.RandomIntegersGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
 import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
+import org.cthul.fixsure.generators.GeneratorWithScalar;
+import org.cthul.fixsure.generators.primitives.RandomIntegersGenerator;
 
 /**
  * Produces values from randomly selected generators.
@@ -18,7 +18,7 @@ public class MixingGenerator<T>
                 implements CopyableGenerator<T> {
     
     public static <T> MixingGenerator<T> mix(DataSource<? extends T>... sources) {
-        return new MixingGenerator<T>(sources);
+        return new MixingGenerator<>(sources);
     }
     
     private final Generator<? extends T>[] generators;

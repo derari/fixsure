@@ -5,9 +5,9 @@ import org.cthul.fixsure.*;
 import static org.cthul.fixsure.factory.DefaultFactories.anonymousKey;
 import static org.cthul.fixsure.factory.DefaultFactories.defaultSetter;
 import static org.cthul.fixsure.factory.DefaultFactories.uniqueIdStr;
-import org.cthul.fixsure.factory.Factory.ValueMap;
 import org.cthul.fixsure.factory.DefaultNewFactory.NewInstance;
 import org.cthul.fixsure.factory.Factory.Include;
+import org.cthul.fixsure.factory.ValueGenerator.ValueMap;
 import org.cthul.fixsure.fluents.BiDataSource;
 import org.cthul.fixsure.fluents.BiDataSource.Pair;
 
@@ -36,6 +36,7 @@ public interface FactoriesSetup {
      * @return this
      * @see #add(java.lang.String, org.cthul.fixsure.DataSource) 
      */
+    @SuppressWarnings("unchecked")
     default FactoriesSetup add(String key, Supplier<? extends DataSource<?>> dataSupplier) {
         DataSource<?> ds = () -> (Generator) dataSupplier.get().toGenerator();
         return add(key, ds);
@@ -204,6 +205,7 @@ public interface FactoriesSetup {
          * @param token2
          * @return value declaration
          */
+        @SuppressWarnings("unchecked")
         default <T,U> ValueDeclaration<Pair<T,U>, ? extends This> assign(Typed<T> token1, Typed<U> token2) {
             return (ValueDeclaration) assign(token1.toString(), token2.toString());
         }
@@ -256,6 +258,7 @@ public interface FactoriesSetup {
          * @param setter
          * @return value declaration
          */
+        @SuppressWarnings("unchecked")
         default <T> ValueDeclaration<T, This> set(String key, BiConsumer<? super B, ? super T> setter) {
             // in case of NewFactory: self != this
             This self = applyValues((b, v) -> { setter.accept(b, v.<T>get(key)); return b;});
@@ -268,6 +271,7 @@ public interface FactoriesSetup {
          * @param token
          * @return value declaration
          */
+        @SuppressWarnings("unchecked")
         default <T> ValueDeclaration<T, This> set(Typed<T> token) {
             return (ValueDeclaration) set(token.toString());
         }
@@ -291,6 +295,7 @@ public interface FactoriesSetup {
          * @param function
          * @return value declaration
          */
+        @SuppressWarnings("unchecked")
         default <T> ValueDeclaration<T, This> apply(String key, BiFunction<? super B, T, ? extends B> function) {
             // in case of NewFactory: self != this
             This self = applyValues((b, v) -> function.apply(b, v.<T>get(key)));
@@ -414,26 +419,31 @@ public interface FactoriesSetup {
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default BuilderValueSetup<B,R,Object> set(String key) {
             return (BuilderValueSetup) BuilderSetupBase.super.set(key);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> BuilderValueSetup<B,R,T> set(String key, BiConsumer<? super B, ? super T> setter) {
             return (BuilderValueSetup) BuilderSetupBase.super.set(key, setter);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> BuilderValueSetup<B,R,T> apply(String key, BiFunction<? super B, T, ? extends B> setter) {
             return (BuilderValueSetup) BuilderSetupBase.super.apply(key, setter);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> BuilderValueSetup<B,R,T> set(Typed<T> token) {
             return (BuilderValueSetup) BuilderSetupBase.super.set(token);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> BuilderValueSetup<B,R,T> set(Typed<T> token, BiConsumer<? super B, ? super T> setter) {
             return (BuilderValueSetup) BuilderSetupBase.super.set(token, setter);
         }
@@ -500,31 +510,37 @@ public interface FactoriesSetup {
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default FactoryValueSetup<R,Object> set(String key) {
             return (FactoryValueSetup) BuilderSetupBase.super.set(key);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> FactoryValueSetup<R,T> set(String key, BiConsumer<? super R, ? super T> setter) {
             return (FactoryValueSetup) BuilderSetupBase.super.set(key, setter);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> FactoryValueSetup<R,T> set(Typed<T> token) {
             return (FactoryValueSetup) BuilderSetupBase.super.set(token);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> FactoryValueSetup<R,T> set(Typed<T> token, BiConsumer<? super R, ? super T> setter) {
             return (FactoryValueSetup) BuilderSetupBase.super.set(token, setter);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> FactoryValueSetup<R,T> apply(String key, BiFunction<? super R, T, ? extends R> setter) {
             return (FactoryValueSetup) BuilderSetupBase.super.apply(key, setter);
         }
         
         @Override
+        @SuppressWarnings("unchecked")
         default <T> FactoryValueSetup<R,T> apply(Typed<T> token, BiFunction<? super R, T, ? extends R> setter) {
             return (FactoryValueSetup) BuilderSetupBase.super.apply(token, setter);
         }
@@ -607,16 +623,19 @@ public interface FactoriesSetup {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         default <T> ValueDeclaration<T, NewFactory<R>> assign(String key) {
             return (ValueDeclaration) FactorySetup.super.assign(key);
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         default <T> ValueDeclaration<T, NewFactory<R>> assign(Typed<T> token) {
             return (ValueDeclaration) FactorySetup.super.assign(token);
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         default ValueDeclaration<Pair<?, ?>, NewFactory<R>> assign(String id1, String id2) {
             return (ValueDeclaration) FactorySetup.super.assign(id1, id2);
         }
@@ -625,11 +644,13 @@ public interface FactoriesSetup {
         NewFactory<R> assignValues(String key, ValueSource<?> valueSource);
 
         @Override
+        @SuppressWarnings("unchecked")
         default NewFactory<R> assign(String id1, String id2, BiDataSource<?, ?> dataSource) {
             return (NewFactory) FactorySetup.super.assign(id1, id2, dataSource);
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         default <T,U> ValueDeclaration<Pair<T, U>, NewFactory<R>> assign(Typed<T> token1, Typed<U> token2) {
             return (ValueDeclaration) assign(token1.toString(), token2.toString());
         }
@@ -648,6 +669,7 @@ public interface FactoriesSetup {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         default NewFactory<R> include(String key, String factoryKey) {
             return (NewFactory) FactorySetup.super.include(key, factoryKey);
         }
@@ -750,7 +772,7 @@ public interface FactoriesSetup {
          * @param key
          * @return parent setup
          */
-        default BuilderSetup toValue(String key) {
+        default BuilderSetup toValueOf(String key) {
             return toValuesOf(ValueSource.getKey(key));
         }
         

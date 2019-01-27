@@ -1,9 +1,9 @@
 package org.cthul.fixsure.generators.value;
 
 import java.util.Arrays;
-import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.GeneratorException;
 import org.cthul.fixsure.api.AbstractStringify;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fluents.FlTemplate;
 import org.cthul.fixsure.generators.CopyableGenerator;

@@ -1,9 +1,9 @@
 package org.cthul.fixsure.fluents;
 
+import org.cthul.fixsure.Cardinality;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.fetchers.Fetchers;
 import org.cthul.fixsure.generators.value.ConstantValue;
-import org.cthul.fixsure.Cardinality;
 
 /**
  *
@@ -42,6 +42,7 @@ public interface FlCardinality extends Cardinality {
         }
 
         @Override
+        @Deprecated
         default FlFetcher toFetcher() {
             return this;
         }

@@ -6,7 +6,6 @@ import java.util.RandomAccess;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Values;
-import org.cthul.fixsure.fluents.FlSequence;
 import org.cthul.fixsure.fluents.FlValues;
 
 /**
@@ -16,7 +15,6 @@ public abstract class AbstractValues<T>
                 extends AbstractList<T> 
                 implements FlValues<T>, RandomAccess {
 
-    private final FlSequence<T> generator = null;
     private final Class<T> valueType;
 
     public AbstractValues(Class<T> valueType) {

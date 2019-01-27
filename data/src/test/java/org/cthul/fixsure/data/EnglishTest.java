@@ -1,13 +1,13 @@
 package org.cthul.fixsure.data;
 
 import org.cthul.fixsure.fluents.BiDataSource.Pair;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.hamcrest.MatcherAssert.*;
-import static org.hamcrest.Matchers.*;
 
 /**
  *

@@ -3,11 +3,11 @@ package org.cthul.fixsure.generators.composite;
 import org.cthul.fixsure.GeneratorException;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.generators.primitives.RandomIntegersGenerator;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.*;
 
 /**
  *

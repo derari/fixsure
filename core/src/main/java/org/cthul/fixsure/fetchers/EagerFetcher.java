@@ -2,9 +2,9 @@ package org.cthul.fixsure.fetchers;
 
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Distribution;
+import org.cthul.fixsure.fluents.FlCardinality;
 import org.cthul.fixsure.fluents.FlValues;
 import org.cthul.fixsure.values.EagerValues;
-import org.cthul.fixsure.fluents.FlCardinality;
 
 /**
  *

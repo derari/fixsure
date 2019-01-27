@@ -17,7 +17,7 @@ public interface Values<T> extends List<T>, Sequence<T> {
      * @param <A>
      * @param clazz
      * @return array
-     * @see List#toArray(T[]);
+     * @see List#toArray(Object[]) 
      */
     <A> A[] toArray(Class<A> clazz);
     

@@ -1,6 +1,5 @@
 package org.cthul.fixsure.generators;
 
-import org.cthul.fixsure.api.Stringify;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.cthul.fixsure.*;
+import org.cthul.fixsure.api.Stringify;
 import static org.cthul.fixsure.distributions.DistributionRandomizer.toSeed;
 import org.cthul.fixsure.fetchers.EagerFetcher;
 import org.cthul.fixsure.fetchers.Fetchers;
@@ -21,6 +21,9 @@ import org.cthul.objects.Types;
  *
  */
 public class GeneratorTools {
+
+    private GeneratorTools() {
+    }
 
     public static <T> Class<T> typeOf(Object o) {
         if (o instanceof Typed) {

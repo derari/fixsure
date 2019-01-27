@@ -1,14 +1,17 @@
 package org.cthul.fixsure.generators.primitives;
 
 import org.cthul.fixsure.fluents.FlSequence;
+import org.cthul.fixsure.fluents.FlTemplate;
 import org.cthul.fixsure.generators.value.ItemsSequence;
 import static org.cthul.fixsure.generators.value.ItemsSequence.*;
-import org.cthul.fixsure.fluents.FlTemplate;
 
 /**
  *
  */
 public class TestValues {
+
+    private TestValues() {
+    }
     
     private static final ItemsSequence<Integer> DEFAULT_INTS = sequence(
             0, 1, -1, 2, -2, 255, -256, 1 << 16, -(1 << 16), 
@@ -51,5 +54,4 @@ public class TestValues {
     public static FlTemplate<Double> specialTestDoubles() {
         return TEST_SPECIAL_DOUBLES;
     }
-    
 }

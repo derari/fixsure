@@ -34,6 +34,8 @@ public interface DataSource<T> extends Stringify {
      * @param sources
      * @return generators
      */
+    @SafeVarargs
+    @SuppressWarnings("unchecked")
     static <T> Generator<T>[] toGenerators(DataSource<T>... sources) {
         Generator<T>[] result = new Generator[sources.length];
         for (int i = 0; i < sources.length; i++) {
@@ -50,6 +52,8 @@ public interface DataSource<T> extends Stringify {
      * @param more
      * @return generators
      */
+    @SafeVarargs
+    @SuppressWarnings("unchecked")
     static <T> Generator<T>[] toGenerators(DataSource<T> first, DataSource<T>... more) {
         Generator<T>[] result = new Generator[more.length+1];
         result[0] = first.toGenerator();

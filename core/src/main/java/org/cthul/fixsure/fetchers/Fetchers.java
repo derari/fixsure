@@ -10,6 +10,9 @@ import org.cthul.fixsure.distributions.UniformDistribution;
  *
  */
 public class Fetchers {
+
+    private Fetchers() {
+    }
     
     private static final int FEW_LOW = 3;
     private static final int FEW_HIGH = 5;

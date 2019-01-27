@@ -6,8 +6,8 @@ import java.util.List;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
-import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.fluents.FlValues;
+import org.cthul.fixsure.generators.GeneratorTools;
 
 /**
  * Values immediately fetched from a generator.

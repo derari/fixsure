@@ -7,13 +7,13 @@ import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Typed;
 import org.cthul.fixsure.fetchers.Fetchers;
 import org.cthul.fixsure.fluents.BiDataSource;
+import static org.hamcrest.Matchers.*;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
 import static org.cthul.fixsure.generators.primitives.RandomIntegersGenerator.integers;
 import static org.cthul.fixsure.generators.value.ItemsSequence.sequence;
 
@@ -234,7 +234,7 @@ public class DefaultFactoriesTest {
         Factories factories2 = new DefaultFactories.Setup()
                 .add("gender,firstName", firstNames.pairs())
                 .newFactory(Person.class)
-                    .assign("gender", "firstName").toValue("gender,firstName")
+                    .assign("gender", "firstName").toValueOf("gender,firstName")
                     .assign("title").to(vm -> vm.get("gender").equals('F') ? "Mrs" : "Mr")
                     .set("name").to(vm -> vm.get("title") + " " + vm.get("firstName"))
                 .toFactories();
@@ -279,6 +279,41 @@ public class DefaultFactoriesTest {
                 .toFactories();
         Person p = factories2.create(Person.class);
         assertThat(p.name, is("Zoe"));
+    }
+    
+    @Test
+    public void test_next_key() {
+        Factories factories2 = new DefaultFactories.Setup()
+                .add("female-name", sequence("Alice", "Barbara", "Carol"))
+                .add("lastname", sequence("Smith", "Brown"))
+                .newFactory("name")
+                    .build(vm -> vm.str("firstname") + " " + vm.str("lastname"))
+                    .assign("firstname").toNext("female-name")
+                .newFactory(Person.class)
+                    .set("name")
+                .toFactories();
+        Person p = factories2.create(Person.class, "name.firstname", "Dora");
+        assertThat(p.name, is("Dora Smith"));
+        Person p2 = factories2.create(Person.class);
+        assertThat(p2.name, is("Alice Brown"));
+    }
+    
+    @Test
+    public void test_next_key_nested() {
+        Factories factories2 = new DefaultFactories.Setup()
+                .add("fruit", sequence("Apple", "Banana"))
+                .newFactory("street")
+                    .build(vm -> vm.str("title") + " Street")
+                    .assign("title").toNext("fruit")
+                .newFactory(Address.class)
+                    .set("street").toNext("street")
+                .newFactory(Person.class)
+                    .set("address").toNext(Address.class)
+                .toFactories();
+        Person p = factories2.create(Person.class, "address.street.fruit", "Clementine");
+        assertThat(p.address.street, is("Clementine Street"));
+        Person p2 = factories2.create(Person.class);
+        assertThat(p2.address.street, is("Apple Street"));
     }
 
     public static class Address {

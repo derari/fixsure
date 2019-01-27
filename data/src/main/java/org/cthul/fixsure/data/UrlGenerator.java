@@ -123,18 +123,18 @@ public class UrlGenerator extends AnonymousGenerator<String> {
         private static final LongFunction<DataSource<Boolean>> OFF = seed -> ALWAYS_FALSE;
         private static final LongFunction<DataSource<Boolean>> ON = seed -> ALWAYS_TRUE;
         private static final FlSequence<String> DEFAULT_PROTOCOLS_SRC = Fixsure.sequence("http", "https");
-        private static final LongFunction<DataSource<String>> DEFAULT_PROTOCOLS = seed -> DEFAULT_PROTOCOLS_SRC.random(seed);
-        private static final LongFunction<DataSource<String>> DEFAULT_HOSTS = seed -> Web.domains().random(seed);
-        private static final LongFunction<DataSource<Integer>> DEFAULT_PORTS = seed -> Fixsure.integers(1024, 1<<16).random(seed);
+        private static final LongFunction<DataSource<String>> DEFAULT_PROTOCOLS = DEFAULT_PROTOCOLS_SRC::random;
+        private static final LongFunction<DataSource<String>> DEFAULT_HOSTS = Web.domains()::random;
+        private static final LongFunction<DataSource<Integer>> DEFAULT_PORTS = Fixsure.integers(1024, 1<<16)::random;
         private static final FlSequence<String> DEFAULT_SEGMENTS_SRC = 
                 Fixsure.integers(0, 1<<16).ordered().map(Object::toString).alternateWith(
                     English.vegetablesA2Z().repeat().map(String::toLowerCase),
                     Fixsure.integers(0, 1<<16).ordered().map(Integer::toHexString)
                 );
         private static final FlSequence<String> DEFAULT_SEGMENT_EXT_SRC = Fixsure.sequence("", "/", ".html", ".html", ".png", ".mp4");
-        private static final LongFunction<DataSource<String>> DEFAULT_SEGMENTS = seed -> DEFAULT_SEGMENTS_SRC.random(seed);
-        private static final LongFunction<DataSource<String>> DEFAULT_SEGMENT_EXT = seed -> DEFAULT_SEGMENT_EXT_SRC.random(seed);
-        private static final LongFunction<DataSource<Integer>> DEFAULT_PATH_LENGTH = seed -> Fixsure.integers(1, 5).random(seed);
+        private static final LongFunction<DataSource<String>> DEFAULT_SEGMENTS = DEFAULT_SEGMENTS_SRC::random;
+        private static final LongFunction<DataSource<String>> DEFAULT_SEGMENT_EXT = DEFAULT_SEGMENT_EXT_SRC::random;
+        private static final LongFunction<DataSource<Integer>> DEFAULT_PATH_LENGTH = Fixsure.integers(1, 5)::random;
         private static final long DEFAULT_SEED = DistributionRandomizer.toSeed(UrlGenerator.class);
         
         private static final long SEED_PROTOCOLS = DistributionRandomizer.toSeed("URL", "protocols");

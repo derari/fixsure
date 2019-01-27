@@ -129,8 +129,8 @@ public interface BiGenerator<T, U> extends BiDataSource<T, U> {
     }
     
     class Bag<T, U> implements BiConsumer<T, U> {
-        public T t;
-        public U u;
+        private T t;
+        private U u;
 
         @Override
         public void accept(T t, U u) {

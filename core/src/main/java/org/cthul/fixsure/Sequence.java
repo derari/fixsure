@@ -1,8 +1,8 @@
 package org.cthul.fixsure;
 
-import org.cthul.fixsure.api.Factory;
 import java.util.function.LongFunction;
 import org.cthul.fixsure.api.AbstractStringify;
+import org.cthul.fixsure.api.Factory;
 import org.cthul.fixsure.fluents.FlGenerator;
 import org.cthul.fixsure.fluents.FlSequence;
 import org.cthul.fixsure.generators.AnonymousSequence;

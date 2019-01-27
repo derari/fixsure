@@ -9,19 +9,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import org.cthul.fixsure.Cardinality;
+import org.cthul.fixsure.Cardinality.Fetcher;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
+import org.cthul.fixsure.Values;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
 import org.cthul.fixsure.fetchers.Fetchers;
+import org.cthul.fixsure.generators.AnonymousGenerator;
 import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.generators.composite.*;
 import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
-import org.cthul.fixsure.Cardinality;
-import org.cthul.fixsure.Cardinality.Fetcher;
-import org.cthul.fixsure.Values;
-import org.cthul.fixsure.generators.AnonymousGenerator;
 
 /**
  * Extends the {@link Generator} interface for fluent methods.
@@ -192,6 +192,7 @@ public interface FlGenerator<T> extends FlDataSource<T>, Generator<T> {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     default FlGenerator<T> mixWith(DataSource<? extends T>... more) {
         Generator<T>[] generators = DataSource.toGenerators(this, (DataSource[]) more);
         return MixingGenerator.mix(generators);

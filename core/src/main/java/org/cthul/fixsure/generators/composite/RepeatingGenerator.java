@@ -4,11 +4,11 @@ import java.util.Arrays;
 import org.cthul.fixsure.DataSource;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.GeneratorException;
-import org.cthul.fixsure.generators.GeneratorTools;
-import org.cthul.fixsure.generators.CopyableGenerator;
-import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 import org.cthul.fixsure.Template;
 import org.cthul.fixsure.distributions.DistributionRandomizer;
+import org.cthul.fixsure.generators.CopyableGenerator;
+import org.cthul.fixsure.generators.GeneratorTools;
+import static org.cthul.fixsure.generators.GeneratorTools.copyGenerator;
 
 /**
  * Converts a list of finite generators into an inifinte generator.
@@ -24,7 +24,7 @@ public class RepeatingGenerator<T> implements CopyableGenerator<T> {
         for (int i = 0; i < sources.length; i++) {
             templates[i] = sources[i].fluentData().snapshot();
         }
-        return new RepeatingGenerator<T>(templates);
+        return new RepeatingGenerator<>(templates);
     }
     
     private final Template<? extends T>[] templates;
