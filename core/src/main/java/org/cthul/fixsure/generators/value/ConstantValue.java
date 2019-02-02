@@ -1,6 +1,7 @@
 package org.cthul.fixsure.generators.value;
 
 import java.util.function.Supplier;
+import org.cthul.fixsure.Distribution;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Sequence;
 import org.cthul.fixsure.api.AbstractStringify;
@@ -72,6 +73,21 @@ public class ConstantValue<T> extends AbstractStringify implements FlSequence<T>
     @Override
     public FlGenerator<T> newGenerator() {
         return Generator.generate(getValueType(), () -> value);
+    }
+
+    @Override
+    public FlTemplate<T> random(Distribution distribution, long seed) {
+        return this;
+    }
+
+    @Override
+    public FlTemplate<T> shuffle(long seed) {
+        return this;
+    }
+
+    @Override
+    public FlTemplate<T> shuffle() {
+        return this;
     }
 
     @Override

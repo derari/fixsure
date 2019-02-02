@@ -11,6 +11,7 @@ import org.cthul.fixsure.generators.GeneratorWithDistribution;
 
 /**
  *
+ * @param <T>
  */
 public class ShufflingGenerator<T> 
         extends GeneratorWithDistribution<T> 
@@ -55,6 +56,11 @@ public class ShufflingGenerator<T>
         this.source = src.source;
         this.hold = src.hold;
         this.end = src.end;
+    }
+
+    @Override
+    public long randomSeedHint() {
+        return CLASS_SEED ^ GeneratorTools.getRandomSeedHint(source);
     }
 
     @Override

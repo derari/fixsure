@@ -224,5 +224,15 @@ public class RandomIntegersGenerator
         public ConsecutiveIntegersSequence ordered() {
             return new ConsecutiveIntegersSequence(start, step, end);
         }
+        
+        @Override
+        public FlTemplate<Integer> shuffle() {
+            return ordered().shuffle();
+        }
+        
+        @Override
+        public FlTemplate<Integer> shuffle(long seed) {
+            return ordered().shuffle(seed);
+        }
     }
 }
