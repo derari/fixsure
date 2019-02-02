@@ -1,11 +1,14 @@
 package org.cthul.fixsure.fluents;
 
+import java.util.Arrays;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import org.cthul.fixsure.*;
+import org.cthul.fixsure.generators.AnonymousTemplate;
+import org.cthul.fixsure.generators.GeneratorTools;
 import org.cthul.fixsure.values.EagerValues;
 import org.cthul.fixsure.values.LazyValues;
 
@@ -63,22 +66,64 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
         
     @Override
     default FlTemplate<T> distinct() {
-        return () -> newGenerator().distinct();
+        return new AnonymousTemplate<T>() {
+            @Override
+            public FlGenerator<T> newGenerator() {
+                return FlTemplate.this.newGenerator().distinct();
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                return FlTemplate.this.toString(sb).append(".distrinct()");
+            }
+        };
     }
     
     @Override
     default FlTemplate<T> filter(Predicate<? super T> predicate) {
-        return () -> newGenerator().filter(predicate);
+        return new AnonymousTemplate<T>() {
+            @Override
+            public FlGenerator<T> newGenerator() {
+                return FlTemplate.this.newGenerator().filter(predicate);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                FlTemplate.this.toString(sb).append(".filter(");
+                GeneratorTools.lambdaToString(predicate, sb);
+                return sb.append(")");
+            }
+        };
     }
     
     @Override
     default <R> FlTemplate<R> flatMap(Function<? super T, ? extends DataSource<R>> function) {
-        return () -> newGenerator().flatMap(function);
+        return new AnonymousTemplate<R>() {
+            @Override
+            public FlGenerator<R> newGenerator() {
+                return FlTemplate.this.newGenerator().flatMap(function);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                FlTemplate.this.toString(sb).append(".flatMap(");
+                GeneratorTools.lambdaToString(function, sb);
+                return sb.append(")");
+            }
+        };
     }
     
     @Override
     default <R> FlTemplate<R> map(Function<? super T, ? extends R> function) {
-        return () -> newGenerator().map(function);
+        return new AnonymousTemplate<R>() {
+            @Override
+            public FlGenerator<R> newGenerator() {
+                return FlTemplate.this.newGenerator().map(function);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                FlTemplate.this.toString(sb).append(".map(");
+                GeneratorTools.lambdaToString(function, sb);
+                return sb.append(")");
+            }
+        };
     }
     
     @Override
@@ -93,7 +138,18 @@ public interface FlTemplate<T> extends FlDataSource<T>, Template<T> {
     
     @Override
     default FlTemplate<T> then(DataSource<? extends T>... more) {
-        return () -> newGenerator().then(more);
+        return new AnonymousTemplate<T>() {
+            @Override
+            public FlGenerator<T> newGenerator() {
+                return FlTemplate.this.newGenerator().then(more);
+            }
+            @Override
+            public StringBuilder toString(StringBuilder sb) {
+                sb.append('{');
+                GeneratorTools.printList(FlTemplate.this, Arrays.asList(more), sb);
+                return sb.append('}');
+            }
+        };
     }
 
     @Override

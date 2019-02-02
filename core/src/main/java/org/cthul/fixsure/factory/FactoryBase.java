@@ -20,6 +20,9 @@ public abstract class FactoryBase implements FactoryParent {
     private final Map<String, ValueGenerator<?>> generators = new HashMap<>();
     private final List<Include<?>> includes = new ArrayList<>();
     private boolean resetting = false;
+    private Map<String, ValueSource<?>> nestedSources = null;
+    private Map<String, Include<?>> nestedIncludes = null;
+    private boolean initialized = false;
 
     public FactoryBase() {
         this.parent = null;
@@ -35,9 +38,21 @@ public abstract class FactoryBase implements FactoryParent {
         if (resetting) return;
         resetting = true;
         try {
+            initialized = false;
             doReset();
         } finally {
             resetting = false;
+        }
+    }
+    
+    protected void initialize() {
+        if (initialized) return;
+        initialized = true;
+        if (nestedSources != null) {
+            nestedSources.forEach((key, vs) -> applyNestedSet(key, null).toValuesOf(vs));
+        }
+        if (nestedIncludes != null) {
+            nestedIncludes.forEach((key, inc) -> applyNestedSet(key, null).include(inc));
         }
     }
     
@@ -47,11 +62,17 @@ public abstract class FactoryBase implements FactoryParent {
     }
     
     protected void putValueSource(String key, ValueSource<?> valueSource) {
+        if (key.contains(".")) {
+            nestedSet(key, null).toValuesOf(valueSource);
+        }
         sources.put(key, valueSource);
         generators.remove(key);
     }
     
     protected void addInclude(String key, Include<?> include) {
+        if (key.contains(".")) {
+            nestedSet(key, null).include(include);
+        }
         putValueSource(key, include);
         includes.add(include);
     }
@@ -83,7 +104,7 @@ public abstract class FactoryBase implements FactoryParent {
     }
     
     protected <T> ValueGenerator<T> valueGenerator(String key) {
-        ValueGenerator<T> gen = peekGenerator(key);
+        ValueGenerator<T> gen = internPeekGenerator(key);
         if (gen != null) return gen;
         throw new IllegalArgumentException(key);
     }
@@ -93,6 +114,10 @@ public abstract class FactoryBase implements FactoryParent {
         ValueGenerator<?> gen = generators.computeIfAbsent(key, this::newGenerator);
         if (gen == NO_VALUE) return null;
         return (ValueGenerator<T>) gen;
+    }
+    
+    protected <T> ValueGenerator<T> internPeekGenerator(String key) {
+        return peekGenerator(key);
     }
     
     protected ValueGenerator<?> newGenerator(String key) {
@@ -129,6 +154,7 @@ public abstract class FactoryBase implements FactoryParent {
     }
     
     protected <T> ValueGenerator<T> peekParentGenerator(String key) {
+        if (parent == null) return null;
         return parent.peekGenerator(key);
     }
     
@@ -149,9 +175,8 @@ public abstract class FactoryBase implements FactoryParent {
     }
 
     protected <T, B> FactoriesSetup.ValueDeclaration<T, B> set(String key, B builder) {
-        int i = key.indexOf('.');
-        if (i > -1) {
-            return valueGenerator(key.substring(0, i)).set(key.substring(i + 1), builder);
+        if (key.contains(".")) {
+            return nestedSet(key, builder);
         }
         return new FactoriesSetup.ValueDeclaration<T, B>() {
             @Override
@@ -166,6 +191,31 @@ public abstract class FactoryBase implements FactoryParent {
                 return builder;
             }
         };
+    }
+    
+    protected <T, B> FactoriesSetup.ValueDeclaration<T, B> nestedSet(String key, B builder) {
+        if (initialized) {
+            return applyNestedSet(key, builder);
+        }
+        return new FactoriesSetup.ValueDeclaration<T, B>() {
+            @Override
+            public B toValuesOf(ValueSource<? extends T> valueSource) {
+                if (nestedSources == null) nestedSources = new HashMap<>();
+                nestedSources.put(key, valueSource);
+                return builder;
+            }
+            @Override
+            public B include(Include<? extends T> include) {
+                if (nestedIncludes == null) nestedIncludes = new HashMap<>();
+                nestedIncludes.put(key, include);
+                return builder;
+            }
+        };
+    }
+    
+    protected <T, B> FactoriesSetup.ValueDeclaration<T, B> applyNestedSet(String key, B builder) {
+        int i = key.indexOf('.');
+        return valueGenerator(key.substring(0, i)).set(key.substring(i+1), builder);
     }
     
     protected static final ValueGenerator<?> NO_VALUE = ValueGenerator.constant(null);

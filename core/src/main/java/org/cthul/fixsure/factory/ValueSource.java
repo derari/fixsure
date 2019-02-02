@@ -1,5 +1,6 @@
 package org.cthul.fixsure.factory;
 
+import java.lang.reflect.Field;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.cthul.fixsure.DataSource;
@@ -97,6 +98,41 @@ public interface ValueSource<T> extends Typed<T> {
     
     static <T> ValueSource<T> getKey(String key) {
         return ValueGenerator.getKey(key);
+    }
+    
+    static <T> ValueSource<T> forField(Class<?> clazz, String name) {
+        return new ValueSource<T>() {
+            Field field;
+            
+            @Override
+            public ValueGenerator<? extends T> generate(FactoryMap factoryMap) {
+                try {
+                    ValueGenerator<T> src = factoryMap.peekValueGenerator(name);
+                    if (src != null) return ValueGenerator.nextKey(factoryMap, name);
+                } catch (RuntimeException e) { }
+                String type = getField().getType().getName();
+                return ValueGenerator.nextKey(factoryMap, type);
+            }
+
+            @Override
+            public Class<T> getValueType() {
+                return null;
+            }
+            
+            private Field getField() {
+                if (field != null) return field;
+                Class<?> c = clazz;
+                while (c != null) {
+                    for (Field f: c.getDeclaredFields()) {
+                        if (f.getName().equals(name)) {
+                            return field = f;
+                        }
+                    }
+                    c = c.getSuperclass();
+                }
+                throw new IllegalArgumentException("No field " + name + " in " + clazz);
+            }
+        };
     }
     
     interface FactoryMap {

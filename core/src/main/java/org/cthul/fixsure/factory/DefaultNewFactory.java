@@ -87,7 +87,7 @@ public class DefaultNewFactory<R> implements FactoriesSetup.NewFactory<R> {
 
         public Builder(String key, Function<? super ValueMap, ? extends B> newBuilder) {
             this.key = key;
-            builderSetup = new DefaultFactory.Setup<>(factories, factories.toFactories(), key, null);
+            builderSetup = new DefaultFactory.Setup<>(factories.toFactories(), key, null);
             builderSetup.applyValues((v,vm) -> newBuilder.apply(vm));
         }
 

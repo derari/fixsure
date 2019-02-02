@@ -72,6 +72,14 @@ public interface FactoriesSetup {
     
     FactoriesSetup add(String key, Factory<?> factory);
     
+    default <T> FactoriesSetup add(Class<T> key, Factory<T> factory) {
+        return add(key.getName(), factory);
+    }
+    
+    default <T> FactoriesSetup add(Typed<T> key, Factory<T> factory) {
+        return add(key.toString(), factory);
+    }
+    
     /**
      * Builds a new factory for instances of {@code clazz}
      * @param <T>
@@ -112,7 +120,7 @@ public interface FactoriesSetup {
         return newFactory(token.toString(), token.getValueType());
     }
     
-    default <T> NewBuilder<T,?> newFactory(String key) {
+    default <T> NewBuilder<T> newFactory(String key) {
         return newFactory(key, (Class<T>) null);
     }
     
@@ -125,11 +133,10 @@ public interface FactoriesSetup {
     /**
      * Base interface for setting up a value mapping.
      * @param <B>
-     * @param <This> 
      * @see BuilderSetupBase
      * @see NewBuilder
      */
-    interface ValueSetupBase<B,This extends ValueSetupBase<B,This>> extends Typed<B> {
+    interface ValueSetupBase<B> extends Typed<B> {
         
         /**
          * Assigns a value to the value map, but does not modify the object.
@@ -137,14 +144,14 @@ public interface FactoriesSetup {
          * @param key
          * @return value declaration
          */
-        default <T> ValueDeclaration<T, ? extends This> assign(String key) {
-            return new ValueDeclaration<T, This>() {
+        default <T> ValueDeclaration<T, ? extends ValueSetupBase<B>> assign(String key) {
+            return new ValueDeclaration<T, ValueSetupBase<B>>() {
                 @Override
-                public This toValuesOf(ValueSource<? extends T> valueSource) {
+                public ValueSetupBase<B> toValuesOf(ValueSource<? extends T> valueSource) {
                     return ValueSetupBase.this.assignValues(key, valueSource);
                 }
                 @Override
-                public This include(Include<? extends T> include) {
+                public ValueSetupBase<B> include(Include<? extends T> include) {
                     return ValueSetupBase.this.include(key, include);
                 }
             };
@@ -157,7 +164,7 @@ public interface FactoriesSetup {
          * @param dataSource
          * @return this
          */
-        default This assign(String id1, String id2, BiDataSource<?, ?> dataSource) {
+        default ValueSetupBase<B> assign(String id1, String id2, BiDataSource<?, ?> dataSource) {
             return assign(id1, id2).to(dataSource.pairs());
         }
         
@@ -167,7 +174,7 @@ public interface FactoriesSetup {
          * @param id2
          * @return value declaration
          */
-        default ValueDeclaration<Pair<?,?>, ? extends This> assign(String id1, String id2) {
+        default ValueDeclaration<Pair<?,?>, ? extends ValueSetupBase<B>> assign(String id1, String id2) {
             String pairId = "(" + id1 + ";" + id2 + ")@" + uniqueIdStr();
             return assign(id1).to(vm -> vm.<Pair>get(pairId).v1())
                     .assign(id2).to(vm -> vm.<Pair>get(pairId).v2())
@@ -180,7 +187,7 @@ public interface FactoriesSetup {
          * @param token
          * @return value declaration
          */
-        default <T> ValueDeclaration<T, ? extends This> assign(Typed<T> token) {
+        default <T> ValueDeclaration<T, ? extends ValueSetupBase<B>> assign(Typed<T> token) {
             return assign(token.toString());
         }
         
@@ -193,7 +200,7 @@ public interface FactoriesSetup {
          * @param dataSource
          * @return this
          */
-        default <T,U> This assign(Typed<T> token1, Typed<U> token2, BiDataSource<? extends T, ? extends U> dataSource) {
+        default <T,U> ValueSetupBase<B> assign(Typed<T> token1, Typed<U> token2, BiDataSource<? extends T, ? extends U> dataSource) {
             return assign(token1.toString(), token2.toString(), dataSource);
         }
         
@@ -206,19 +213,19 @@ public interface FactoriesSetup {
          * @return value declaration
          */
         @SuppressWarnings("unchecked")
-        default <T,U> ValueDeclaration<Pair<T,U>, ? extends This> assign(Typed<T> token1, Typed<U> token2) {
+        default <T,U> ValueDeclaration<Pair<T,U>, ? extends ValueSetupBase<B>> assign(Typed<T> token1, Typed<U> token2) {
             return (ValueDeclaration) assign(token1.toString(), token2.toString());
         }
         
-        This assignValues(String key, ValueSource<?> valueSource);
+        ValueSetupBase<B> assignValues(String key, ValueSource<?> valueSource);
         
-        This include(String key, Include<?> include);
+        ValueSetupBase<B> include(String key, Include<?> include);
         
-        default This include(String key, Factory<?> factory) {
+        default ValueSetupBase<B> include(String key, Factory<?> factory) {
             return include(key, factory.generate().asInclude());
         }
         
-        default This include(String key, String factoryKey) {
+        default ValueSetupBase<B> include(String key, String factoryKey) {
             return include(key, (Include<?>) null);
         }
     }
@@ -232,7 +239,7 @@ public interface FactoriesSetup {
      * @see FactoriesSetup
      */
     interface BuilderSetupBase<B,This extends BuilderSetupBase<B,This>> 
-                        extends ValueSetupBase<B, This> {
+                        extends ValueSetupBase<B> {
         
         /**
          * Applies values and replaces the object under construction with the
@@ -241,6 +248,58 @@ public interface FactoriesSetup {
          * @return this
          */
         This applyValues(BiFunction<? super B, ? super ValueMap, ? extends B> function);
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default <T> ValueDeclaration<T, ? extends This> assign(String key) {
+            return (ValueDeclaration) ValueSetupBase.super.assign(key);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default <T> ValueDeclaration<T, ? extends This> assign(Typed<T> token) {
+            return (ValueDeclaration) ValueSetupBase.super.assign(token);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default ValueDeclaration<Pair<?, ?>, ? extends This> assign(String id1, String id2) {
+            return (ValueDeclaration) ValueSetupBase.super.assign(id1, id2);
+        }
+
+        @Override
+        This assignValues(String key, ValueSource<?> valueSource);
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default This assign(String id1, String id2, BiDataSource<?, ?> dataSource) {
+            return (This) ValueSetupBase.super.assign(id1, id2, dataSource);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default <T,U> ValueDeclaration<Pair<T, U>, ? extends This> assign(Typed<T> token1, Typed<U> token2) {
+            return (ValueDeclaration) ValueSetupBase.super.assign(token1, token2);
+        }
+
+        @Override
+        default <T,U> This assign(Typed<T> token1, Typed<U> token2, BiDataSource<? extends T, ? extends U> dataSource) {
+            return (This) ValueSetupBase.super.assign(token1, token2, dataSource);
+        }
+
+        @Override
+        This include(String key, Include<?> include);
+
+        @Override
+        default This include(String key, Factory<?> factory) {
+            return (This) ValueSetupBase.super.include(key, factory);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default This include(String key, String factoryKey) {
+            return (This) ValueSetupBase.super.include(key, factoryKey);
+        }
         
         /**
          * Sets the given field via reflection.
@@ -248,7 +307,9 @@ public interface FactoriesSetup {
          * @return value declaration
          */
         default ValueDeclaration<Object, This> set(String key) {
-            return set(key, defaultSetter(getValueType(), key));
+            ValueDeclaration<Object, This> decl = set(key, defaultSetter(getValueType(), key));
+            decl.toValuesOf(ValueSource.forField(getValueType(), key));
+            return decl;
         }
         
         /**
@@ -549,9 +610,8 @@ public interface FactoriesSetup {
     /**
      * Prepares a factory that requires a builder.
      * @param <R>
-     * @param <This> 
      */
-    interface NewBuilder<R, This extends ValueSetupBase<R, This>> extends ValueSetupBase<R, This> {
+    interface NewBuilder<R> extends ValueSetupBase<R> {
         
         /**
          * The factory will get new instances from the supplier.
@@ -596,6 +656,58 @@ public interface FactoriesSetup {
         default FactorySetup<R> extend(Class<R> clazz) {
             return extend(clazz.getName());
         }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default <T> ValueDeclaration<T, ? extends NewBuilder<R>> assign(String key) {
+            return (ValueDeclaration) ValueSetupBase.super.assign(key);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default <T> ValueDeclaration<T, ? extends NewBuilder<R>> assign(Typed<T> token) {
+            return (ValueDeclaration) ValueSetupBase.super.assign(token);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default ValueDeclaration<Pair<?, ?>, ? extends NewBuilder<R>> assign(String id1, String id2) {
+            return (ValueDeclaration) ValueSetupBase.super.assign(id1, id2);
+        }
+
+        @Override
+        NewBuilder<R> assignValues(String key, ValueSource<?> valueSource);
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default NewBuilder<R> assign(String id1, String id2, BiDataSource<?, ?> dataSource) {
+            return (NewBuilder) ValueSetupBase.super.assign(id1, id2, dataSource);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default <T,U> ValueDeclaration<Pair<T, U>, ? extends NewBuilder<R>> assign(Typed<T> token1, Typed<U> token2) {
+            return (ValueDeclaration) assign(token1.toString(), token2.toString());
+        }
+
+        @Override
+        default <T,U> NewBuilder<R> assign(Typed<T> token1, Typed<U> token2, BiDataSource<? extends T, ? extends U> dataSource) {
+            return assign(token1.toString(), token2.toString(), dataSource);
+        }
+
+        @Override
+        NewBuilder<R> include(String key, Include<?> include);
+
+        @Override
+        default NewBuilder<R> include(String key, Factory<?> factory) {
+            return (NewBuilder) ValueSetupBase.super.include(key, factory);
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        default NewBuilder<R> include(String key, String factoryKey) {
+            return (NewBuilder) ValueSetupBase.super.include(key, factoryKey);
+        }        
     }
     
     /**
@@ -606,7 +718,7 @@ public interface FactoriesSetup {
      * default constructor).
      * @param <R> 
      */
-    interface NewFactory<R> extends FactorySetup<R>, NewBuilder<R, FactorySetup<R>> {
+    interface NewFactory<R> extends FactorySetup<R>, NewBuilder<R> {
         
         @Override
         default FactoriesSetup factoriesSetup() {

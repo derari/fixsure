@@ -51,7 +51,7 @@ public class DefaultFactoriesTest {
                         .set("city").toNext("city")
                 .newFactory(Person.class)
                         .set("name").to(v -> v.get("firstName") + " " + v.get("lastName"))
-                        .set("address").toNext(Address.class)
+                        .set("address")
                 .toFactories();
     }
     
@@ -287,8 +287,8 @@ public class DefaultFactoriesTest {
                 .add("female-name", sequence("Alice", "Barbara", "Carol"))
                 .add("lastname", sequence("Smith", "Brown"))
                 .newFactory("name")
-                    .build(vm -> vm.str("firstname") + " " + vm.str("lastname"))
                     .assign("firstname").toNext("female-name")
+                    .build(vm -> vm.str("firstname") + " " + vm.str("lastname"))
                 .newFactory(Person.class)
                     .set("name")
                 .toFactories();
@@ -314,6 +314,18 @@ public class DefaultFactoriesTest {
         assertThat(p.address.street, is("Clementine Street"));
         Person p2 = factories2.create(Person.class);
         assertThat(p2.address.street, is("Apple Street"));
+    }
+    
+    @Test
+    public void test_override_nested_in_factory() {
+        Factories factories2 = new DefaultFactories.Setup()
+                .add(Address.class, factories.factory(Address.class))
+                .newFactory(Person.class)
+                    .assign("address.street").to("Test Street")
+                    .set("address")
+                .toFactories();
+        Person p = factories2.create(Person.class);
+        assertThat(p.address.street, is("Test Street"));
     }
 
     public static class Address {

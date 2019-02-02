@@ -1,7 +1,9 @@
 package org.cthul.fixsure.factory;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
-import java.util.function.Consumer;
+import java.util.Set;
 import java.util.function.Function;
 import org.cthul.fixsure.Generator;
 import org.cthul.fixsure.Typed;
@@ -97,7 +99,7 @@ public interface ValueGenerator<T> extends Typed<T> {
         class Next<T> extends DefaultFactory<T> {
             final FactoryMap factoryMap;
             final ValueGenerator<T> actual;
-            ValueMap valueMap;
+            ValueMap overridingValues, overriddenValues;
             public Next(FactoryMap factoryMap) {
                 super(null, key, null);
                 this.factoryMap = factoryMap;
@@ -118,26 +120,52 @@ public interface ValueGenerator<T> extends Typed<T> {
             }
             @Override
             protected T next(ValueMap valueMap) {
-                this.valueMap = valueMap;
-                VM vm = new VM(this);
+                this.overridingValues = valueMap;
+                VM vm = new VM2();
                 return actual.next(vm, vm2 -> {
-                    this.valueMap = vm2;
+                    this.overriddenValues = vm2;
                     return vm;
                 });
             }
             @Override
             public <T> ValueGenerator<T> peekGenerator(String key) {
+//                if (valueMap != null) {
+//                    return valueMap.peekValueGenerator(key);
+//                }
                 ValueGenerator<T> gen = super.peekGenerator(key);
                 if (gen != null) return gen;
-                if (valueMap != null) {
-                    return valueMap.peekValueGenerator(key);
+                if (overriddenValues != null) {
+                    return overriddenValues.peekValueGenerator(key);
                 } else {
                     return factoryMap.peekValueGenerator(key);
                 }
             }
-            @Override
-            protected <T, B> ValueDeclaration<T, B> set(String key, B builder) {
-                return super.set(key, builder);
+            protected void superSet(String key, ValueSource<?> source) {
+                super.set(key, null).toValuesOf(source);
+            }
+            protected void superInclude(String key, Include<?> include) {
+                super.set(key, null).include(include);
+            }
+            class VM2 extends VM {
+                private final Set<String> recursionGuard = new HashSet<>();
+                public VM2() {
+                    super(Next.this);
+                }
+                @Override
+                protected <T> ValueGenerator<T> peekOwnerValueGenerator(String key) {
+                    // only initialize nested generators after `actual` was launched,
+                    // otherwise `overridenValues` is not set yet and nested generators
+                    // will not resolve correctly
+                    initialize();
+                    if (overridingValues != null) {
+                        return overridingValues.peekValueGenerator(key);
+                    }
+                    return super.peekOwnerValueGenerator(key);
+                }
+                @Override
+                protected Set<String> recursionGuard() {
+                    return recursionGuard;
+                }
             }
         }
         return new Next(factoryMap).asValueGenerator();
@@ -276,6 +304,24 @@ public interface ValueGenerator<T> extends Typed<T> {
         
         default String str(String key) {
             return Objects.toString(get(key), null);
+        }
+        
+        default Object[] values(String... keys) {
+            return values(new Object[keys.length], keys);
+        }
+        
+        default <T> T[] values(T[] array, String... keys) {
+            return values(array, 0, keys);
+        }
+        
+        default <T> T[] values(T[] array, int index, String... keys) {
+            if (array.length < keys.length + index) {
+                array = Arrays.copyOf(array, keys.length + index);
+            }
+            for (int i = 0; i < keys.length; i++) {
+                array[i + index] = get(keys[i]);
+            }
+            return array;
         }
     }
 }

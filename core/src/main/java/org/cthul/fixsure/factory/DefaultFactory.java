@@ -17,6 +17,7 @@ import org.cthul.fixsure.fluents.FlGenerator;
 
 /**
  *
+ * @param <V>
  */
 public class DefaultFactory<V> extends FactoryBase implements Factory<V>, FactoryGenerator<V> {
     
@@ -52,7 +53,10 @@ public class DefaultFactory<V> extends FactoryBase implements Factory<V>, Factor
 
     @Override
     public DefaultFactory<V> generate() {
-        return new DefaultFactory<>(this);
+        initialize();
+        DefaultFactory<V> generator = new DefaultFactory<>(this);
+        generator.initialize();
+        return generator;
     }
     
     protected DefaultFactory<V> copy(FactoryMap factoryMap) {
@@ -89,6 +93,7 @@ public class DefaultFactory<V> extends FactoryBase implements Factory<V>, Factor
     }
 
     protected V next(ValueMap valueMap) {
+        initialize();
         V value = null;
         for (BiFunction<? super V, ? super ValueMap, ? extends V> step: steps) {
             value = step.apply(value, valueMap);
@@ -195,7 +200,7 @@ public class DefaultFactory<V> extends FactoryBase implements Factory<V>, Factor
     public <T> ValueDeclaration<T, FactoryGenerator<V>> set(String key) {
         return set(key, this);
     }
-    
+
     protected static class VM implements ValueMap, FactoryMap {
         
         private final DefaultFactory owner;
@@ -219,14 +224,18 @@ public class DefaultFactory<V> extends FactoryBase implements Factory<V>, Factor
             return (T) v;
         }
         
+        protected Set<String> recursionGuard() {
+            return owner.recursionGuard;
+        }
+        
         protected Object computeValue(String key) {
-            if (!owner.recursionGuard.add(key)) {
+            if (!recursionGuard().add(key)) {
                 throw new IllegalArgumentException("recursion: " + key + " --> " + owner.recursionGuard);
             }
             try {
-                return owner.valueGenerator(key).next(this);
+                return peekOwnerValueGenerator(key).next(this);
             } finally {
-                owner.recursionGuard.remove(key);
+                recursionGuard().remove(key);
             }
         }
 
@@ -250,16 +259,20 @@ public class DefaultFactory<V> extends FactoryBase implements Factory<V>, Factor
 
         @Override
         public <T> ValueGenerator<T> peekValueGenerator(String key) {
-            if (!owner.recursionGuard.add(key)) {
+            if (!recursionGuard().add(key)) {
                 ValueGenerator<?> gen = owner.peekParentGenerator(key);
                 if (gen != null) return (ValueGenerator<T>) gen;
-                throw new IllegalArgumentException("recursion: " + key + " --> " + owner.recursionGuard);
+                throw new IllegalArgumentException("recursion: " + key + " --> " + recursionGuard());
             }
             try {
-                return owner.peekGenerator(key);
+                return peekOwnerValueGenerator(key);
             } finally {
-                owner.recursionGuard.remove(key);
+                recursionGuard().remove(key);
             }
+        }
+        
+        protected <T> ValueGenerator<T> peekOwnerValueGenerator(String key) {
+            return owner.internPeekGenerator(key);
         }
 
         @Override
@@ -277,6 +290,11 @@ public class DefaultFactory<V> extends FactoryBase implements Factory<V>, Factor
             this.factoriesSetup = factoriesSetup;
             this.factory = new DefaultFactory<>(factories, key, clazz);
             factoriesSetup.add(key, factory);
+        }
+
+        public Setup(FactoryParent factories, String key, Class<V> clazz) {
+            this.factoriesSetup = null;
+            this.factory = new DefaultFactory<>(factories, key, clazz);
         }
 
         public DefaultFactory<V> getFactory() {
