@@ -39,7 +39,7 @@ public class EnglishTest {
         assertThat(name, not(isEmptyString()));
         English.maleFirstNames().several().forEach(System.out::println);
         System.out.println("\n\n");
-        English.firstNames().sorted().several().forEach(System.out::println);
+        English.sortedFirstNames().several().forEach(System.out::println);
     }
     
     @Test
@@ -49,5 +49,10 @@ public class EnglishTest {
         assertThat(English.aliceBobWithGender().pairs().value(12), is(new Pair<>("Mallory", 'M')));
         assertThat(English.aliceBobWithGender().pairs().value(13), is(new Pair<>("Nancy", 'F')));
         assertThat(English.aliceBobWithGender().pairs().value(25), is(new Pair<>("Zoe", 'F')));
+    }
+    
+    @Test
+    public void test_phoneticAlphabet() {
+        assertThat(English.phoneticAlphabet().value(5), is("Foxtrot"));
     }
 }

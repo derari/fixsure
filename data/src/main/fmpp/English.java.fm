@@ -103,13 +103,19 @@ public class English {
      * Returns a {@link Sequence} of fruits with initial letters from A to Z.
      * @return sequence of names
      */
-<@data_string_sequence "fruitsA2Z", "en/FruitsA2Z.txt" />
+<@data_string_sequence "fruits", "en/FruitsA2Z.txt" />
 
     /**
      * Returns a {@link Sequence} of vegetables with initial letters from A to Z.
      * @return sequence of names
      */
-<@data_string_sequence "vegetablesA2Z", "en/VegetablesA2Z.txt" />
+<@data_string_sequence "vegetables", "en/VegetablesA2Z.txt" />
+
+    /**
+     * Returns a {@link Sequence} of the NATO phonetic alphabet.
+     * @return sequence of letter names
+     */
+<@data_string_sequence "phoneticAlphabet", "en/PhoneticAlphabet.txt" />
 
 <#--
     protected static String[] merge(final String[] a1, final String[] a2) {
