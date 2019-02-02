@@ -128,7 +128,7 @@ public class UrlGenerator extends AnonymousGenerator<String> {
         private static final LongFunction<DataSource<Integer>> DEFAULT_PORTS = Fixsure.integers(1024, 1<<16)::random;
         private static final FlSequence<String> DEFAULT_SEGMENTS_SRC = 
                 Fixsure.integers(0, 1<<16).ordered().map(Object::toString).alternateWith(
-                    English.vegetablesA2Z().repeat().map(String::toLowerCase),
+                    English.vegetables().repeat().map(String::toLowerCase),
                     Fixsure.integers(0, 1<<16).ordered().map(Integer::toHexString)
                 );
         private static final FlSequence<String> DEFAULT_SEGMENT_EXT_SRC = Fixsure.sequence("", "/", ".html", ".html", ".png", ".mp4");

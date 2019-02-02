@@ -23,7 +23,7 @@ public class Web {
 
     /**
      * Returns a sequence of 7019142 unique elements in the form
-     * {@code <Fruit><5-digit int>.example.<com|net|org>}.
+     * {@code <fruit><5-digit int>.example.(com|net|org)}.
      * @return more domains
      */
     public static FlSequence<String> moreDomains() {
@@ -32,7 +32,7 @@ public class Web {
     
     /**
      * Returns an unbounded sequence of email addresses in the form
-     * {@code <firstName>.<lastName>@example.<com|net|org>}.
+     * {@code <firstName>.<lastName>@example.(com|net|org)}.
      * @return email addresses
      */
     public static FlSequence<String> emailAddresses() {
@@ -46,7 +46,7 @@ public class Web {
     private static final String[] DOMAINS = {"example.com", "example.net", "example.org"};
     private static final FlSequence<String> SEQ_DOMAINS = ItemsSequence.sequence(DOMAINS);
     
-    private static final String[] FRUITS = English.fruitsA2Z()
+    private static final String[] FRUITS = English.fruits()
                                                 .map(String::toLowerCase)
                                                 .all().toArray(String.class);
     
