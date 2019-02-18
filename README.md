@@ -2,6 +2,12 @@
 
 Fixsure is a library for the easy creation of object factories and generation of test data.
 
+### Features
+
+* Generators for primitive values with stream-like fluent DSL
+* DSL for defining complex factories
+* Pseudo-randomness for repeatable tests
+
 ### Code Example
 
 ```Java
@@ -40,7 +46,7 @@ Factories factories = Factories.build()
             .set("address")
         .newFactory("street+nr")
             .with(StringBuilder::new)
-            .apply("name", StringBuilder::append).to(English.fruitAlphabet().map(f -> f + " Street"))
+            .apply("name", StringBuilder::append).to(English.fruits().map(f -> f + " Street"))
             .then(sb -> sb.append(' '))
             .apply("number", StringBuilder::append).to(Fixsure.integers(1, 10))
             .build(StringBuilder::toString)
